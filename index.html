@@ -478,10 +478,10 @@
                         div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
                         div.innerHTML = `
                             <div class="space-y-0.5">
-                                <div class="text-xs font-semibold text-white flex items-center gap-1.5">
+                                <div class="text-xs text-zinc-400 flex items-center gap-0.5">
                                     <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span> ${b.label}
                                 </div>
-                                <div class="text-[10px] text-zinc-400">${b.start} -> ${b.end} (${cat.name})</div>
+                                <div class="text-[15px] text-white font-semibold">${b.start} -> ${b.end} (${cat.name})</div>
                             </div>
                             <span class="text-[10px] text-purple-400 font-medium bg-purple-950/50 px-2 py-1 rounded border border-purple-800/30">Log Task ➔</span>
                         `;

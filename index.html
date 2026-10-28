@@ -44,13 +44,20 @@
 
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <section id="tab-dashboard" class="space-y-6">
-            <!-- Today's Schedule Banner -->
-            <div id="todayBanner" class="p-4 rounded-xl bg-gradient-to-r from-purple-900/40 via-zinc-900 to-zinc-900 border border-purple-500/30 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                <div>
-                    <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Today's Mapped Template</span>
-                    <h2 class="text-lg font-bold text-white" id="todayTemplateName">No template mapped for today</h2>
+            <!-- Today's Mapped Schedule Timetable Banner -->
+            <div id="todayBanner" class="p-5 rounded-xl bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-500/30 space-y-4">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Today's Planned Schedule</span>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2" id="todayTemplateName">No template mapped for today</h2>
+                    </div>
+                    <div class="text-xs text-zinc-400" id="todayDateStr"></div>
                 </div>
-                <div class="text-xs text-zinc-400" id="todayDateStr"></div>
+
+                <!-- Timetable Schedule List -->
+                <div id="todayTimetableList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-2">
+                    <!-- Populated dynamically with hourly blocks -->
+                </div>
             </div>
 
             <!-- Top Metric Cards -->
@@ -83,7 +90,7 @@
                 <!-- Left 2 Cols: Task Logging & Recent Logs -->
                 <div class="lg:col-span-2 space-y-6">
                     <!-- Task Logging Form -->
-                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4" id="logSection">
                         <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Log Time Block</h3>
                         <form id="taskLogForm" onsubmit="handleTaskSubmit(event)" class="space-y-4">
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -105,7 +112,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-medium text-zinc-400 mb-1">Task Description / Note</label>
-                                    <input type="text" id="logNote" placeholder="e.g. Completed Chapter 3 DSA" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <input type="text" id="logNote" placeholder="e.g. Morning Workout / Sleep" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
                             <div class="flex justify-end">
@@ -196,7 +203,7 @@
                             <input type="color" id="catColor" value="#9333ea" class="w-full h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer">
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Add / Update Category</button>
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Add Category</button>
                         </div>
                     </form>
                 </div>
@@ -215,7 +222,7 @@
         <section id="tab-templates" class="hidden space-y-6">
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 
-                <!-- Left Col: Create Schedule Templates -->
+                <!-- Left Col: Create Schedule Templates & Hourly Blocks -->
                 <div class="space-y-6">
                     <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
                         <h3 class="text-sm font-semibold text-white uppercase tracking-wider">1. Create Schedule Template</h3>
@@ -225,7 +232,7 @@
                                 <input type="text" id="tplName" placeholder="e.g. Workday PG, Weekend PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Color</label>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Accent Color</label>
                                 <input type="color" id="tplColor" value="#3b82f6" class="w-full h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer">
                             </div>
                             <div class="flex justify-end">
@@ -234,9 +241,45 @@
                         </form>
                     </div>
 
+                    <!-- Template Hourly Block Editor -->
                     <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Your Templates</h3>
-                        <div id="templateListContainer" class="space-y-3">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Add Hourly Block To Template</h3>
+                        <form id="blockForm" onsubmit="handleBlockSubmit(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Select Target Template</label>
+                                <select id="blockTemplateSelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">Start Time</label>
+                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">End Time</label>
+                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Category</label>
+                                <select id="blockCategorySelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Activity Label / Description</label>
+                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Sleep / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">+ Add Schedule Block</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Saved Templates & Timetables</h3>
+                        <div id="templateListContainer" class="space-y-4">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
@@ -247,7 +290,7 @@
                     <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                             <div>
-                                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Calendar Day Mapper</h3>
+                                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">3. Calendar Day Mapper</h3>
                                 <p class="text-xs text-zinc-400">Click dates to select them, then assign a template below.</p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -265,7 +308,7 @@
                         </div>
 
                         <!-- Visual Calendar Grid -->
-                        <div id="calendarGridView" class="space-y-6 max-h-[500px] overflow-y-auto pr-2">
+                        <div id="calendarGridView" class="space-y-6 max-h-[550px] overflow-y-auto pr-2">
                             <p class="text-xs text-zinc-500 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>
                         </div>
                     </div>
@@ -282,13 +325,21 @@
         let appData = JSON.parse(localStorage.getItem('timeLedgerData')) || {
             tenure: { start: '', end: '' },
             categories: [
-                { id: 'cat-unassigned', name: 'Unassigned / Buffer', daily: 0, fixed: 0, color: '#52525b' },
-                { id: 'cat-sleep', name: 'Sleep', daily: 7, fixed: 0, color: '#3b82f6' }
+                { id: 'cat-unassigned', name: 'Unassigned / Buffer', daily: 0, fixed: 0, color: '#52525b', totalCategoryTime : 0 },
+                { id: 'cat-sleep', name: 'Sleep', daily: 7, fixed: 0, color: '#3b82f6',totalCategoryTime : 0  },
+                { id: 'cat-work', name: 'Work', daily: 8, fixed: 0, color: '#10b981', totalCategoryTime : 0  }
             ],
             tasks: [],
             templates: [
-                { id: 'tpl-work', name: 'Workday PG', color: '#10b981' },
-                { id: 'tpl-home', name: 'Holiday Home', color: '#f59e0b' }
+                {
+                    id: 'tpl-work',
+                    name: 'Workday PG',
+                    color: '#10b981',
+                    blocks: [
+                        { id: 'b1', start: '00:00', end: '07:00', categoryId: 'cat-sleep', label: 'Sleep' },
+                        { id: 'b2', start: '09:00', end: '17:00', categoryId: 'cat-work', label: 'Office Hours' }
+                    ]
+                }
             ],
             dayMappings: {} // { "YYYY-MM-DD": "tpl-id" }
         };
@@ -329,7 +380,6 @@
             const totalHours = diffMs / (1000 * 60 * 60);
             const daysCount = totalHours / 24;
 
-            // Calculate Total Budgeted from categories
             let totalBudgeted = 0;
             appData.categories.forEach(cat => {
                 if (cat.id !== 'cat-unassigned') {
@@ -343,7 +393,6 @@
 
             const bufferHours = totalHours - totalBudgeted;
 
-            // Calculate Burned Hours from tasks
             let burnedHours = 0;
             appData.tasks.forEach(t => {
                 const f = new Date(t.from);
@@ -361,21 +410,20 @@
         // --- Initializer & Render Engine ---
         function renderApp() {
             const metrics = calculateMetrics();
-
-            // Header tenure sub
+            appData.categories[0].totalCategoryTime = metrics.bufferHours;
             if (appData.tenure.start && appData.tenure.end) {
                 document.getElementById('headerTenureSub').innerText = `Tenure: ${new Date(appData.tenure.start).toLocaleDateString()} to ${new Date(appData.tenure.end).toLocaleDateString()}`;
                 document.getElementById('startDate').value = appData.tenure.start;
                 document.getElementById('endDate').value = appData.tenure.end;
             }
 
-            // Stat Cards
             document.getElementById('statTotalHours').innerText = `${metrics.totalHours.toFixed(1)} hrs`;
             document.getElementById('statBurnedHours').innerText = `${metrics.burnedHours.toFixed(1)} hrs`;
             const burnedPct = metrics.totalHours > 0 ? ((metrics.burnedHours / metrics.totalHours) * 100).toFixed(1) : 0;
             document.getElementById('statBurnedPercent').innerText = `${burnedPct}% of tenure`;
             document.getElementById('statAvailableBalance').innerText = `${metrics.availableBalance.toFixed(1)} hrs`;
             document.getElementById('statBufferHours').innerText = `${metrics.bufferHours.toFixed(1)} hrs`;
+            
             if (metrics.bufferHours < 0) {
                 document.getElementById('statBufferHours').classList.remove('text-amber-400');
                 document.getElementById('statBufferHours').classList.add('text-red-400');
@@ -388,19 +436,11 @@
                 document.getElementById('statTenureDates').innerText = `${metrics.daysCount.toFixed(1)} total days`;
             }
 
-            // Today's Banner
             renderTodayBanner();
-
-            // Populate Category Select & Lists
             renderCategorySelectAndList();
-
-            // Render Tasks Table
             renderTasksTable();
-
-            // Render Templates List
             renderTemplatesList();
 
-            // Auto-fill task log start time if empty
             const fromInput = document.getElementById('logFromTime');
             if (!fromInput.value && appData.tasks.length > 0) {
                 const lastTask = appData.tasks[appData.tasks.length - 1];
@@ -414,20 +454,61 @@
             const todayStr = new Date().toISOString().split('T')[0];
             document.getElementById('todayDateStr').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
             
+            const timetableContainer = document.getElementById('todayTimetableList');
+            timetableContainer.innerHTML = '';
+
             const tplId = appData.dayMappings[todayStr];
             if (tplId) {
                 const tpl = appData.templates.find(t => t.id === tplId);
                 if (tpl) {
                     document.getElementById('todayTemplateName').innerHTML = `<span style="color: ${tpl.color}">●</span> ${tpl.name}`;
+                    
+                    if (!tpl.blocks || tpl.blocks.length === 0) {
+                        timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No hourly schedule blocks added to this template yet.</p>`;
+                        return;
+                    }
+
+                    // Sort blocks by start time
+                    const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
+
+                    sortedBlocks.forEach(b => {
+                        const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Task', color: '#8b5cf6' };
+                        const div = document.createElement('div');
+                        div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between hover:border-purple-500/50 cursor-pointer transition';
+                        div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
+                        div.innerHTML = `
+                            <div class="space-y-0.5">
+                                <div class="text-xs font-semibold text-white flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span> ${b.label}
+                                </div>
+                                <div class="text-[10px] text-zinc-400">${b.start} -> ${b.end} (${cat.name})</div>
+                            </div>
+                            <span class="text-[10px] text-purple-400 font-medium bg-purple-950/50 px-2 py-1 rounded border border-purple-800/30">Log Task ➔</span>
+                        `;
+                        timetableContainer.appendChild(div);
+                    });
                     return;
                 }
             }
             document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
+            timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">Map a schedule template to today's date in the "Schedules & Mapper" tab to view your timetable here.</p>`;
+        }
+
+        function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
+            document.getElementById('logFromTime').value = `${dateStr}T${startTime}`;
+            document.getElementById('logToTime').value = `${dateStr}T${endTime}`;
+            document.getElementById('logCategory').value = categoryId;
+            document.getElementById('logNote').value = note;
+            
+            document.getElementById('logSection').scrollIntoView({ behavior: 'smooth' });
         }
 
         function renderCategorySelectAndList() {
             const select = document.getElementById('logCategory');
             select.innerHTML = '';
+
+            const blockCatSelect = document.getElementById('blockCategorySelect');
+            blockCatSelect.innerHTML = '';
             
             const catListContainer = document.getElementById('categoryListContainer');
             catListContainer.innerHTML = '';
@@ -438,13 +519,16 @@
             const metrics = calculateMetrics();
 
             appData.categories.forEach(cat => {
-                // Select Option
-                const opt = document.createElement('option');
-                opt.value = cat.id;
-                opt.innerText = cat.name;
-                select.appendChild(opt);
+                const opt1 = document.createElement('option');
+                opt1.value = cat.id;
+                opt1.innerText = cat.name;
+                select.appendChild(opt1);
 
-                // Setup Tab Category Card
+                const opt2 = document.createElement('option');
+                opt2.value = cat.id;
+                opt2.innerText = cat.name;
+                blockCatSelect.appendChild(opt2);
+
                 const card = document.createElement('div');
                 card.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between';
                 card.innerHTML = `
@@ -459,8 +543,6 @@
                 `;
                 catListContainer.appendChild(card);
 
-                // Dashboard Breakdown Progress Bar
-                // Calculate hours consumed by category in logs
                 let catHours = 0;
                 appData.tasks.filter(t => t.categoryId === cat.id).forEach(t => {
                     const f = new Date(t.from);
@@ -470,13 +552,13 @@
                     }
                 });
 
-                const pct = metrics.totalHours > 0 ? Math.min(100, (catHours / metrics.totalHours) * 100) : 0;
+                const pct = metrics.totalHours > 0 ? Math.min(100, (catHours / cat.totalCategoryTime) * 100) : 0;
                 const bar = document.createElement('div');
                 bar.className = 'space-y-1';
                 bar.innerHTML = `
                     <div class="flex justify-between text-xs">
                         <span class="text-zinc-300 font-medium flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>${cat.name}</span>
-                        <span class="text-zinc-400">${catHours.toFixed(1)} hrs</span>
+                        <span class="text-zinc-400">${catHours}  hrs / ${cat.totalCategoryTime} hrs</span>
                     </div>
                     <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-bordercolor">
                         <div class="h-full rounded-full" style="width: ${pct}%; background-color: ${cat.color}"></div>
@@ -495,7 +577,6 @@
                 return;
             }
 
-            // Sort newest first
             const sorted = [...appData.tasks].sort((a,b) => new Date(b.from) - new Date(a.from));
 
             sorted.forEach(t => {
@@ -521,15 +602,45 @@
             const container = document.getElementById('templateListContainer');
             container.innerHTML = '';
 
+            const tplSelect = document.getElementById('blockTemplateSelect');
+            tplSelect.innerHTML = '';
+
             appData.templates.forEach(tpl => {
+                const opt = document.createElement('option');
+                opt.value = tpl.id;
+                opt.innerText = tpl.name;
+                tplSelect.appendChild(opt);
+
                 const div = document.createElement('div');
-                div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between';
+                div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor space-y-2';
+                
+                let blocksHtml = '';
+                if (tpl.blocks && tpl.blocks.length > 0) {
+                    const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
+                    blocksHtml = sortedBlocks.map(b => {
+                        const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Cat' };
+                        return `
+                            <div class="flex justify-between items-center text-[11px] bg-zinc-950 px-2 py-1 rounded border border-bordercolor/50">
+                                <span class="text-zinc-300"><strong class="text-white">${b.start}-${b.end}</strong>: ${b.label} (${cat.name})</span>
+                                <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-500 hover:text-red-400 ml-2">✕</button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    blocksHtml = `<p class="text-[11px] text-zinc-500 italic">No hourly schedule blocks added yet.</p>`;
+                }
+
                 div.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full" style="background-color: ${tpl.color}"></span>
-                        <span class="text-xs font-semibold text-white">${tpl.name}</span>
+                    <div class="flex items-center justify-between border-b border-bordercolor/50 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${tpl.color}"></span>
+                            <span class="text-xs font-bold text-white">${tpl.name}</span>
+                        </div>
+                        <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-500 hover:text-red-400 text-xs">Delete Template</button>
                     </div>
-                    <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>
+                    <div class="space-y-1">
+                        ${blocksHtml}
+                    </div>
                 `;
                 container.appendChild(div);
             });
@@ -558,30 +669,13 @@
             const daily = parseFloat(document.getElementById('catDailyHours').value) || 0;
             const fixed = parseFloat(document.getElementById('catFixedHours').value) || 0;
             const color = document.getElementById('catColor').value;
-
+            const metrics = calculateMetrics(); 
+            const totalCategoryTime = daily * metrics.daysCount + fixed;
+            
             if (!name) return;
 
-            // Check Buffer validation guardrail
-            const start = appData.tenure.start ? new Date(appData.tenure.start) : null;
-            const end = appData.tenure.end ? new Date(appData.tenure.end) : null;
-            if (start && end) {
-                const totalHours = (end - start) / (1000 * 60 * 60);
-                const daysCount = totalHours / 24;
-                let currentBudgeted = 0;
-                appData.categories.forEach(c => {
-                    if (c.daily > 0) currentBudgeted += c.daily * daysCount;
-                    else currentBudgeted += Number(c.fixed) || 0;
-                });
-                const newAddition = daily > 0 ? (daily * daysCount) : fixed;
-                if ((currentBudgeted + newAddition) > totalHours) {
-                    if (!confirm('Warning: This category allocation exceeds your total tenure hours! Do you still want to proceed?')) {
-                        return;
-                    }
-                }
-            }
-
             const id = 'cat_' + Date.now();
-            appData.categories.push({ id, name, daily, fixed, color });
+            appData.categories.push({ id, name, daily, fixed, color, totalCategoryTime });
             document.getElementById('categoryForm').reset();
             saveData();
         }
@@ -606,7 +700,6 @@
             const id = 'task_' + Date.now();
             appData.tasks.push({ id, from, to, categoryId, note });
             
-            // Reset note & update from time to current to time
             document.getElementById('logNote').value = '';
             document.getElementById('logFromTime').value = to;
 
@@ -632,15 +725,40 @@
             if (!name) return;
 
             const id = 'tpl_' + Date.now();
-            appData.templates.push({ id, name, color });
+            appData.templates.push({ id, name, color, blocks: [] });
             document.getElementById('templateForm').reset();
             saveData();
             renderCalendarMatrix();
         }
 
+        function handleBlockSubmit(e) {
+            e.preventDefault();
+            const tplId = document.getElementById('blockTemplateSelect').value;
+            const start = document.getElementById('blockStartTime').value;
+            const end = document.getElementById('blockEndTime').value;
+            const categoryId = document.getElementById('blockCategorySelect').value;
+            const label = document.getElementById('blockLabel').value.trim();
+
+            const tpl = appData.templates.find(t => t.id === tplId);
+            if (!tpl) return;
+
+            if (!tpl.blocks) tpl.blocks = [];
+            const blockId = 'b_' + Date.now();
+            tpl.blocks.push({ id: blockId, start, end, categoryId, label });
+
+            document.getElementById('blockLabel').value = '';
+            saveData();
+        }
+
+        function deleteBlock(tplId, blockId) {
+            const tpl = appData.templates.find(t => t.id === tplId);
+            if (!tpl || !tpl.blocks) return;
+            tpl.blocks = tpl.blocks.filter(b => b.id !== blockId);
+            saveData();
+        }
+
         function deleteTemplate(id) {
             appData.templates = appData.templates.filter(t => t.id !== id);
-            // Remove mappings referencing this template
             for (let date in appData.dayMappings) {
                 if (appData.dayMappings[date] === id) delete appData.dayMappings[date];
             }
@@ -667,13 +785,11 @@
                 return;
             }
 
-            // Group days by Month-Year
             let monthsMap = {};
             let curr = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
             
             while (curr <= endDate) {
                 const yearMonthKey = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
-                const dateKey = curr.toISOString().split('T')[0];
                 
                 if (!monthsMap[yearMonthKey]) monthsMap[yearMonthKey] = [];
                 monthsMap[yearMonthKey].push(new Date(curr));
@@ -694,7 +810,6 @@
                 const grid = document.createElement('div');
                 grid.className = 'grid grid-cols-7 gap-1.5';
 
-                // Day headers
                 ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
                     const dh = document.createElement('div');
                     dh.className = 'text-center text-[10px] text-zinc-600 font-bold py-1';
@@ -702,7 +817,6 @@
                     grid.appendChild(dh);
                 });
 
-                // Padding for first day of month if needed or just render days directly
                 const firstDayIndex = monthsMap[ym][0].getDay();
                 for (let i = 0; i < firstDayIndex; i++) {
                     const emptyBox = document.createElement('div');
@@ -713,7 +827,7 @@
                     const dateKey = dateObj.toISOString().split('T')[0];
                     const dayNum = dateObj.getDate();
                     const assignedTplId = appData.dayMappings[dateKey];
-                    let tplColor = '#27272a'; // default border/bg
+                    let tplColor = '#27272a';
 
                     if (assignedTplId) {
                         const tpl = appData.templates.find(t => t.id === assignedTplId);
@@ -774,7 +888,6 @@
                 container.appendChild(btn);
             });
 
-            // Clear mapping button
             const clearBtn = document.createElement('button');
             clearBtn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition';
             clearBtn.innerText = 'Clear Mappings';

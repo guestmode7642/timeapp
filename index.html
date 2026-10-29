@@ -451,7 +451,8 @@
         }
 
         function renderTodayBanner() {
-            const todayStr = new Date().toISOString().split('T')[0];
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             document.getElementById('todayDateStr').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
             
             const timetableContainer = document.getElementById('todayTimetableList');
@@ -787,8 +788,9 @@
 
             let monthsMap = {};
             let curr = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const endDateObj = new Date(endStr); // Use the exact end datetime string
             
-            while (curr <= endDate) {
+            while (curr < endDateObj) {
                 const yearMonthKey = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
                 
                 if (!monthsMap[yearMonthKey]) monthsMap[yearMonthKey] = [];
@@ -824,7 +826,12 @@
                 }
 
                 monthsMap[ym].forEach(dateObj => {
-                    const dateKey = dateObj.toISOString().split('T')[0];
+                    // Fix: Use local date formatting instead of .toISOString() to prevent UTC timezone offset shifts
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const dateKey = `${year}-${month}-${day}`;
+
                     const dayNum = dateObj.getDate();
                     const assignedTplId = appData.dayMappings[dateKey];
                     let tplColor = '#27272a';
@@ -846,6 +853,7 @@
                     `;
 
                     dayBox.onclick = () => {
+                        console.log("Clicked Date Key:", dateKey);
                         if (selectedDatesSet.has(dateKey)) {
                             selectedDatesSet.delete(dateKey);
                         } else {
@@ -865,7 +873,6 @@
             updateAssignmentBar();
             renderAssignButtons();
         }
-
         function updateAssignmentBar() {
             document.getElementById('selectedCountText').innerText = `${selectedDatesSet.size} days selected`;
         }

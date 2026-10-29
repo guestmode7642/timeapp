@@ -449,11 +449,10 @@
                 fromInput.value = appData.tenure.start;
             }
         }
-
         function renderTodayBanner() {
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            document.getElementById('todayDateStr').innerText = new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            document.getElementById('todayDateStr').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
             
             const timetableContainer = document.getElementById('todayTimetableList');
             timetableContainer.innerHTML = '';
@@ -469,22 +468,44 @@
                         return;
                     }
 
-                    // Sort blocks by start time
+                    // Minutes elapsed since midnight for live comparison
+                    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+                    // Sort blocks chronologically by start time
                     const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
 
                     sortedBlocks.forEach(b => {
                         const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Task', color: '#8b5cf6' };
+                        
+                        // Parse block start/end into minutes
+                        const [startH, startM] = b.start.split(':').map(Number);
+                        const [endH, endM] = b.end.split(':').map(Number);
+                        const blockStartMins = startH * 60 + startM;
+                        const blockEndMins = endH * 60 + endM;
+
+                        // Active block check
+                        const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;
+
                         const div = document.createElement('div');
-                        div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between hover:border-purple-500/50 cursor-pointer transition';
+                        
+                        if (isActive) {
+                            div.className = 'p-3 rounded-lg bg-purple-950/70 border-2 border-purple-500 ring-2 ring-purple-500/30 flex items-center justify-between cursor-pointer transition shadow-lg shadow-purple-950/50';
+                        } else {
+                            div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between hover:border-purple-500/50 cursor-pointer transition';
+                        }
+
                         div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
+                        
                         div.innerHTML = `
                             <div class="space-y-0.5">
-                                <div class="text-xs text-zinc-400 flex items-center gap-0.5">
-                                    <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span> ${b.label}
+                                <div class="text-xs font-semibold text-white flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span> 
+                                    ${b.label}
+                                    ${isActive ? '<span class="text-[9px] text-emerald-400 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40 ml-1.5 animate-pulse">● LIVE NOW</span>' : ''}
                                 </div>
-                                <div class="text-[15px] text-white font-semibold">${b.start} -> ${b.end} (${cat.name})</div>
+                                <div class="text-[10px] ${isActive ? 'text-purple-200 font-medium' : 'text-zinc-400'}">${b.start} -> ${b.end} (${cat.name})</div>
                             </div>
-                            <span class="text-[10px] text-purple-400 font-medium bg-purple-950/50 px-2 py-1 rounded border border-purple-800/30">Log Task ➔</span>
+                            <span class="text-[10px] ${isActive ? 'text-white bg-purple-600 font-bold' : 'text-purple-400 bg-purple-950/50 border border-purple-800/30'} px-2 py-1 rounded transition">Log Task ➔</span>
                         `;
                         timetableContainer.appendChild(div);
                     });
@@ -494,7 +515,6 @@
             document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
             timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">Map a schedule template to today's date in the "Schedules & Mapper" tab to view your timetable here.</p>`;
         }
-
         function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
             document.getElementById('logFromTime').value = `${dateStr}T${startTime}`;
             document.getElementById('logToTime').value = `${dateStr}T${endTime}`;

@@ -481,7 +481,12 @@
                         const [startH, startM] = b.start.split(':').map(Number);
                         const [endH, endM] = b.end.split(':').map(Number);
                         const blockStartMins = startH * 60 + startM;
-                        const blockEndMins = endH * 60 + endM;
+                        let blockEndMins = endH * 60 + endM;
+
+                        // FIX: Treat 00:00 end time as 1440 (end of the 24h day)
+                        if (blockEndMins === 0 && blockStartMins > 0) {
+                            blockEndMins = 1440;
+                        }
 
                         // Active block check
                         const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;

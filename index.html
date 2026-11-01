@@ -892,6 +892,12 @@ function renderTemplatesList() {
                     const day = String(dateObj.getDate()).padStart(2, '0');
                     const dateKey = `${year}-${month}-${day}`;
 
+                    // Check if this date is Today or in the Past
+                    const now = new Date();
+                    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                    const isToday = (dateKey === todayKey);
+                    const isPast = (dateKey < todayKey); // String comparison works cleanly for YYYY-MM-DD
+
                     const dayNum = dateObj.getDate();
                     const assignedTplId = appData.dayMappings[dateKey];
                     let tplColor = '#27272a';
@@ -904,11 +910,23 @@ function renderTemplatesList() {
                     const isSelected = selectedDatesSet.has(dateKey);
 
                     const dayBox = document.createElement('div');
-                    dayBox.className = `h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer text-xs font-medium transition border ${isSelected ? 'border-purple-500 ring-2 ring-purple-500/30' : 'border-bordercolor'} hover:border-zinc-400`;
+                    
+                    // Dynamic borders & opacity for past vs today vs future
+                    let borderStyle = 'border-bordercolor';
+                    if (isSelected) {
+                        borderStyle = 'border-purple-500 ring-2 ring-purple-500/30';
+                    } else if (isToday) {
+                        borderStyle = 'border-amber-400 ring-1 ring-amber-400/50 shadow-sm shadow-amber-400/20';
+                    }
+
+                    // Past days get a subtle dimming effect so future stands out
+                    const pastStyle = (isPast && !isSelected && !isToday) ? 'opacity-50 hover:opacity-80' : 'opacity-100';
+
+                    dayBox.className = `h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer text-xs font-medium transition border ${borderStyle} ${pastStyle} hover:border-zinc-400`;
                     dayBox.style.backgroundColor = assignedTplId ? `${tplColor}22` : '#121217';
                     
                     dayBox.innerHTML = `
-                        <span class="${assignedTplId ? 'text-white font-bold' : 'text-zinc-300'}">${dayNum}</span>
+                        <span class="${isToday ? 'text-amber-300 font-extrabold underline decoration-amber-400 underline-offset-2' : (assignedTplId ? 'text-white font-bold' : 'text-zinc-300')}">${dayNum}</span>
                         <span class="w-1.5 h-1.5 rounded-full mt-0.5" style="background-color: ${tplColor}"></span>
                     `;
 

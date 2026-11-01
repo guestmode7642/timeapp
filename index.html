@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Time Ledger & Quarter Tracker</title>
+    <title>Time Ledger</title>
     <!-- Tailwind CSS for clean dark mode UI -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -28,7 +28,7 @@
         <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    ⏳ Time Ledger <span class="text-xs px-2 py-0.5 rounded bg-zinc-800 text-purple-400 border border-purple-500/30">Quarter Planner</span>
+                    ⏳ Time Ledger
                 </h1>
                 <p class="text-xs text-zinc-400" id="headerTenureSub">Configure your tenure to start tracking hours.</p>
             </div>
@@ -78,7 +78,7 @@
                     <span class="text-[10px] text-zinc-500">Remaining until end date</span>
                 </div>
                 <div class="p-4 rounded-xl bg-cardbg border border-bordercolor">
-                    <span class="text-xs font-medium text-zinc-400">Unassigned Buffer</span>
+                    <span class="text-xs font-medium text-zinc-400">Unassigned</span>
                     <div class="text-2xl font-bold text-amber-400 mt-1" id="statBufferHours">0 hrs</div>
                     <span class="text-[10px] text-zinc-500">Unallocated budget reserve</span>
                 </div>
@@ -182,21 +182,11 @@
 
                 <!-- Category Manager Card -->
                 <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Manage Categories & Budgets</h3>
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Manage Categories</h3>
                     <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="space-y-4">
                         <div>
                             <label class="block text-xs font-medium text-zinc-400 mb-1">Category Name</label>
-                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Codeforces" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
-                        </div>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Target Hours / Day</label>
-                                <input type="number" step="0.1" id="catDailyHours" placeholder="e.g. 7" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">OR Total Fixed Hours</label>
-                                <input type="number" step="0.1" id="catFixedHours" placeholder="e.g. 50" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
-                            </div>
+                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
                             <label class="block text-xs font-medium text-zinc-400 mb-1">Color Theme</label>
@@ -229,7 +219,7 @@
                         <form id="templateForm" onsubmit="handleTemplateSubmit(event)" class="space-y-4">
                             <div>
                                 <label class="block text-xs font-medium text-zinc-400 mb-1">Template Name</label>
-                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Weekend PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-zinc-400 mb-1">Template Accent Color</label>
@@ -269,7 +259,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-zinc-400 mb-1">Activity Label / Description</label>
-                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Sleep / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
                             </div>
                             <div class="flex justify-end">
                                 <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">+ Add Schedule Block</button>
@@ -325,9 +315,9 @@
         let appData = JSON.parse(localStorage.getItem('timeLedgerData')) || {
             tenure: { start: '', end: '' },
             categories: [
-                { id: 'cat-unassigned', name: 'Unassigned / Buffer', daily: 0, fixed: 0, color: '#52525b', totalCategoryTime : 0 },
-                { id: 'cat-sleep', name: 'Sleep', daily: 7, fixed: 0, color: '#3b82f6',totalCategoryTime : 0  },
-                { id: 'cat-work', name: 'Work', daily: 8, fixed: 0, color: '#10b981', totalCategoryTime : 0  }
+                { id: 'cat-unassigned', name: 'Unassigned', color: '#52525b' },
+                { id: 'cat-sleep', name: 'Sleep', color: '#3b82f6' },
+                { id: 'cat-work', name: 'Work', color: '#10b981' }
             ],
             tasks: [],
             templates: [
@@ -367,31 +357,62 @@
             }
         }
 
-        // --- Core Calculations ---
+        // --- Core Calculations & Template-Driven Budgets ---
+        function calculateCategoryBudgets() {
+            let budgets = {};
+            appData.categories.forEach(cat => {
+                budgets[cat.id] = 0;
+            });
+
+            // Sum up block durations across all mapped days on the calendar
+            for (let dateStr in appData.dayMappings) {
+                const tplId = appData.dayMappings[dateStr];
+                const tpl = appData.templates.find(t => t.id === tplId);
+                if (tpl && tpl.blocks) {
+                    tpl.blocks.forEach(b => {
+                        const [startH, startM] = b.start.split(':').map(Number);
+                        const [endH, endM] = b.end.split(':').map(Number);
+                        let startMins = startH * 60 + startM;
+                        let endMins = endH * 60 + endM;
+                        
+                        // Handle midnight wrap (e.g. 23:00 to 00:00)
+                        if (endMins === 0 && startMins > 0) {
+                            endMins = 1440;
+                        }
+
+                        const durationHrs = Math.max(0, (endMins - startMins) / 60);
+                        if (budgets[b.categoryId] !== undefined) {
+                            budgets[b.categoryId] += durationHrs;
+                        }
+                    });
+                }
+            }
+            return budgets;
+        }
+
         function calculateMetrics() {
             const start = appData.tenure.start ? new Date(appData.tenure.start) : null;
             const end = appData.tenure.end ? new Date(appData.tenure.end) : null;
 
             if (!start || !end || isNaN(start) || isNaN(end) || end <= start) {
-                return { totalHours: 0, burnedHours: 0, availableBalance: 0, bufferHours: 0, daysCount: 0 };
+                return { totalHours: 0, burnedHours: 0, availableBalance: 0, bufferHours: 0, daysCount: 0, categoryBudgets: {} };
             }
 
             const diffMs = end - start;
             const totalHours = diffMs / (1000 * 60 * 60);
             const daysCount = totalHours / 24;
 
+            const categoryBudgets = calculateCategoryBudgets();
+
             let totalBudgeted = 0;
             appData.categories.forEach(cat => {
                 if (cat.id !== 'cat-unassigned') {
-                    if (cat.daily > 0) {
-                        totalBudgeted += cat.daily * daysCount;
-                    } else {
-                        totalBudgeted += Number(cat.fixed) || 0;
-                    }
+                    totalBudgeted += categoryBudgets[cat.id] || 0;
                 }
             });
 
             const bufferHours = totalHours - totalBudgeted;
+            categoryBudgets['cat-unassigned'] = bufferHours; // Unassigned buffer gets the remainder
 
             let burnedHours = 0;
             appData.tasks.forEach(t => {
@@ -404,13 +425,13 @@
 
             const availableBalance = totalHours - burnedHours;
 
-            return { totalHours, burnedHours, availableBalance, bufferHours, daysCount };
+            return { totalHours, burnedHours, availableBalance, bufferHours, daysCount, categoryBudgets };
         }
 
         // --- Initializer & Render Engine ---
         function renderApp() {
             const metrics = calculateMetrics();
-            appData.categories[0].totalCategoryTime = metrics.bufferHours;
+
             if (appData.tenure.start && appData.tenure.end) {
                 document.getElementById('headerTenureSub').innerText = `Tenure: ${new Date(appData.tenure.start).toLocaleDateString()} to ${new Date(appData.tenure.end).toLocaleDateString()}`;
                 document.getElementById('startDate').value = appData.tenure.start;
@@ -449,6 +470,7 @@
                 fromInput.value = appData.tenure.start;
             }
         }
+
         function renderTodayBanner() {
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -468,27 +490,21 @@
                         return;
                     }
 
-                    // Minutes elapsed since midnight for live comparison
                     const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-                    // Sort blocks chronologically by start time
                     const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
 
                     sortedBlocks.forEach(b => {
                         const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Task', color: '#8b5cf6' };
                         
-                        // Parse block start/end into minutes
                         const [startH, startM] = b.start.split(':').map(Number);
                         const [endH, endM] = b.end.split(':').map(Number);
                         const blockStartMins = startH * 60 + startM;
                         let blockEndMins = endH * 60 + endM;
 
-                        // FIX: Treat 00:00 end time as 1440 (end of the 24h day)
                         if (blockEndMins === 0 && blockStartMins > 0) {
                             blockEndMins = 1440;
                         }
 
-                        // Active block check
                         const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;
 
                         const div = document.createElement('div');
@@ -520,6 +536,7 @@
             document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
             timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">Map a schedule template to today's date in the "Schedules & Mapper" tab to view your timetable here.</p>`;
         }
+
         function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
             document.getElementById('logFromTime').value = `${dateStr}T${startTime}`;
             document.getElementById('logToTime').value = `${dateStr}T${endTime}`;
@@ -555,6 +572,9 @@
                 opt2.innerText = cat.name;
                 blockCatSelect.appendChild(opt2);
 
+                const totalBudget = metrics.categoryBudgets[cat.id] || 0;
+
+                // Setup tab category card
                 const card = document.createElement('div');
                 card.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between';
                 card.innerHTML = `
@@ -562,29 +582,30 @@
                         <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
                         <div>
                             <h4 class="text-xs font-semibold text-white">${cat.name}</h4>
-                            <span class="text-[10px] text-zinc-400">${cat.daily > 0 ? `${cat.daily} hrs/day` : `${cat.fixed} fixed hrs`}</span>
+                            <span class="text-[10px] text-zinc-400">Total Budget: ${totalBudget.toFixed(1)} hrs (mapped)</span>
                         </div>
                     </div>
                     ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>` : ''}
                 `;
                 catListContainer.appendChild(card);
 
-                let catHours = 0;
+                // Calculate actual logged hours for this category
+                let catLoggedHours = 0;
                 appData.tasks.filter(t => t.categoryId === cat.id).forEach(t => {
                     const f = new Date(t.from);
                     const to = new Date(t.to);
                     if (!isNaN(f) && !isNaN(to) && to > f) {
-                        catHours += (to - f) / (1000 * 60 * 60);
+                        catLoggedHours += (to - f) / (1000 * 60 * 60);
                     }
                 });
 
-                const pct = metrics.totalHours > 0 ? Math.min(100, (catHours / cat.totalCategoryTime) * 100) : 0;
+                const pct = totalBudget > 0 ? Math.min(100, (catLoggedHours / totalBudget) * 100) : 0;
                 const bar = document.createElement('div');
                 bar.className = 'space-y-1';
                 bar.innerHTML = `
                     <div class="flex justify-between text-xs">
                         <span class="text-zinc-300 font-medium flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>${cat.name}</span>
-                        <span class="text-zinc-400">${catHours}  hrs / ${cat.totalCategoryTime} hrs</span>
+                        <span class="text-zinc-400">${catLoggedHours.toFixed(1)} hrs / ${totalBudget.toFixed(1)} hrs</span>
                     </div>
                     <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-bordercolor">
                         <div class="h-full rounded-full" style="width: ${pct}%; background-color: ${cat.color}"></div>
@@ -624,12 +645,26 @@
             });
         }
 
-        function renderTemplatesList() {
+function renderTemplatesList() {
             const container = document.getElementById('templateListContainer');
             container.innerHTML = '';
 
             const tplSelect = document.getElementById('blockTemplateSelect');
+            const currentSelectedTpl = tplSelect.value; // Save active template selection
             tplSelect.innerHTML = '';
+
+            const catSelect = document.getElementById('blockCategorySelect');
+            const currentSelectedCat = catSelect.value; // Save active category selection
+            catSelect.innerHTML = '';
+
+            // Repopulate category dropdown
+            appData.categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.innerText = cat.name;
+                catSelect.appendChild(opt);
+            });
+            if (currentSelectedCat) catSelect.value = currentSelectedCat; // Restore category selection
 
             appData.templates.forEach(tpl => {
                 const opt = document.createElement('option');
@@ -670,8 +705,9 @@
                 `;
                 container.appendChild(div);
             });
-        }
 
+            if (currentSelectedTpl) tplSelect.value = currentSelectedTpl; // Restore template selection
+        }
         // --- Form Handlers ---
         function handleTenureSubmit(e) {
             e.preventDefault();
@@ -692,16 +728,12 @@
         function handleCategorySubmit(e) {
             e.preventDefault();
             const name = document.getElementById('catName').value.trim();
-            const daily = parseFloat(document.getElementById('catDailyHours').value) || 0;
-            const fixed = parseFloat(document.getElementById('catFixedHours').value) || 0;
             const color = document.getElementById('catColor').value;
-            const metrics = calculateMetrics(); 
-            const totalCategoryTime = daily * metrics.daysCount + fixed;
             
             if (!name) return;
 
             const id = 'cat_' + Date.now();
-            appData.categories.push({ id, name, daily, fixed, color, totalCategoryTime });
+            appData.categories.push({ id, name, color });
             document.getElementById('categoryForm').reset();
             saveData();
         }
@@ -772,7 +804,11 @@
             const blockId = 'b_' + Date.now();
             tpl.blocks.push({ id: blockId, start, end, categoryId, label });
 
+            // Clear only the label field, but KEEP category, template, and auto-set next start time to previous end time!
             document.getElementById('blockLabel').value = '';
+            document.getElementById('blockStartTime').value = end; // Chain end time to next start time
+            // Note: blockTemplateSelect and blockCategorySelect are intentionally preserved so they don't reset to 'a'
+
             saveData();
         }
 
@@ -813,7 +849,7 @@
 
             let monthsMap = {};
             let curr = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-            const endDateObj = new Date(endStr); // Use the exact end datetime string
+            const endDateObj = new Date(endStr);
             
             while (curr < endDateObj) {
                 const yearMonthKey = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
@@ -851,7 +887,6 @@
                 }
 
                 monthsMap[ym].forEach(dateObj => {
-                    // Fix: Use local date formatting instead of .toISOString() to prevent UTC timezone offset shifts
                     const year = dateObj.getFullYear();
                     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
                     const day = String(dateObj.getDate()).padStart(2, '0');
@@ -878,7 +913,6 @@
                     `;
 
                     dayBox.onclick = () => {
-                        console.log("Clicked Date Key:", dateKey);
                         if (selectedDatesSet.has(dateKey)) {
                             selectedDatesSet.delete(dateKey);
                         } else {
@@ -898,6 +932,7 @@
             updateAssignmentBar();
             renderAssignButtons();
         }
+
         function updateAssignmentBar() {
             document.getElementById('selectedCountText').innerText = `${selectedDatesSet.size} days selected`;
         }
@@ -955,8 +990,11 @@
             const end = new Date(endStr);
             selectedDatesSet.clear();
 
-            while (curr <= end) {
-                selectedDatesSet.add(curr.toISOString().split('T')[0]);
+            while (curr < end) {
+                const year = curr.getFullYear();
+                const month = String(curr.getMonth() + 1).padStart(2, '0');
+                const day = String(curr.getDate()).padStart(2, '0');
+                selectedDatesSet.add(`${year}-${month}-${day}`);
                 curr.setDate(curr.getDate() + 1);
             }
             renderCalendarMatrix();

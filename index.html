@@ -52,7 +52,7 @@
         }
     </script>
 </head>
-<body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-6">
+<body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-12">
 
     <!-- Top Navigation / Header -->
     <header class="border-b border-bordercolor bg-cardbg sticky top-0 z-50 shadow-md">
@@ -73,10 +73,10 @@
 
     <main class="max-w-[1700px] mx-auto px-6 py-5">
 
-        <!-- ================= TAB 1: DASHBOARD (HIGH DENSITY GRID) ================= -->
+        <!-- ================= TAB 1: DASHBOARD ================= -->
         <section id="tab-dashboard" class="space-y-5">
 
-            <!-- Metrics Overview Bar (Full-Width High Contrast Cards) -->
+            <!-- Metrics Overview Bar -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <div class="p-4 rounded-xl bg-cardbg border border-bordercolor shadow-sm">
                     <span class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Total Tenure Hours</span>
@@ -237,155 +237,143 @@
             </div>
         </section>
 
-        <!-- Other tabs continue unchanged -->
-
         <!-- ================= TAB 2: TENURE & CATEGORIES SETUP ================= -->
-        <section id="tab-setup" class="hidden space-y-6">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section id="tab-setup" class="hidden space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <!-- Tenure Setup Card -->
-                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">1. Define Tenure Period</h3>
+                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">1. Define Tenure Period</h3>
                     <form id="tenureForm" onsubmit="handleTenureSubmit(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-medium text-zinc-400 mb-1">Start Date & Time</label>
-                            <input type="datetime-local" id="startDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-zinc-300 mb-1">Start Date & Time</label>
+                            <input type="datetime-local" id="startDate" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-zinc-400 mb-1">End Date & Time</label>
-                            <input type="datetime-local" id="endDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-zinc-300 mb-1">End Date & Time</label>
+                            <input type="datetime-local" id="endDate" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Save Tenure</button>
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition shadow">Save Tenure</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Category Manager Card -->
-                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Manage Categories</h3>
+                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">2. Manage Categories</h3>
                     <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-medium text-zinc-400 mb-1">Category Name</label>
-                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            <label class="block text-xs font-bold text-zinc-300 mb-1">Category Name</label>
+                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-medium text-zinc-400 mb-1">Color Theme</label>
+                            <label class="block text-xs font-bold text-zinc-300 mb-1">Color Theme</label>
                             <div class="flex items-center gap-2">
-                                <input type="color" id="catColor" value="#9333ea" onchange="syncCatColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
-                                <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 font-mono focus:outline-none focus:border-purple-500">
+                                <input type="color" id="catColor" value="#9333ea" onchange="syncCatColorText(this.value)" class="w-10 h-10 bg-zinc-950 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
+                                <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-purple-500">
                             </div>
                         </div>
                         <div class="flex justify-end">
-                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Add Category</button>
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition shadow">Add Category</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Existing Categories List -->
-            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Configured Categories</h3>
-                <div id="categoryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <!-- Populated dynamically -->
-                </div>
+            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">Configured Categories</h3>
+                <div id="categoryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
             </div>
         </section>
 
         <!-- ================= TAB 3: SCHEDULE TEMPLATES & CALENDAR MAPPER ================= -->
-        <section id="tab-templates" class="hidden space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section id="tab-templates" class="hidden space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
                 
-                <!-- Left Col: Create Schedule Templates & Hourly Blocks -->
-                <div class="space-y-6">
-                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">1. Create Schedule Template</h3>
+                <!-- Left 5 Columns: Templates & Blocks Builder -->
+                <div class="lg:col-span-5 space-y-5">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">1. Create Schedule Template</h3>
                         <form id="templateForm" onsubmit="handleTemplateSubmit(event)" class="space-y-4">
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Name</label>
-                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                <label class="block text-xs font-bold text-zinc-300 mb-1">Template Name</label>
+                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Accent Color</label>
+                                <label class="block text-xs font-bold text-zinc-300 mb-1">Accent Color</label>
                                 <div class="flex items-center gap-2">
-                                    <input type="color" id="tplColor" value="#3b82f6" onchange="syncTplColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
-                                    <input type="text" id="tplColorHex" value="#3b82f6" placeholder="#3b82f6" oninput="syncTplColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 font-mono focus:outline-none focus:border-purple-500">
+                                    <input type="color" id="tplColor" value="#3b82f6" onchange="syncTplColorText(this.value)" class="w-10 h-10 bg-zinc-950 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
+                                    <input type="text" id="tplColorHex" value="#3b82f6" placeholder="#3b82f6" oninput="syncTplColorPicker(this.value)" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white font-mono focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
                             <div class="flex justify-end">
-                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Save Template</button>
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition shadow">Save Template</button>
                             </div>
                         </form>
                     </div>
 
                     <!-- Template Hourly Block Editor -->
-                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Add Hourly Block To Template</h3>
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">2. Add Hourly Block</h3>
                         <form id="blockForm" onsubmit="handleBlockSubmit(event)" class="space-y-3">
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Select Target Template</label>
-                                <select id="blockTemplateSelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
-                                    <!-- Populated dynamically -->
-                                </select>
+                                <label class="block text-xs font-bold text-zinc-300 mb-1">Target Template</label>
+                                <select id="blockTemplateSelect" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white font-medium focus:outline-none focus:border-purple-500"></select>
                             </div>
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-medium text-zinc-400 mb-1">Start Time</label>
-                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <label class="block text-xs font-bold text-zinc-300 mb-1">Start Time</label>
+                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-medium text-zinc-400 mb-1">End Time</label>
-                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <label class="block text-xs font-bold text-zinc-300 mb-1">End Time</label>
+                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Category</label>
-                                <select id="blockCategorySelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
-                                    <!-- Populated dynamically -->
-                                </select>
+                                <label class="block text-xs font-bold text-zinc-300 mb-1">Category</label>
+                                <select id="blockCategorySelect" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white font-medium focus:outline-none focus:border-purple-500"></select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-zinc-400 mb-1">Activity Label / Description</label>
-                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                <label class="block text-xs font-bold text-zinc-300 mb-1">Activity Label / Description</label>
+                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                             </div>
                             <div class="flex justify-end">
-                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">+ Add Schedule Block</button>
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs rounded-lg transition shadow">+ Add Schedule Block</button>
                             </div>
                         </form>
                     </div>
 
-                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Saved Templates & Timetables</h3>
-                        <div id="templateListContainer" class="space-y-4">
-                            <!-- Populated dynamically -->
-                        </div>
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider border-b border-bordercolor/80 pb-3">Saved Templates</h3>
+                        <div id="templateListContainer" class="space-y-3"></div>
                     </div>
                 </div>
 
-                <!-- Right 2 Cols: Interactive Calendar Matrix Mapper -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <!-- Right 7 Columns: Interactive Calendar Matrix Mapper -->
+                <div class="lg:col-span-7 space-y-5">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-bordercolor/80 pb-3">
                             <div>
-                                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">3. Calendar Day Mapper</h3>
-                                <p class="text-xs text-zinc-400">Click dates to select them, then assign a template below.</p>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">3. Calendar Day Mapper</h3>
+                                <p class="text-xs text-zinc-300">Click dates to select them, then assign a template below.</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="selectAllDays()" class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded">Select All</button>
-                                <button onclick="clearDaySelection()" class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded">Clear Selection</button>
+                                <button onclick="selectAllDays()" class="px-3 py-1.5 text-xs font-semibold bg-panelbg hover:bg-zinc-700 text-zinc-200 border border-bordercolor rounded-lg transition">Select All</button>
+                                <button onclick="clearDaySelection()" class="px-3 py-1.5 text-xs font-semibold bg-panelbg hover:bg-zinc-700 text-zinc-200 border border-bordercolor rounded-lg transition">Clear Selection</button>
                             </div>
                         </div>
 
                         <!-- Template Assignment Bar -->
-                        <div id="assignmentBar" class="p-3 bg-zinc-900 rounded-lg border border-bordercolor flex flex-wrap items-center justify-between gap-3">
-                            <span class="text-xs text-zinc-300 font-medium" id="selectedCountText">0 days selected</span>
-                            <div class="flex items-center gap-2 flex-wrap" id="assignButtonsContainer">
-                                <!-- Populated dynamically with template buttons -->
-                            </div>
+                        <div id="assignmentBar" class="p-3 bg-zinc-950 rounded-lg border border-bordercolor flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs text-zinc-200 font-bold" id="selectedCountText">0 days selected</span>
+                            <div class="flex items-center gap-2 flex-wrap" id="assignButtonsContainer"></div>
                         </div>
 
                         <!-- Visual Calendar Grid -->
-                        <div id="calendarGridView" class="space-y-6 max-h-[550px] overflow-y-auto pr-2">
-                            <p class="text-xs text-zinc-500 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>
+                        <div id="calendarGridView" class="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+                            <p class="text-xs text-zinc-400 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>
                         </div>
                     </div>
                 </div>
@@ -417,13 +405,12 @@
                     ]
                 }
             ],
-            dayMappings: {}, // { "YYYY-MM-DD": "tpl-id" }
-            tasksQueue: [] // Action Task Queue Storage
+            dayMappings: {}, 
+            tasksQueue: [] 
         };
 
         let selectedDatesSet = new Set();
 
-        // --- Helper: Convert decimal hours to "X hrs Y mins" ---
         function formatHours(decimalHours) {
             if (isNaN(decimalHours) || decimalHours <= 0) return '0 hrs';
             const totalMinutes = Math.round(decimalHours * 60);
@@ -439,23 +426,21 @@
             renderApp();
         }
 
-        // --- Tab Navigation ---
         function switchTab(tabId) {
             ['dashboard', 'setup', 'templates'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-${t}`).classList.remove('bg-zinc-800', 'text-white');
-                document.getElementById(`btn-${t}`).classList.add('text-zinc-400');
+                document.getElementById(`btn-${t}`).classList.remove('bg-purple-600', 'text-white', 'shadow');
+                document.getElementById(`btn-${t}`).classList.add('bg-panelbg', 'text-zinc-200', 'border', 'border-bordercolor');
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`btn-${tabId}`).classList.add('bg-zinc-800', 'text-white');
-            document.getElementById(`btn-${tabId}`).classList.remove('text-zinc-400');
+            document.getElementById(`btn-${tabId}`).classList.add('bg-purple-600', 'text-white', 'shadow');
+            document.getElementById(`btn-${tabId}`).classList.remove('bg-panelbg', 'text-zinc-200', 'border', 'border-bordercolor');
 
             if (tabId === 'templates') {
                 renderCalendarMatrix();
             }
         }
 
-        // --- Core Calculations & Template-Driven Budgets ---
         function calculateCategoryBudgets() {
             let budgets = {};
             appData.categories.forEach(cat => {
@@ -524,7 +509,6 @@
             return { totalHours, burnedHours, availableBalance, bufferHours, daysCount, categoryBudgets };
         }
 
-        // --- Initializer & Render Engine ---
         function renderApp() {
             const metrics = calculateMetrics();
 
@@ -582,7 +566,7 @@
                     document.getElementById('todayTemplateName').innerHTML = `<span style="color: ${tpl.color}">●</span> ${tpl.name}`;
                     
                     if (!tpl.blocks || tpl.blocks.length === 0) {
-                        timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No hourly schedule blocks added to this template yet.</p>`;
+                        timetableContainer.innerHTML = `<p class="text-xs text-zinc-400 italic col-span-full py-4 text-center">No hourly schedule blocks added to this template yet.</p>`;
                         return;
                     }
 
@@ -606,31 +590,31 @@
                         const div = document.createElement('div');
                         
                         if (isActive) {
-                            div.className = 'p-3 rounded-lg bg-purple-950/70 border-2 border-purple-500 ring-2 ring-purple-500/30 flex items-center justify-between cursor-pointer transition shadow-lg shadow-purple-950/50';
+                            div.className = 'p-3 rounded-lg bg-purple-950/80 border-2 border-purple-500 ring-2 ring-purple-500/30 flex items-center justify-between cursor-pointer transition shadow-lg';
                         } else {
-                            div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between hover:border-purple-500/50 cursor-pointer transition';
+                            div.className = 'p-3 rounded-lg bg-zinc-950 border border-bordercolor flex items-center justify-between hover:border-purple-400 cursor-pointer transition';
                         }
 
                         div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
                         
                         div.innerHTML = `
                             <div class="space-y-0.5">
-                                <div class="text-[12px] font-semibold text-zinc-400 flex items-center gap-1">
-                                    <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span> 
+                                <div class="text-xs font-bold text-zinc-200 flex items-center gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${cat.color}"></span> 
                                     ${b.label}
-                                    ${isActive ? '<span class="text-[9px] text-emerald-400 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40 ml-1.5 animate-pulse">● LIVE NOW</span>' : ''}
+                                    ${isActive ? '<span class="text-[9px] text-emerald-300 font-black bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500 ml-1.5 animate-pulse">● LIVE</span>' : ''}
                                 </div>
-                                <div class="text-[14px] ${isActive ? 'text-purple-200 font-bold' : 'text-white-400'}">${b.start} -> ${b.end} (${cat.name})</div>
+                                <div class="text-xs font-semibold text-zinc-300">${b.start} -> ${b.end} <span class="text-zinc-400 font-normal">(${cat.name})</span></div>
                             </div>
-                            <span class="text-[10px] ${isActive ? 'text-white bg-purple-600 font-bold' : 'text-purple-400 bg-purple-950/50 border border-purple-800/30'} px-2 py-1 rounded transition">Log Task ➔</span>
+                            <span class="text-xs ${isActive ? 'text-white bg-purple-600 font-bold' : 'text-purple-300 bg-purple-950 border border-purple-800'} px-2.5 py-1 rounded transition">Log ➔</span>
                         `;
                         timetableContainer.appendChild(div);
                     });
                     return;
                 }
             }
-            document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
-            timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">Map a schedule template to today's date in the "Schedules & Mapper" tab to view your timetable here.</p>`;
+            document.getElementById('todayTemplateName').innerText = "No schedule template mapped";
+            timetableContainer.innerHTML = `<p class="text-xs text-zinc-400 italic col-span-full py-4 text-center">Map a schedule template to today's date in the "Schedules & Mapper" tab.</p>`;
         }
 
         function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
@@ -638,7 +622,6 @@
             document.getElementById('logToTime').value = `${dateStr}T${endTime}`;
             document.getElementById('logCategory').value = categoryId;
             document.getElementById('logNote').value = note;
-            
             document.getElementById('logSection').scrollIntoView({ behavior: 'smooth' });
         }
 
@@ -671,18 +654,18 @@
                 const totalBudget = metrics.categoryBudgets[cat.id] || 0;
 
                 const card = document.createElement('div');
-                card.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between';
+                card.className = 'p-3.5 rounded-lg bg-zinc-950 border border-bordercolor flex items-center justify-between shadow-sm';
                 card.innerHTML = `
                     <div class="flex items-center gap-3">
-                        <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
+                        <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-white/20" style="background-color: ${cat.color}"></span>
                         <div>
-                            <h4 class="text-xs font-semibold text-white">${cat.name}</h4>
-                            <span class="text-[10px] text-zinc-400">Total Budget: ${totalBudget.toFixed(1)} hrs (mapped)</span>
+                            <h4 class="text-xs font-bold text-white">${cat.name}</h4>
+                            <span class="text-xs text-zinc-400 font-medium">Budget: <strong class="text-zinc-200">${totalBudget.toFixed(1)} hrs</strong></span>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>` : ''}
-                        ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>` : ''}
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="text-xs font-semibold text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded border border-zinc-600 transition">Edit</button>` : ''}
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-400 hover:text-red-400 font-bold px-1 text-sm">✕</button>` : ''}
                     </div>`;
                 catListContainer.appendChild(card);
 
@@ -692,7 +675,6 @@
                     const to = new Date(t.to);
                     if (!isNaN(f) && !isNaN(to) && to > f) {
                         const totalTaskHours = (to - f) / (1000 * 60 * 60);
-                        
                         if (t.splits) {
                             t.splits.forEach(s => {
                                 if (s.categoryId === cat.id) {
@@ -706,26 +688,28 @@
                 });
                 let pct = totalBudget > 0 ? Math.min(100, (catLoggedHours / totalBudget) * 100) : 0;
                 pct = totalBudget - catLoggedHours < 0 ? 100 : pct;
+                
                 const bar = document.createElement('div');
-                bar.className = 'space-y-1';
+                bar.className = 'space-y-1.5 bg-zinc-950 p-3 rounded-lg border border-bordercolor/80';
                 bar.innerHTML = `
-                    <div class="flex justify-between text-xs">
-                        <span class="text-zinc-300 font-medium flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>${cat.name}</span>
-                        <span class="text-zinc-400">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
+                    <div class="flex justify-between text-xs font-bold">
+                        <span class="text-white flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full" style="background-color: ${cat.color}"></span>${cat.name}</span>
+                        <span class="text-zinc-300 font-mono">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
                     </div>
-                    <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-bordercolor">
-                        <div class="h-full rounded-full" style="width: ${pct}%; background-color: ${cat.color}"></div>
+                    <div class="w-full bg-zinc-900 rounded-full h-2.5 overflow-hidden border border-bordercolor">
+                        <div class="h-full rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${cat.color}"></div>
                     </div>
                 `;
                 breakdownContainer.appendChild(bar);
             });
         }
+
         function editCategory(id) {
             const cat = appData.categories.find(c => c.id === id);
             if (!cat) return;
 
             const newName = prompt('Edit category name:', cat.name);
-            if (newName === null) return; // Cancelled
+            if (newName === null) return;
             const trimmedName = newName.trim();
             if (!trimmedName) {
                 alert('Category name cannot be empty.');
@@ -733,7 +717,7 @@
             }
 
             const newColor = prompt('Edit color theme (Hex code, e.g. #9333ea):', cat.color);
-            if (newColor === null) return; // Cancelled
+            if (newColor === null) return;
             const trimmedColor = newColor.trim();
             if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
                 alert('Invalid hex color format. Please use a valid hex code like #9333ea.');
@@ -744,12 +728,13 @@
             cat.color = trimmedColor;
             saveData();
         }
+
         function renderTasksTable() {
             const tbody = document.getElementById('logsTableBody');
             tbody.innerHTML = '';
 
             if (appData.tasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-zinc-500 italic">No time blocks logged yet.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-zinc-400 italic font-medium">No time blocks logged yet.</td></tr>`;
                 return;
             }
 
@@ -762,7 +747,7 @@
                 if (t.splits && t.splits.length > 0) {
                     primaryCatId = t.splits[0].categoryId;
                     if (t.splits.length > 1) {
-                        splitBadgeText = ` <span class="text-[10px] text-purple-400 bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-800/40 font-mono">Split (${t.splits.length})</span>`;
+                        splitBadgeText = ` <span class="text-[10px] text-purple-300 bg-purple-950 px-1.5 py-0.5 rounded border border-purple-700 font-mono">Split (${t.splits.length})</span>`;
                     }
                 }
 
@@ -770,23 +755,22 @@
                 const f = new Date(t.from);
                 const to = new Date(t.to);
                 
-                // If start and end are identical (point-in-time task completion), display exact timestamp instead of duration
                 const isPointInTime = (t.from === t.to);
-                const durationDisplay = isPointInTime ? `<span class="text-emerald-400 font-normal">Completed</span>` : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
+                const durationDisplay = isPointInTime ? `<span class="text-emerald-400 font-bold">Completed</span>` : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
                 const timeDisplay = isPointInTime ? f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : `${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} -> ${to.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
 
                 const tr = document.createElement('tr');
-                tr.className = 'border-b border-bordercolor/50 hover:bg-zinc-900/40';
+                tr.className = 'border-b border-bordercolor/60 hover:bg-zinc-900/60 transition';
                 tr.innerHTML = `
-                    <td class="py-2.5 px-3 font-medium text-white flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>
+                    <td class="py-3 px-3 font-bold text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
                         <span>${cat.name}</span>
                         ${splitBadgeText}
                     </td>
-                    <td class="py-2.5 px-3 text-purple-400 font-semibold">${durationDisplay}</td>
-                    <td class="py-2.5 px-3 text-zinc-400 text-[11px]">${timeDisplay}</td>
-                    <td class="py-2.5 px-3 text-zinc-300">${t.note || '-'}</td>
-                    <td class="py-2.5 px-3 text-right"><button onclick="deleteTask('${t.id}')" class="text-zinc-500 hover:text-red-400">✕</button></td>
+                    <td class="py-3 px-3 text-purple-300 font-bold">${durationDisplay}</td>
+                    <td class="py-3 px-3 text-zinc-300 text-xs">${timeDisplay}</td>
+                    <td class="py-3 px-3 text-zinc-200 font-medium">${t.note || '-'}</td>
+                    <td class="py-3 px-3 text-right"><button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 font-bold px-1 text-sm">✕</button></td>
                 `;
                 tbody.appendChild(tr);
             });
@@ -819,7 +803,7 @@
                 tplSelect.appendChild(opt);
 
                 const div = document.createElement('div');
-                div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor space-y-2';
+                div.className = 'p-3.5 rounded-lg bg-zinc-950 border border-bordercolor space-y-2.5 shadow-sm';
                 
                 let blocksHtml = '';
                 if (tpl.blocks && tpl.blocks.length > 0) {
@@ -827,31 +811,31 @@
                     blocksHtml = sortedBlocks.map(b => {
                         const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Cat' };
                         return `
-                            <div class="flex justify-between items-center text-[11px] bg-zinc-950 px-2 py-1 rounded border border-bordercolor/50">
-                                <span class="text-zinc-300"><strong class="text-white">${b.start}-${b.end}</strong>: ${b.label} (${cat.name})</span>
+                            <div class="flex justify-between items-center text-xs bg-zinc-900 px-2.5 py-1.5 rounded border border-bordercolor/80">
+                                <span class="text-zinc-200 font-medium"><strong class="text-white">${b.start}-${b.end}</strong>: ${b.label} <span class="text-zinc-400">(${cat.name})</span></span>
                                 <div class="flex items-center gap-1.5 ml-2">
-                                    <button onclick="editBlock('${tpl.id}', '${b.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-1.5 py-0.5 rounded transition">Edit</button>
-                                    <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-500 hover:text-red-400">✕</button>
+                                    <button onclick="editBlock('${tpl.id}', '${b.id}')" class="text-xs font-semibold text-zinc-300 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2 py-0.5 rounded border border-zinc-600 transition">Edit</button>
+                                    <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-400 hover:text-red-400 font-bold px-1">✕</button>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    blocksHtml = `<p class="text-[11px] text-zinc-500 italic">No hourly schedule blocks added yet.</p>`;
+                    blocksHtml = `<p class="text-xs text-zinc-400 italic py-1">No hourly blocks added yet.</p>`;
                 }
                 div.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-bordercolor/50 pb-2">
+                    <div class="flex items-center justify-between border-b border-bordercolor pb-2.5">
                         <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${tpl.color}"></span>
-                            <span class="text-xs font-bold text-white">${tpl.name}</span>
+                            <span class="w-3.5 h-3.5 rounded-full shrink-0 ring-1 ring-white/20" style="background-color: ${tpl.color}"></span>
+                            <span class="text-xs font-black text-white uppercase tracking-wider">${tpl.name}</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="duplicateTemplate('${tpl.id}')" class="text-[10px] text-purple-400 hover:text-purple-300 bg-purple-950/50 hover:bg-purple-900/60 px-2 py-1 rounded border border-purple-800/40 transition">Duplicate</button>
-                            <button onclick="editTemplate('${tpl.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>
-                            <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-500 hover:text-red-400 text-xs"> X </button>
+                        <div class="flex items-center gap-1.5">
+                            <button onclick="duplicateTemplate('${tpl.id}')" class="text-xs font-semibold text-purple-300 bg-purple-950 hover:bg-purple-900 px-2 py-1 rounded border border-purple-700 transition">Duplicate</button>
+                            <button onclick="editTemplate('${tpl.id}')" class="text-xs font-semibold text-zinc-300 bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded border border-zinc-600 transition">Edit</button>
+                            <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-400 hover:text-red-400 text-xs font-bold px-1">✕</button>
                         </div>
                     </div>
-                    <div class="space-y-1">
+                    <div class="space-y-1.5">
                         ${blocksHtml}
                     </div>
                 `;
@@ -860,11 +844,11 @@
 
             if (currentSelectedTpl) tplSelect.value = currentSelectedTpl;
         }
+
         function duplicateTemplate(id) {
             const tpl = appData.templates.find(t => t.id === id);
             if (!tpl) return;
 
-            // Deep clone blocks with unique IDs
             const clonedBlocks = (tpl.blocks || []).map((b, index) => ({
                 ...b,
                 id: 'b_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 5)
@@ -881,6 +865,7 @@
             saveData();
             renderCalendarMatrix();
         }
+
         function editTemplate(id) {
             const tpl = appData.templates.find(t => t.id === id);
             if (!tpl) return;
@@ -932,7 +917,7 @@
             block.end = newEnd.trim();
             saveData();
         }
-        // --- Task Queue, Search, Filters, Optional Custom Deadline & Dynamic Escalation ---
+
         function calculateDeadlineDate(horizonKey) {
             const now = new Date();
             if (horizonKey === 'day') now.setHours(now.getHours() + 24);
@@ -942,7 +927,6 @@
             return now.toISOString();
         }
 
-        // Dynamically determines effective horizon based on actual time remaining until deadline
         function getEffectiveHorizon(deadlineStr) {
             const diffMs = new Date(deadlineStr) - new Date();
             const diffHours = diffMs / (1000 * 60 * 60);
@@ -959,20 +943,12 @@
             const textInput = document.getElementById('queueTaskText');
             const catSelect = document.getElementById('queueTaskCategory');
             const horizonSelect = document.getElementById('queueTaskHorizon');
-            const customDeadlineInput = document.getElementById('queueTaskCustomDeadline');
-
             const text = textInput.value.trim();
             if (!text) return;
 
             if (!appData.tasksQueue) appData.tasksQueue = [];
 
-            let deadlineIso;
-            const customVal = customDeadlineInput.value;
-            if (customVal) {
-                deadlineIso = new Date(customVal).toISOString();
-            } else {
-                deadlineIso = calculateDeadlineDate(horizonSelect.value);
-            }
+            const deadlineIso = calculateDeadlineDate(horizonSelect.value);
 
             appData.tasksQueue.push({
                 id: 'tq_' + Date.now(),
@@ -985,7 +961,6 @@
             });
 
             textInput.value = '';
-            customDeadlineInput.value = '';
             saveData();
         }
 
@@ -1020,7 +995,6 @@
             if (currentFilterCat) filterCatSelect.value = currentFilterCat;
 
             container.innerHTML = '';
-            
             if (!appData.tasksQueue) appData.tasksQueue = [];
 
             const searchText = searchInput ? searchInput.value.toLowerCase() : '';
@@ -1029,14 +1003,10 @@
 
             const activeTasks = appData.tasksQueue.filter(t => {
                 if (t.completed) return false;
-
                 if (searchText && !t.text.toLowerCase().includes(searchText)) return false;
                 if (selectedCatFilter !== 'all' && t.categoryId !== selectedCatFilter) return false;
-
-                // Evaluate effective dynamic horizon for timeline filtering
                 const effectiveHorizon = getEffectiveHorizon(t.deadline);
                 if (selectedTimelineFilter !== 'all' && effectiveHorizon !== selectedTimelineFilter) return false;
-
                 return true;
             });
 
@@ -1044,11 +1014,10 @@
             document.getElementById('pendingTaskQueueCount').innerText = `${totalPending} Pending`;
 
             if (activeTasks.length === 0) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic py-3 text-center">No tasks match your filter criteria.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-400 italic py-4 text-center font-medium">No tasks match your criteria.</p>`;
                 return;
             }
 
-            // Ascending sort by deadline
             const sortedTasks = [...activeTasks].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
             sortedTasks.forEach(task => {
@@ -1056,43 +1025,42 @@
                 const deadlineDate = new Date(task.deadline);
                 const formattedDeadline = deadlineDate.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-                // Dynamic effective horizon badge escalation
                 const effectiveHorizon = getEffectiveHorizon(task.deadline);
                 let badgeHtml = '';
-                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-[9px] font-semibold text-red-400 bg-red-950/60 border border-red-800/40 px-1.5 py-0.5 rounded animate-pulse">🔥 Within a Day</span>`;
-                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-[9px] font-semibold text-amber-400 bg-amber-950/60 border border-amber-800/40 px-1.5 py-0.5 rounded">📌 Within a Week</span>`;
-                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-[9px] font-semibold text-blue-400 bg-blue-950/60 border border-blue-800/40 px-1.5 py-0.5 rounded">⏳ Within a Month</span>`;
-                else badgeHtml = `<span class="text-[9px] font-semibold text-zinc-400 bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded">📅 Within a Year</span>`;
+                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-[9px] font-bold text-red-300 bg-red-950 border border-red-700 px-1.5 py-0.5 rounded animate-pulse">🔥 24h</span>`;
+                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-[9px] font-bold text-amber-300 bg-amber-950 border border-amber-700 px-1.5 py-0.5 rounded">📌 1W</span>`;
+                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-[9px] font-bold text-blue-300 bg-blue-950 border border-blue-700 px-1.5 py-0.5 rounded">⏳ 1M</span>`;
+                else badgeHtml = `<span class="text-[9px] font-bold text-zinc-300 bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded">📅 1Y</span>`;
 
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-700/80 hover:border-purple-400 transition text-xs shadow-sm';
+                div.className = 'flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-bordercolor hover:border-purple-400 transition text-xs shadow-sm';
                 div.innerHTML = `
                     <div class="flex items-center gap-2.5 overflow-hidden">
                         <span class="w-3 h-3 rounded-full shrink-0 ring-1 ring-white/20" style="background-color: ${cat.color}"></span>
                         <div class="truncate space-y-0.5">
-                            <div class="text-white font-semibold flex items-center gap-2">
+                            <div class="text-white font-bold flex items-center gap-1.5">
                                 <span class="truncate text-zinc-100">${task.text}</span>
                                 ${badgeHtml}
                             </div>
-                            <div class="text-[11px] text-zinc-300">Due: <strong class="text-white font-bold">${formattedDeadline}</strong> (${cat.name})</div>
+                            <div class="text-[11px] text-zinc-300">Due: <strong class="text-white">${formattedDeadline}</strong> <span class="text-zinc-400">(${cat.name})</span></div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="editQueueTask('${task.id}')" class="text-xs font-medium text-zinc-200 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-md border border-zinc-600 transition">Edit</button>
-                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-xs font-semibold text-emerald-300 hover:text-emerald-200 bg-emerald-950 hover:bg-emerald-900 px-2.5 py-1 rounded-md border border-emerald-600 transition">Done ✓</button>
-                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-400 hover:text-red-400 px-1 text-sm font-bold">✕</button>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button onclick="editQueueTask('${task.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2 py-1 rounded border border-zinc-600 transition">Edit</button>
+                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-xs font-bold text-emerald-300 hover:text-emerald-200 bg-emerald-950 hover:bg-emerald-900 px-2.5 py-1 rounded border border-emerald-600 transition">Done ✓</button>
+                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-400 hover:text-red-400 font-bold px-1 text-sm">✕</button>
                     </div>
                 `;
                 container.appendChild(div);
             });
         }
+
         function editQueueTask(id) {
             const task = (appData.tasksQueue || []).find(t => t.id === id);
             if (!task) return;
 
             const newText = prompt('Edit task description:', task.text);
-            if (newText === null) return; // User cancelled
-            
+            if (newText === null) return;
             const trimmed = newText.trim();
             if (!trimmed) {
                 alert('Task description cannot be empty.');
@@ -1102,6 +1070,7 @@
             task.text = trimmed;
             saveData();
         }
+
         function completeQueueTaskDirectly(id) {
             const task = (appData.tasksQueue || []).find(t => t.id === id);
             if (!task) return;
@@ -1128,7 +1097,6 @@
             }
         }
 
-        // --- Form Handlers ---
         function handleTenureSubmit(e) {
             e.preventDefault();
             const start = document.getElementById('startDate').value;
@@ -1144,28 +1112,16 @@
             alert('Tenure saved successfully!');
             switchTab('dashboard');
         }
-// --- Color Synchronization Helpers ---
-        function syncCatColorText(val) {
-            document.getElementById('catColorHex').value = val;
-        }
-        function syncCatColorPicker(val) {
-            if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
-                document.getElementById('catColor').value = val;
-            }
-        }
-        function syncTplColorText(val) {
-            document.getElementById('tplColorHex').value = val;
-        }
-        function syncTplColorPicker(val) {
-            if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
-                document.getElementById('tplColor').value = val;
-            }
-        }
+
+        function syncCatColorText(val) { document.getElementById('catColorHex').value = val; }
+        function syncCatColorPicker(val) { if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) document.getElementById('catColor').value = val; }
+        function syncTplColorText(val) { document.getElementById('tplColorHex').value = val; }
+        function syncTplColorPicker(val) { if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) document.getElementById('tplColor').value = val; }
+
         function handleCategorySubmit(e) {
             e.preventDefault();
             const name = document.getElementById('catName').value.trim();
             const color = document.getElementById('catColorHex').value;
-            
             if (!name) return;
 
             const id = 'cat_' + Date.now();
@@ -1181,29 +1137,12 @@
             }
         }
 
-        document.getElementById('logCategory').addEventListener('change', function() {
-            const selectedOpt = this.options[this.selectedIndex];
-            const label = document.getElementById('primaryCatNameLabel');
-            if (label && selectedOpt) label.innerText = selectedOpt.text;
-        });
-
-        document.getElementById('logCategory').addEventListener('change', function() {
-            const primarySplitSelect = document.getElementById('splitPrimaryCatSelect');
-            if (primarySplitSelect) {
-                primarySplitSelect.value = this.value;
-            }
-            const selectedOpt = this.options[this.selectedIndex];
-            const label = document.getElementById('primaryCatNameLabel');
-            if (label && selectedOpt) label.innerText = selectedOpt.text;
-        });
-
         function handleTaskSubmit(e) {
             e.preventDefault();
             const from = document.getElementById('logFromTime').value;
             const to = document.getElementById('logToTime').value;
             const mainCategoryId = document.getElementById('logCategory').value;
             const label = document.getElementById('logNote').value.trim();
-            const isSplitEnabled = document.getElementById('enableSplitToggle').checked;
 
             const fDate = new Date(from);
             const tDate = new Date(to);
@@ -1212,47 +1151,12 @@
                 return;
             }
 
-            let splits = [];
-            let totalPct = 0;
-
-            if (isSplitEnabled) {
-                const primaryCatSelect = document.getElementById('splitPrimaryCatSelect');
-                const secondaryCatSelects = document.querySelectorAll('.split-cat-select');
-                const pctInputs = document.querySelectorAll('.split-pct-input');
-
-                if (primaryCatSelect && pctInputs.length > 0) {
-                    const pId = primaryCatSelect.value;
-                    const pVal = parseInt(pctInputs[0].value) || 0;
-                    if (pVal > 0) {
-                        splits.push({ categoryId: pId, percentage: pVal });
-                        totalPct += pVal;
-                    }
-                }
-
-                for (let i = 0; i < secondaryCatSelects.length; i++) {
-                    const cId = secondaryCatSelects[i].value;
-                    const pVal = parseInt(pctInputs[i + 1].value) || 0;
-                    if (pVal > 0) {
-                        splits.push({ categoryId: cId, percentage: pVal });
-                        totalPct += pVal;
-                    }
-                }
-
-                const remainder = 100 - totalPct;
-                if (remainder > 0) {
-                    splits.push({ categoryId: 'cat-unassigned', percentage: remainder });
-                }
-            } else {
-                splits.push({ categoryId: mainCategoryId, percentage: 100 });
-            }
-
+            let splits = [{ categoryId: mainCategoryId, percentage: 100 }];
             const taskId = 't_' + Date.now();
-            appData.tasks.push({ id: taskId, from, to,note: label, splits });
+            appData.tasks.push({ id: taskId, from, to, note: label, splits });
 
             saveData();
-            
             document.getElementById('taskLogForm').reset();
-            document.getElementById('splitSection').classList.add('hidden');
             document.getElementById('logFromTime').value = to;
         }
 
@@ -1260,24 +1164,20 @@
             if (!confirm('Are you sure you want to delete this logged task? (If it was completed from your action queue, it will be restored there).')) {
                 return;
             }
-            // Check if the task being deleted from history is a completed action task
             const taskLog = appData.tasks.find(t => t.id === id);
             if (taskLog && taskLog.note && taskLog.note.startsWith('[Completed Task]')) {
                 const originalText = taskLog.note.replace('[Completed Task] ', '');
-                
-                // Find if it exists in tasksQueue and unmark it as completed
                 if (!appData.tasksQueue) appData.tasksQueue = [];
                 const queuedTask = appData.tasksQueue.find(t => t.text === originalText && t.completed);
                 if (queuedTask) {
                     queuedTask.completed = false;
                     queuedTask.completedAt = null;
                 } else {
-                    // If the queue item was somehow missing, recreate it in the queue
                     appData.tasksQueue.push({
                         id: 'tq_' + Date.now(),
                         text: originalText,
                         categoryId: taskLog.splits && taskLog.splits.length > 0 ? taskLog.splits[0].categoryId : 'cat-unassigned',
-                        deadline: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(), // Default to 24h fallback
+                        deadline: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(),
                         createdAt: new Date().toISOString(),
                         completed: false,
                         completedAt: null
@@ -1285,7 +1185,6 @@
                 }
             }
 
-            // Proceed with normal log deletion
             appData.tasks = appData.tasks.filter(t => t.id !== id);
             saveData();
         }
@@ -1327,7 +1226,6 @@
 
             document.getElementById('blockLabel').value = '';
             document.getElementById('blockStartTime').value = end;
-
             saveData();
         }
 
@@ -1351,14 +1249,13 @@
             }
         }
 
-        // --- Interactive Calendar Matrix Mapper ---
         function renderCalendarMatrix() {
             const container = document.getElementById('calendarGridView');
             const startStr = appData.tenure.start;
             const endStr = appData.tenure.end;
 
             if (!startStr || !endStr) {
-                container.innerHTML = `<p class="text-xs text-zinc-500 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-400 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>`;
                 return;
             }
 
@@ -1376,10 +1273,8 @@
             
             while (curr < endDateObj) {
                 const yearMonthKey = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
-                
                 if (!monthsMap[yearMonthKey]) monthsMap[yearMonthKey] = [];
                 monthsMap[yearMonthKey].push(new Date(curr));
-
                 curr.setDate(curr.getDate() + 1);
             }
 
@@ -1391,22 +1286,21 @@
 
                 const monthDiv = document.createElement('div');
                 monthDiv.className = 'space-y-2';
-                monthDiv.innerHTML = `<h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">${monthName}</h4>`;
+                monthDiv.innerHTML = `<h4 class="text-xs font-black text-zinc-300 uppercase tracking-wider">${monthName}</h4>`;
 
                 const grid = document.createElement('div');
                 grid.className = 'grid grid-cols-7 gap-1.5';
 
                 ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
                     const dh = document.createElement('div');
-                    dh.className = 'text-center text-[10px] text-zinc-600 font-bold py-1';
+                    dh.className = 'text-center text-[10px] text-zinc-500 font-bold py-1';
                     dh.innerText = d;
                     grid.appendChild(dh);
                 });
 
                 const firstDayIndex = monthsMap[ym][0].getDay();
                 for (let i = 0; i < firstDayIndex; i++) {
-                    const emptyBox = document.createElement('div');
-                    grid.appendChild(emptyBox);
+                    grid.appendChild(document.createElement('div'));
                 }
 
                 monthsMap[ym].forEach(dateObj => {
@@ -1422,7 +1316,7 @@
 
                     const dayNum = dateObj.getDate();
                     const assignedTplId = appData.dayMappings[dateKey];
-                    let tplColor = '#27272a';
+                    let tplColor = '#3f3f46';
 
                     if (assignedTplId) {
                         const tpl = appData.templates.find(t => t.id === assignedTplId);
@@ -1430,32 +1324,28 @@
                     }
 
                     const isSelected = selectedDatesSet.has(dateKey);
-
                     const dayBox = document.createElement('div');
                     
                     let borderStyle = 'border-bordercolor';
                     if (isSelected) {
-                        borderStyle = 'border-purple-500 ring-2 ring-purple-500/30';
+                        borderStyle = 'border-purple-400 ring-2 ring-purple-500/40';
                     } else if (isToday) {
-                        borderStyle = 'border-amber-400 ring-1 ring-amber-400/50 shadow-sm shadow-amber-400/20';
+                        borderStyle = 'border-amber-400 ring-1 ring-amber-400/60 shadow-sm';
                     }
 
-                    const pastStyle = (isPast && !isSelected && !isToday) ? 'opacity-50 hover:opacity-80' : 'opacity-100';
+                    const pastStyle = (isPast && !isSelected && !isToday) ? 'opacity-60 hover:opacity-90' : 'opacity-100';
 
-                    dayBox.className = `h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer text-xs font-medium transition border ${borderStyle} ${pastStyle} hover:border-zinc-400`;
-                    dayBox.style.backgroundColor = assignedTplId ? `${tplColor}22` : '#121217';
+                    dayBox.className = `h-11 rounded-lg flex flex-col items-center justify-center cursor-pointer text-xs font-bold transition border ${borderStyle} ${pastStyle} hover:border-zinc-300`;
+                    dayBox.style.backgroundColor = assignedTplId ? `${tplColor}33` : '#121217';
                     
                     dayBox.innerHTML = `
-                        <span class="${isToday ? 'text-amber-300 font-extrabold underline decoration-amber-400 underline-offset-2' : (assignedTplId ? 'text-white font-bold' : 'text-zinc-300')}">${dayNum}</span>
-                        <span class="w-1.5 h-1.5 rounded-full mt-0.5" style="background-color: ${tplColor}"></span>
+                        <span class="${isToday ? 'text-amber-300 underline decoration-amber-400 underline-offset-2' : (assignedTplId ? 'text-white' : 'text-zinc-200')}">${dayNum}</span>
+                        <span class="w-2 h-2 rounded-full mt-0.5 ring-1 ring-black/30" style="background-color: ${tplColor}"></span>
                     `;
 
                     dayBox.onclick = () => {
-                        if (selectedDatesSet.has(dateKey)) {
-                            selectedDatesSet.delete(dateKey);
-                        } else {
-                            selectedDatesSet.add(dateKey);
-                        }
+                        if (selectedDatesSet.has(dateKey)) selectedDatesSet.delete(dateKey);
+                        else selectedDatesSet.add(dateKey);
                         renderCalendarMatrix();
                         updateAssignmentBar();
                     };
@@ -1480,13 +1370,13 @@
             container.innerHTML = '';
 
             if (appData.templates.length === 0) {
-                container.innerHTML = `<span class="text-xs text-zinc-500 italic">Create a template first</span>`;
+                container.innerHTML = `<span class="text-xs text-zinc-400 italic">Create a template first</span>`;
                 return;
             }
 
             appData.templates.forEach(tpl => {
                 const btn = document.createElement('button');
-                btn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-white transition flex items-center gap-1.5';
+                btn.className = 'px-3 py-1.5 text-xs font-bold rounded-lg text-white transition flex items-center gap-1.5 shadow-sm';
                 btn.style.backgroundColor = tpl.color;
                 btn.innerHTML = `Map to ${tpl.name}`;
                 btn.onclick = () => assignSelectedDays(tpl.id);
@@ -1494,7 +1384,7 @@
             });
 
             const clearBtn = document.createElement('button');
-            clearBtn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition';
+            clearBtn.className = 'px-3 py-1.5 text-xs font-semibold rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-600 transition';
             clearBtn.innerText = 'Clear Mappings';
             clearBtn.onclick = () => assignSelectedDays(null);
             container.appendChild(clearBtn);
@@ -1502,114 +1392,18 @@
 
         function assignSelectedDays(tplId) {
             if (selectedDatesSet.size === 0) {
-                alert('Please click and select at least one day in the calendar grid first.');
+                alert('Please select at least one day in the calendar grid first.');
                 return;
             }
 
             selectedDatesSet.forEach(dateKey => {
-                if (tplId === null) {
-                    delete appData.dayMappings[dateKey];
-                } else {
-                    appData.dayMappings[dateKey] = tplId;
-                }
+                if (tplId === null) delete appData.dayMappings[dateKey];
+                else appData.dayMappings[dateKey] = tplId;
             });
 
             selectedDatesSet.clear();
             saveData();
             renderCalendarMatrix();
-        }
-
-        function toggleSplitSection(checkbox) {
-            const section = document.getElementById('splitSection');
-            if (checkbox.checked) {
-                section.classList.remove('hidden');
-                rebuildSplitRows();
-            } else {
-                section.classList.add('hidden');
-            }
-        }
-
-        function rebuildSplitRows() {
-            const count = parseInt(document.getElementById('splitCountSelect').value) || 1;
-            const container = document.getElementById('dynamicSplitRows');
-            container.innerHTML = '';
-
-            let categoryOptionsHtml = '';
-            appData.categories.forEach(cat => {
-                categoryOptionsHtml += `<option value="${cat.id}">${cat.name}</option>`;
-            });
-
-            const primaryCatId = document.getElementById('logCategory').value;
-            const defaultShare = Math.floor(100 / (count + 1));
-
-            const primaryRow = document.createElement('div');
-            primaryRow.className = 'grid grid-cols-12 gap-2 items-center bg-zinc-900/80 p-2 rounded border border-purple-500/40';
-            primaryRow.innerHTML = `
-                <div class="col-span-7">
-                    <label class="text-[10px] text-purple-400 font-semibold block mb-0.5">Category #1 (Primary)</label>
-                    <select id="splitPrimaryCatSelect" onchange="syncPrimaryCategoryDropdown()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
-                        ${categoryOptionsHtml}
-                    </select>
-                </div>
-                <div class="col-span-5">
-                    <label class="text-[10px] text-zinc-400 block mb-0.5">Percentage %</label>
-                    <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
-                </div>
-            `;
-            container.appendChild(primaryRow);
-
-            document.getElementById('splitPrimaryCatSelect').value = primaryCatId;
-
-            for (let i = 1; i <= count; i++) {
-                const row = document.createElement('div');
-                row.className = 'grid grid-cols-12 gap-2 items-center bg-zinc-900/50 p-2 rounded border border-bordercolor/40';
-                row.innerHTML = `
-                    <div class="col-span-7">
-                        <label class="text-[10px] text-zinc-400 block mb-0.5">Category #${i + 1}</label>
-                        <select class="split-cat-select w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
-                            ${categoryOptionsHtml}
-                        </select>
-                    </div>
-                    <div class="col-span-5">
-                        <label class="text-[10px] text-zinc-400 block mb-0.5">Percentage %</label>
-                        <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
-                    </div>
-                `;
-                container.appendChild(row);
-            }
-            updateSplitMath();
-        }
-
-        function syncPrimaryCategoryDropdown() {
-            const primarySelect = document.getElementById('splitPrimaryCatSelect');
-            if (primarySelect) {
-                document.getElementById('logCategory').value = primarySelect.value;
-            }
-            updateSplitMath();
-        }
-
-        function updateSplitMath() {
-            const pctInputs = document.querySelectorAll('.split-pct-input');
-            let totalAssigned = 0;
-            pctInputs.forEach(input => {
-                totalAssigned += parseInt(input.value) || 0;
-            });
-
-            const isSplitEnabled = document.getElementById('enableSplitToggle').checked;
-            if (!isSplitEnabled) {
-                totalAssigned = 100;
-            }
-
-            const remainder = Math.max(0, 100 - totalAssigned);
-            document.getElementById('bufferRemainderLabel').innerText = remainder + '%';
-            
-            if (remainder < 0) {
-                document.getElementById('bufferRemainderLabel').classList.add('text-red-400');
-                document.getElementById('bufferRemainderLabel').classList.remove('text-amber-400');
-            } else {
-                document.getElementById('bufferRemainderLabel').classList.remove('text-red-400');
-                document.getElementById('bufferRemainderLabel').classList.add('text-amber-400');
-            }
         }
 
         function selectAllDays() {

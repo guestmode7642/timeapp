@@ -46,8 +46,8 @@
                 extend: {
                     colors: {
                         darkbg: '#09090b',
-                        cardbg: '#121217',
-                        bordercolor: '#27272a'
+                        cardbg: '#18181b',      /* Deepened card background for contrast */
+                        bordercolor: '#3f3f46'  /* Sharper, visible borders (Zinc-700) */
                     }
                 }
             }
@@ -116,33 +116,33 @@
                     <span class="text-[10px] text-zinc-500">Unallocated budget reserve</span>
                 </div>
             </div>
-
-            <!-- Action Tasks & Time Horizons Panel -->
-            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
-                <div class="flex items-center justify-between">
-                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+               
+                 <!-- Action Tasks & Time Horizons Panel -->
+            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor shadow-md space-y-4">
+                <div class="flex items-center justify-between border-b border-bordercolor/60 pb-3">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
                         📌 Action Tasks & Deadlines
                     </h3>
-                    <span class="text-xs text-zinc-400" id="pendingTaskQueueCount">0 Pending</span>
+                    <span class="text-xs font-semibold text-purple-300 bg-purple-950/80 border border-purple-700 px-2.5 py-1 rounded-md" id="pendingTaskQueueCount">0 Pending</span>
                 </div>
 
                 <!-- Fast Task Input Form with Optional Custom Deadline -->
                 <form id="taskQueueForm" onsubmit="handleTaskQueueSubmit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
                     <div class="sm:col-span-4">
-                        <label class="block text-[10px] text-zinc-400 mb-1">Task Description</label>
-                        <input type="text" id="queueTaskText" placeholder="What needs to be done?" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Task Description</label>
+                        <input type="text" id="queueTaskText" placeholder="What needs to be done?" required class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-2 text-xs text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block text-[10px] text-zinc-400 mb-1">Category</label>
-                        <select id="queueTaskCategory" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200">
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Category</label>
+                        <select id="queueTaskCategory" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-2.5 py-2 text-xs text-white font-medium focus:outline-none focus:border-purple-500">
                             <!-- Dynamically populated -->
                         </select>
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block text-[10px] text-zinc-400 mb-1">Time Horizon</label>
-                        <select id="queueTaskHorizon" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200">
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Time Horizon</label>
+                        <select id="queueTaskHorizon" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-2.5 py-2 text-xs text-white font-medium focus:outline-none focus:border-purple-500">
                             <option value="day">🔥 Within a Day (+24h)</option>
                             <option value="week">📌 Within a Week (+7d)</option>
                             <option value="month">⏳ Within a Month (+30d)</option>
@@ -151,28 +151,27 @@
                     </div>
 
                     <div class="sm:col-span-3">
-                        <label class="block text-[10px] text-zinc-400 mb-1">Custom Deadline (Optional)</label>
-                        <input type="datetime-local" id="queueTaskCustomDeadline" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500">
+                        <label class="block text-xs font-semibold text-zinc-300 mb-1">Custom Deadline (Optional)</label>
+                        <input type="datetime-local" id="queueTaskCustomDeadline" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-2.5 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
                     </div>
 
                     <div class="sm:col-span-1 flex items-end">
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg py-2 transition">Add</button>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-semibold text-xs rounded-lg py-2 transition shadow">Add</button>
                     </div>
                 </form>
 
                 <!-- Filter & Search Bar Controls -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-bordercolor/40 text-xs">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-3 border-t border-bordercolor/60 text-xs">
                     <div>
-                        <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search tasks..." class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search tasks..." class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-1.5 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500">
                     </div>
                     <div>
-                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-200">
+                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-1.5 text-xs text-zinc-100 font-medium focus:outline-none focus:border-purple-500">
                             <option value="all">📂 All Categories</option>
-                            <!-- Dynamically populated -->
                         </select>
                     </div>
                     <div>
-                        <select id="taskFilterTimeline" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-200">
+                        <select id="taskFilterTimeline" onchange="renderTaskQueueList()" class="w-full bg-zinc-950 border border-bordercolor rounded-lg px-3 py-1.5 text-xs text-zinc-100 font-medium focus:outline-none focus:border-purple-500">
                             <option value="all">⏳ All Timelines (Deadlines)</option>
                             <option value="day">🔥 Due Within 24h (Today)</option>
                             <option value="week">📌 Due Within a Week</option>
@@ -183,7 +182,7 @@
                 </div>
 
                 <!-- Sorted Task List Container -->
-                <div id="taskQueueList" class="space-y-2 max-h-56 overflow-y-auto pr-1 pt-1">
+                <div id="taskQueueList" class="space-y-2 max-h-60 overflow-y-auto pr-1 pt-1">
                     <!-- Populated dynamically via JS -->
                 </div>
             </div>
@@ -1120,22 +1119,22 @@
                 else badgeHtml = `<span class="text-[9px] font-semibold text-zinc-400 bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded">📅 Within a Year</span>`;
 
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/90 border border-bordercolor/70 hover:border-purple-500/40 transition text-xs';
+                div.className = 'flex items-center justify-between p-3 rounded-lg bg-zinc-950 border border-zinc-700/80 hover:border-purple-400 transition text-xs shadow-sm';
                 div.innerHTML = `
-                    <div class="flex items-center gap-2 overflow-hidden">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <span class="w-3 h-3 rounded-full shrink-0 ring-1 ring-white/20" style="background-color: ${cat.color}"></span>
                         <div class="truncate space-y-0.5">
-                            <div class="text-white font-medium flex items-center gap-1.5">
-                                <span class="truncate">${task.text}</span>
+                            <div class="text-white font-semibold flex items-center gap-2">
+                                <span class="truncate text-zinc-100">${task.text}</span>
                                 ${badgeHtml}
                             </div>
-                            <div class="text-[10px] text-zinc-400">Due: <strong class="text-zinc-300">${formattedDeadline}</strong> (${cat.name})</div>
+                            <div class="text-[11px] text-zinc-300">Due: <strong class="text-white font-bold">${formattedDeadline}</strong> (${cat.name})</div>
                         </div>
                     </div>
                     <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="editQueueTask('${task.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>
-                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 bg-emerald-950/50 hover:bg-emerald-900/60 px-2 py-1 rounded border border-emerald-800/40 transition">Done ✓</button>
-                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>
+                        <button onclick="editQueueTask('${task.id}')" class="text-xs font-medium text-zinc-200 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-md border border-zinc-600 transition">Edit</button>
+                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-xs font-semibold text-emerald-300 hover:text-emerald-200 bg-emerald-950 hover:bg-emerald-900 px-2.5 py-1 rounded-md border border-emerald-600 transition">Done ✓</button>
+                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-400 hover:text-red-400 px-1 text-sm font-bold">✕</button>
                     </div>
                 `;
                 container.appendChild(div);

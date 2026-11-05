@@ -54,9 +54,9 @@
                         mono: ['"JetBrains Mono"', 'monospace']
                     },
                     colors: {
-                        darkbg: '#090a0f',
-                        cardbg: '#13151f',
-                        bordercolor: '#26293a'
+                        darkbg: '#06070b',
+                        cardbg: '#10131e',
+                        bordercolor: '#222638'
                     }
                 }
             }
@@ -65,46 +65,50 @@
     <style>
         body {
             background-image: 
-                radial-gradient(at 15% 0%, rgba(139, 92, 246, 0.12) 0px, transparent 45%),
-                radial-gradient(at 85% 5%, rgba(16, 185, 129, 0.08) 0px, transparent 45%);
+                radial-gradient(at 10% 0%, rgba(6, 182, 212, 0.14) 0px, transparent 45%),
+                radial-gradient(at 50% 0%, rgba(139, 92, 246, 0.16) 0px, transparent 50%),
+                radial-gradient(at 90% 10%, rgba(16, 185, 129, 0.10) 0px, transparent 45%);
             background-attachment: fixed;
+        }
+        input:focus, select:focus {
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.25), 0 0 15px -3px rgba(139, 92, 246, 0.3);
         }
         ::-webkit-scrollbar {
             width: 5px;
             height: 5px;
         }
         ::-webkit-scrollbar-track {
-            background: #13151f;
+            background: #0b0d14;
         }
         ::-webkit-scrollbar-thumb {
-            background: #32364d;
+            background: #2e334d;
             border-radius: 9999px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #6d28d9;
+            background: #8b5cf6;
         }
     </style>
 </head>
 <body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-12 selection:bg-purple-500 selection:text-white">
 
     <!-- Top Navigation / Header -->
-    <header class="border-b border-bordercolor bg-cardbg/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg shadow-black/30">
+    <header class="border-b border-indigo-500/20 bg-[#0b0d15]/90 backdrop-blur-xl sticky top-0 z-50 shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
         <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
             <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-base shadow-md shadow-purple-600/30 border border-purple-400/30">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-cyan-500 via-indigo-500 to-purple-600 flex items-center justify-center text-base shadow-[0_0_20px_rgba(99,102,241,0.5)] border border-cyan-300/40">
                         ⏳
                     </div>
                     <div>
-                        <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                        <h1 class="text-lg font-extrabold tracking-tight bg-gradient-to-r from-white via-cyan-100 to-indigo-200 bg-clip-text text-transparent flex items-center gap-1.5">
                             Time Ledger
                         </h1>
-                        <p class="text-xs font-medium text-zinc-300" id="headerTenureSub">Configure tenure to track hours.</p>
+                        <p class="text-xs font-medium text-zinc-400" id="headerTenureSub">Configure tenure to track hours.</p>
                     </div>
                 </div>
             </div>
-            <div class="flex items-center gap-1.5 bg-zinc-900/90 p-1 rounded-xl border border-bordercolor w-full sm:w-auto justify-center">
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition">Dashboard</button>
+            <div class="flex items-center gap-1.5 bg-[#07080d] p-1.5 rounded-xl border border-bordercolor w-full sm:w-auto justify-center shadow-inner">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-[0_0_15px_rgba(124,58,237,0.45)] transition">Dashboard</button>
                 <button onclick="switchTab('tasks')" id="btn-tasks" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Action Tasks</button>
                 <button onclick="switchTab('setup')" id="btn-setup" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Tenure & Cats</button>
                 <button onclick="switchTab('templates')" id="btn-templates" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Schedules</button>
@@ -117,15 +121,15 @@
         <!-- ================= TAB 1: DASHBOARD ================= -->
         <section id="tab-dashboard" class="space-y-5">
             <!-- Today's Mapped Schedule Timetable Banner -->
-            <div id="todayBanner" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-purple-950/40 via-cardbg to-cardbg border border-purple-500/30 shadow-xl shadow-black/20 space-y-3.5">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-bordercolor/70 pb-3">
+            <div id="todayBanner" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-indigo-950/50 via-[#101424] to-cardbg border border-cyan-500/35 shadow-[0_0_35px_-5px_rgba(6,182,212,0.18)] space-y-3.5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-indigo-500/20 pb-3">
                     <div>
-                        <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-purple-300 bg-purple-950/80 border border-purple-500/30 px-2 py-0.5 rounded mb-1.5">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-cyan-300 bg-cyan-950/80 border border-cyan-400/40 px-2.5 py-0.5 rounded-full shadow-[0_0_12px_rgba(34,211,238,0.25)] mb-1.5">
                             📅 Today's Planned Schedule
                         </span>
                         <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center gap-2" id="todayTemplateName">No template mapped for today</h2>
                     </div>
-                    <div class="text-xs font-semibold text-zinc-300 bg-zinc-900/90 border border-bordercolor px-2.5 py-1 rounded-lg font-mono" id="todayDateStr"></div>
+                    <div class="text-xs font-semibold text-cyan-200 bg-[#080a12] border border-cyan-500/30 px-3 py-1 rounded-lg font-mono shadow-inner" id="todayDateStr"></div>
                 </div>
 
                 <!-- Timetable Schedule List -->
@@ -134,42 +138,42 @@
                 </div>
             </div>
 
-            <!-- Top Metric Cards (Transformed into 4 Compact Square Blocks) -->
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-bordercolor shadow-md flex flex-col justify-between">
+            <!-- Top Metric Cards (Distinct Semantic Glows for Instant Eye Focus) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-sky-950/45 via-cardbg to-cardbg border border-sky-500/40 shadow-[0_0_22px_-5px_rgba(14,165,233,0.22)] flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-zinc-400">Total Tenure</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-sky-300/90">Total Tenure</span>
                         <span class="text-sm">🏛️</span>
                     </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-white font-mono tracking-tight my-1.5" id="statTotalHours">0 hrs</div>
-                    <div class="text-[11px] font-medium text-zinc-400 truncate" id="statTenureDates">Not set</div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-white font-mono tracking-tight my-1.5 drop-shadow-[0_0_8px_rgba(56,189,248,0.3)]" id="statTotalHours">0 hrs</div>
+                    <div class="text-[11px] font-medium text-sky-200/70 truncate" id="statTenureDates">Not set</div>
                 </div>
 
-                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-emerald-500/30 shadow-md flex flex-col justify-between">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-emerald-950/50 via-cardbg to-cardbg border border-emerald-500/45 shadow-[0_0_24px_-5px_rgba(16,185,129,0.25)] flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-zinc-400">Logged / Burned</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-emerald-300/90">Logged / Burned</span>
                         <span class="text-sm">🔥</span>
                     </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono tracking-tight my-1.5" id="statBurnedHours">0 hrs</div>
-                    <div class="text-[11px] font-semibold text-emerald-300" id="statBurnedPercent">0% of tenure</div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono tracking-tight my-1.5 drop-shadow-[0_0_10px_rgba(16,185,129,0.35)]" id="statBurnedHours">0 hrs</div>
+                    <div class="text-[11px] font-semibold text-emerald-300/80" id="statBurnedPercent">0% of tenure</div>
                 </div>
 
-                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-purple-500/30 shadow-md flex flex-col justify-between">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-cyan-950/60 via-indigo-950/30 to-cardbg border-2 border-cyan-400/60 shadow-[0_0_28px_-4px_rgba(34,211,238,0.32)] flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-zinc-400">Available Balance</span>
+                        <span class="text-xs font-extrabold uppercase tracking-wider text-cyan-300">Available Balance</span>
                         <span class="text-sm">⚡</span>
                     </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-purple-400 font-mono tracking-tight my-1.5" id="statAvailableBalance">0 hrs</div>
-                    <div class="text-[11px] font-medium text-zinc-400">Remaining time</div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-cyan-300 font-mono tracking-tight my-1.5 drop-shadow-[0_0_12px_rgba(34,211,238,0.45)]" id="statAvailableBalance">0 hrs</div>
+                    <div class="text-[11px] font-semibold text-cyan-200/80">Remaining time</div>
                 </div>
 
-                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-amber-500/30 shadow-md flex flex-col justify-between">
+                <div class="p-3.5 sm:p-4 rounded-2xl bg-gradient-to-br from-amber-950/45 via-cardbg to-cardbg border border-amber-500/45 shadow-[0_0_24px_-5px_rgba(245,158,11,0.22)] flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold text-zinc-400">Unassigned Reserve</span>
+                        <span class="text-xs font-bold uppercase tracking-wider text-amber-300/90">Unassigned Reserve</span>
                         <span class="text-sm">🛡️</span>
                     </div>
-                    <div class="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono tracking-tight my-1.5" id="statBufferHours">0 hrs</div>
-                    <div class="text-[11px] font-medium text-zinc-400">Buffer pool</div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono tracking-tight my-1.5 drop-shadow-[0_0_10px_rgba(245,158,11,0.3)]" id="statBufferHours">0 hrs</div>
+                    <div class="text-[11px] font-medium text-amber-200/75">Buffer pool</div>
                 </div>
             </div>
 
@@ -178,11 +182,14 @@
                 
                 <!-- Left 2 Cols: Task Logging & Recent Logs -->
                 <div class="lg:col-span-2 space-y-5">
-                    <!-- Task Logging Form -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4" id="logSection">
-                        <div class="border-b border-bordercolor pb-3">
-                            <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">⏱️ Log Time Block</h3>
-                            <p class="text-xs text-zinc-300">Record completed hours or split across categories with live sliders.</p>
+                    <!-- Task Logging Form (Primary Interactive Spotlight) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-gradient-to-b from-[#151828] to-cardbg border border-indigo-500/50 shadow-[0_0_35px_-5px_rgba(99,102,241,0.22)] space-y-4" id="logSection">
+                        <div class="border-b border-indigo-500/20 pb-3 flex items-center justify-between">
+                            <div>
+                                <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">⏱️ Log Time Block</h3>
+                                <p class="text-xs text-indigo-200/70">Record completed hours or split across categories with live sliders.</p>
+                            </div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-300 bg-indigo-950/80 border border-indigo-500/40 px-2 py-0.5 rounded-md">Primary Action</span>
                         </div>
 
                         <form id="taskLogForm" onsubmit="handleTaskSubmit(event)" class="space-y-3.5">
@@ -247,14 +254,14 @@
                                 </div>
                             </div>
 
-                            <div class="flex justify-end pt-1">
-                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">Commit Time Block</button>
+                             <div class="flex justify-end pt-1">
+                                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-indigo-500 via-purple-500 to-fuchsia-500 hover:from-indigo-400 hover:via-purple-400 hover:to-fuchsia-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.45)] transition transform active:scale-95">Commit Time Block ✦</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- History / Logs Table (Compact Scrollable Box showing ~4 logs at a time) -->
-                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-3.5">
+                    <!-- History / Logs Table (Recessed Secondary Surface) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-[#0b0d14]/90 border border-bordercolor/70 shadow-lg space-y-3.5">
                         <div class="flex justify-between items-center border-b border-bordercolor pb-3">
                             <div>
                                 <h3 class="text-sm sm:text-base font-extrabold text-white">📜 Logged History</h3>
@@ -595,13 +602,14 @@
 
         // --- Tab Navigation ---
         function switchTab(tabId) {
+            const activeClasses = ['bg-gradient-to-r', 'from-indigo-600', 'to-violet-600', 'text-white', 'shadow-[0_0_15px_rgba(124,58,237,0.45)]'];
             ['dashboard', 'tasks', 'setup', 'templates'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`btn-${t}`).classList.remove('bg-zinc-800', 'text-white');
+                document.getElementById(`btn-${t}`).classList.remove(...activeClasses);
                 document.getElementById(`btn-${t}`).classList.add('text-zinc-400');
             });
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.getElementById(`btn-${tabId}`).classList.add('bg-zinc-800', 'text-white');
+            document.getElementById(`btn-${tabId}`).classList.add(...activeClasses);
             document.getElementById(`btn-${tabId}`).classList.remove('text-zinc-400');
 
             if (tabId === 'templates') {
@@ -778,9 +786,9 @@
                         const div = document.createElement('div');
                         
                         if (isActive) {
-                            div.className = 'p-3 rounded-xl bg-purple-950/80 border-2 border-purple-400 ring-2 ring-purple-500/30 flex items-center justify-between gap-2.5 cursor-pointer transition shadow-md shadow-purple-950/50';
+                            div.className = 'p-3.5 rounded-xl bg-gradient-to-r from-emerald-950/90 via-teal-950/80 to-cyan-950/85 border-2 border-emerald-400 ring-4 ring-emerald-500/20 flex items-center justify-between gap-2.5 cursor-pointer transition shadow-[0_0_25px_rgba(16,185,129,0.35)] scale-[1.01]';
                         } else {
-                            div.className = 'p-3 rounded-xl bg-zinc-900/90 border border-bordercolor flex items-center justify-between gap-2.5 hover:border-purple-500/50 hover:bg-zinc-900 cursor-pointer transition';
+                            div.className = 'p-3 rounded-xl bg-[#0a0c14]/90 border border-bordercolor/80 flex items-center justify-between gap-2.5 hover:border-cyan-500/50 hover:bg-zinc-900 cursor-pointer transition';
                         }
 
                         div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
@@ -788,13 +796,13 @@
                         div.innerHTML = `
                             <div class="space-y-1 min-w-0">
                                 <div class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
-                                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span> 
+                                    <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor]" style="background-color: ${cat.color}; color: ${cat.color}"></span> 
                                     <span class="truncate">${b.label}</span>
-                                    ${isActive ? '<span class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40 animate-pulse">● LIVE NOW</span>' : ''}
+                                    ${isActive ? '<span class="text-[10px] text-emerald-200 font-extrabold bg-emerald-900/90 px-2 py-0.5 rounded-full border border-emerald-300/60 shadow-[0_0_12px_rgba(52,211,153,0.5)] animate-pulse">● LIVE NOW</span>' : ''}
                                 </div>
-                                <div class="text-[11px] font-mono ${isActive ? 'text-purple-200 font-bold' : 'text-zinc-300'}">${b.start} ➔ ${b.end} <span class="font-sans text-zinc-400">(${cat.name})</span></div>
+                                <div class="text-[11px] font-mono ${isActive ? 'text-emerald-200 font-bold' : 'text-zinc-400'}">${b.start} ➔ ${b.end} <span class="font-sans text-zinc-400">(${cat.name})</span></div>
                             </div>
-                            <span class="text-[11px] shrink-0 ${isActive ? 'text-white bg-purple-600 font-bold shadow-sm' : 'text-purple-300 bg-purple-950/70 border border-purple-700/40 font-semibold'} px-2.5 py-1 rounded-lg transition">Log ➔</span>
+                            <span class="text-[11px] shrink-0 ${isActive ? 'text-slate-950 bg-emerald-400 hover:bg-emerald-300 font-extrabold shadow-[0_0_12px_rgba(52,211,153,0.6)]' : 'text-cyan-300 bg-cyan-950/60 border border-cyan-700/40 font-semibold'} px-2.5 py-1 rounded-lg transition">Log ➔</span>
                         `;
                         timetableContainer.appendChild(div);
                     });
@@ -971,7 +979,11 @@
                 
                 const isPointInTime = (t.from === t.to);
                 const durationDisplay = isPointInTime ? `<span class="text-emerald-400 font-semibold">Completed ✓</span>` : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
-                const timeDisplay = isPointInTime ? f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : `${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} ➔ ${to.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+                
+                // High-visibility timestamp format with pill background and glow
+                const timeDisplay = isPointInTime 
+                    ? `<span class="inline-block px-2.5 py-1 rounded-lg bg-cyan-950/70 border border-cyan-500/40 text-cyan-200 font-bold font-mono shadow-[0_0_10px_rgba(6,182,212,0.15)]">${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>` 
+                    : `<span class="inline-block px-2.5 py-1 rounded-lg bg-[#070913] border border-cyan-400/40 text-cyan-300 font-bold font-mono shadow-[0_0_12px_rgba(6,182,212,0.2)]">${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} <span class="text-indigo-400 font-extrabold">➔</span> ${to.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}</span>`;
 
                 const taskTitle = t.title || t.note || '-';
                 const taskDesc = (t.title && t.note) ? t.note : '';
@@ -981,12 +993,12 @@
                 tr.className = 'hover:bg-zinc-900/60 transition text-xs';
                 tr.innerHTML = `
                     <td class="py-3 px-3 font-semibold text-white flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-[0_0_8px_currentColor]" style="background-color: ${cat.color}; color: ${cat.color}"></span>
                         <span>${cat.name}</span>
                         ${splitBadgeText}
                     </td>
                     <td class="py-3 px-3 text-purple-300 font-bold font-mono">${durationDisplay}</td>
-                    <td class="py-3 px-3 text-zinc-300 text-[11px] font-mono">${timeDisplay}</td>
+                    <td class="py-3 px-3">${timeDisplay}</td>
                     <td class="py-3 px-3">
                         <div class="font-bold text-white">${taskTitle}</div>
                         ${taskDesc ? `<div class="text-[11px] text-zinc-400 mt-0.5">${taskDesc}</div>` : ''}
@@ -997,23 +1009,23 @@
 
                 // Mobile Card View (prevents squished table layout on small screens)
                 const card = document.createElement('div');
-                card.className = 'p-3 rounded-xl bg-zinc-900/90 border border-bordercolor space-y-2 text-xs';
+                card.className = 'p-3.5 rounded-xl bg-[#0d101d] border border-cyan-500/20 space-y-2.5 text-xs shadow-md';
                 card.innerHTML = `
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2 font-bold text-white">
-                            <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                            <span class="w-3 h-3 rounded-full shrink-0 shadow-[0_0_8px_currentColor]" style="background-color: ${cat.color}; color: ${cat.color}"></span>
                             <span>${cat.name}</span>
                             ${splitBadgeText}
                         </div>
                         <span class="font-mono font-bold text-purple-300">${durationDisplay}</span>
                     </div>
-                    <div class="text-[11px] font-mono text-zinc-300">🕒 ${timeDisplay}</div>
-                    <div class="flex items-center justify-between pt-1 border-t border-bordercolor/60 gap-2">
+                    <div>${timeDisplay}</div>
+                    <div class="flex items-center justify-between pt-2 border-t border-bordercolor/50 gap-2">
                         <div class="min-w-0">
                             <div class="text-white font-bold truncate">📝 ${taskTitle}</div>
                             ${taskDesc ? `<div class="text-[11px] text-zinc-400 truncate">${taskDesc}</div>` : ''}
                         </div>
-                        <button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 px-2 py-1 bg-zinc-800 rounded text-xs shrink-0">Delete ✕</button>
+                        <button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 px-2.5 py-1 bg-zinc-800 rounded-lg text-xs shrink-0 transition">Delete ✕</button>
                     </div>
                 `;
                 mobileList.appendChild(card);
@@ -1292,16 +1304,25 @@
 
                 const effectiveHorizon = getEffectiveHorizon(task.deadline);
                 let badgeHtml = '';
-                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-[10px] font-bold text-red-300 bg-red-950/80 border border-red-700/50 px-2 py-0.5 rounded animate-pulse">🔥 Within a Day</span>`;
-                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2 py-0.5 rounded">📌 Within a Week</span>`;
-                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-[10px] font-bold text-sky-300 bg-sky-950/80 border border-sky-700/50 px-2 py-0.5 rounded">⏳ Within a Month</span>`;
-                else badgeHtml = `<span class="text-[10px] font-bold text-zinc-200 bg-zinc-800 border border-zinc-600 px-2 py-0.5 rounded">📅 Within a Year</span>`;
+                let cardUrgencyStyle = 'bg-[#0b0d14]/90 border-bordercolor hover:border-indigo-500/50';
+
+                if (effectiveHorizon === 'day') {
+                    badgeHtml = `<span class="text-[10px] font-extrabold text-rose-200 bg-rose-950 border border-rose-400/60 px-2 py-0.5 rounded-full shadow-[0_0_12px_rgba(244,63,94,0.4)] animate-pulse">🔥 Within a Day</span>`;
+                    cardUrgencyStyle = 'bg-gradient-to-r from-rose-950/45 via-[#12131f] to-[#10131e] border-rose-500/50 shadow-[0_0_20px_-5px_rgba(244,63,94,0.28)]';
+                } else if (effectiveHorizon === 'week') {
+                    badgeHtml = `<span class="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-500/50 px-2 py-0.5 rounded-full">📌 Within a Week</span>`;
+                    cardUrgencyStyle = 'bg-gradient-to-r from-amber-950/25 via-[#10131e] to-[#10131e] border-amber-500/40';
+                } else if (effectiveHorizon === 'month') {
+                    badgeHtml = `<span class="text-[10px] font-bold text-sky-300 bg-sky-950/80 border border-sky-700/50 px-2 py-0.5 rounded-full">⏳ Within a Month</span>`;
+                } else {
+                    badgeHtml = `<span class="text-[10px] font-bold text-zinc-300 bg-zinc-800/80 border border-zinc-600 px-2 py-0.5 rounded-full">📅 Within a Year</span>`;
+                }
 
                 const displayTitle = task.title || task.text;
                 const displayDesc = task.description || '';
 
                 const div = document.createElement('div');
-                div.className = 'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-zinc-900/90 border border-bordercolor hover:border-purple-500/50 transition';
+                div.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3.5 rounded-xl border transition ${cardUrgencyStyle}`;
                 div.innerHTML = `
                     <div class="flex items-start gap-2.5 overflow-hidden w-full sm:w-auto">
                         <span class="w-3 h-3 rounded-full shrink-0 mt-1" style="background-color: ${cat.color}"></span>

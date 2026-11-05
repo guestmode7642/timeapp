@@ -68,8 +68,8 @@
             background-attachment: fixed;
         }
         ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+            width: 5px;
+            height: 5px;
         }
         ::-webkit-scrollbar-track {
             background: #13151f;
@@ -83,128 +83,122 @@
         }
     </style>
 </head>
-<body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-16 selection:bg-purple-500 selection:text-white">
+<body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-12 selection:bg-purple-500 selection:text-white">
 
     <!-- Top Navigation / Header -->
-    <header class="border-b border-bordercolor bg-cardbg/90 backdrop-blur-xl sticky top-0 z-50 shadow-lg shadow-black/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-3.5">
-                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-xl shadow-lg shadow-purple-600/30 border border-purple-400/30">
-                    ⏳
-                </div>
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                        Time Ledger
-                    </h1>
-                    <p class="text-sm font-medium text-zinc-300 mt-0.5" id="headerTenureSub">Configure your tenure to start tracking hours.</p>
+    <header class="border-b border-bordercolor bg-cardbg/95 backdrop-blur-xl sticky top-0 z-50 shadow-lg shadow-black/30">
+        <div class="max-w-7xl mx-auto px-3 sm:px-6 py-3 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-base shadow-md shadow-purple-600/30 border border-purple-400/30">
+                        ⏳
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-extrabold tracking-tight text-white flex items-center gap-1.5">
+                            Time Ledger
+                        </h1>
+                        <p class="text-xs font-medium text-zinc-300" id="headerTenureSub">Configure tenure to track hours.</p>
+                    </div>
                 </div>
             </div>
-            <div class="flex items-center gap-2 bg-zinc-900/90 p-1.5 rounded-xl border border-bordercolor">
-                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-4 py-2 text-sm font-semibold rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition">Dashboard</button>
-                <button onclick="switchTab('setup')" id="btn-setup" class="px-4 py-2 text-sm font-semibold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Tenure & Categories</button>
-                <button onclick="switchTab('templates')" id="btn-templates" class="px-4 py-2 text-sm font-semibold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Schedules & Mapper</button>
+            <div class="flex items-center gap-1.5 bg-zinc-900/90 p-1 rounded-xl border border-bordercolor w-full sm:w-auto justify-center">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition">Dashboard</button>
+                <button onclick="switchTab('setup')" id="btn-setup" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Tenure & Cats</button>
+                <button onclick="switchTab('templates')" id="btn-templates" class="flex-1 sm:flex-none px-3.5 py-1.5 text-xs font-bold rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800/60 transition">Schedules</button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <main class="max-w-7xl mx-auto px-3 sm:px-6 py-5 space-y-5">
 
         <!-- ================= TAB 1: DASHBOARD ================= -->
-        <section id="tab-dashboard" class="space-y-8">
+        <section id="tab-dashboard" class="space-y-5">
             <!-- Today's Mapped Schedule Timetable Banner -->
-            <div id="todayBanner" class="p-6 rounded-2xl bg-gradient-to-br from-purple-950/50 via-cardbg to-cardbg border border-purple-500/30 shadow-xl shadow-black/25 space-y-5">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-bordercolor/80 pb-4">
+            <div id="todayBanner" class="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-purple-950/40 via-cardbg to-cardbg border border-purple-500/30 shadow-xl shadow-black/20 space-y-3.5">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-bordercolor/70 pb-3">
                     <div>
-                        <span class="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-purple-300 bg-purple-950/80 border border-purple-500/30 px-2.5 py-1 rounded-md mb-2">
+                        <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase tracking-widest text-purple-300 bg-purple-950/80 border border-purple-500/30 px-2 py-0.5 rounded mb-1.5">
                             📅 Today's Planned Schedule
                         </span>
-                        <h2 class="text-xl sm:text-2xl font-extrabold text-white flex items-center gap-2" id="todayTemplateName">No template mapped for today</h2>
+                        <h2 class="text-base sm:text-lg font-extrabold text-white flex items-center gap-2" id="todayTemplateName">No template mapped for today</h2>
                     </div>
-                    <div class="text-sm font-semibold text-zinc-200 bg-zinc-900/90 border border-bordercolor px-3.5 py-2 rounded-xl font-mono" id="todayDateStr"></div>
+                    <div class="text-xs font-semibold text-zinc-300 bg-zinc-900/90 border border-bordercolor px-2.5 py-1 rounded-lg font-mono" id="todayDateStr"></div>
                 </div>
 
                 <!-- Timetable Schedule List -->
-                <div id="todayTimetableList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <div id="todayTimetableList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <!-- Populated dynamically with hourly blocks -->
                 </div>
             </div>
 
-            <!-- Top Metric Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                <div class="p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-lg shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+            <!-- Top Metric Cards (Transformed into 4 Compact Square Blocks) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-bordercolor shadow-md flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-zinc-300">Total Tenure Hours</span>
-                        <span class="w-9 h-9 rounded-lg bg-zinc-800/90 border border-zinc-700/60 flex items-center justify-center text-base">🏛️</span>
+                        <span class="text-xs font-semibold text-zinc-400">Total Tenure</span>
+                        <span class="text-sm">🏛️</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-white font-mono tracking-tight my-3" id="statTotalHours">0 hrs</div>
-                    <div class="pt-2.5 border-t border-bordercolor/60">
-                        <span class="text-xs font-medium text-zinc-300" id="statTenureDates">Not set</span>
-                    </div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-white font-mono tracking-tight my-1.5" id="statTotalHours">0 hrs</div>
+                    <div class="text-[11px] font-medium text-zinc-400 truncate" id="statTenureDates">Not set</div>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-cardbg border border-emerald-500/25 shadow-lg shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-emerald-500/30 shadow-md flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-zinc-300">Total Logged / Burned</span>
-                        <span class="w-9 h-9 rounded-lg bg-emerald-950/80 border border-emerald-500/30 flex items-center justify-center text-base">🔥</span>
+                        <span class="text-xs font-semibold text-zinc-400">Logged / Burned</span>
+                        <span class="text-sm">🔥</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-emerald-400 font-mono tracking-tight my-3" id="statBurnedHours">0 hrs</div>
-                    <div class="pt-2.5 border-t border-bordercolor/60">
-                        <span class="text-xs font-semibold text-emerald-300/90" id="statBurnedPercent">0% of tenure</span>
-                    </div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-emerald-400 font-mono tracking-tight my-1.5" id="statBurnedHours">0 hrs</div>
+                    <div class="text-[11px] font-semibold text-emerald-300" id="statBurnedPercent">0% of tenure</div>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-cardbg border border-purple-500/25 shadow-lg shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-purple-500/30 shadow-md flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-zinc-300">Available Balance</span>
-                        <span class="w-9 h-9 rounded-lg bg-purple-950/80 border border-purple-500/30 flex items-center justify-center text-base">⚡</span>
+                        <span class="text-xs font-semibold text-zinc-400">Available Balance</span>
+                        <span class="text-sm">⚡</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-purple-400 font-mono tracking-tight my-3" id="statAvailableBalance">0 hrs</div>
-                    <div class="pt-2.5 border-t border-bordercolor/60">
-                        <span class="text-xs font-medium text-zinc-300">Remaining until end date</span>
-                    </div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-purple-400 font-mono tracking-tight my-1.5" id="statAvailableBalance">0 hrs</div>
+                    <div class="text-[11px] font-medium text-zinc-400">Remaining time</div>
                 </div>
 
-                <div class="p-5 rounded-2xl bg-cardbg border border-amber-500/25 shadow-lg shadow-black/20 flex flex-col justify-between relative overflow-hidden">
+                <div class="p-3.5 sm:p-4 rounded-xl bg-cardbg border border-amber-500/30 shadow-md flex flex-col justify-between">
                     <div class="flex items-center justify-between">
-                        <span class="text-sm font-semibold text-zinc-300">Unassigned Reserve</span>
-                        <span class="w-9 h-9 rounded-lg bg-amber-950/80 border border-amber-500/30 flex items-center justify-center text-base">🛡️</span>
+                        <span class="text-xs font-semibold text-zinc-400">Unassigned Reserve</span>
+                        <span class="text-sm">🛡️</span>
                     </div>
-                    <div class="text-3xl font-extrabold text-amber-400 font-mono tracking-tight my-3" id="statBufferHours">0 hrs</div>
-                    <div class="pt-2.5 border-t border-bordercolor/60">
-                        <span class="text-xs font-medium text-zinc-300">Unallocated budget reserve</span>
-                    </div>
+                    <div class="text-xl sm:text-2xl font-extrabold text-amber-400 font-mono tracking-tight my-1.5" id="statBufferHours">0 hrs</div>
+                    <div class="text-[11px] font-medium text-zinc-400">Buffer pool</div>
                 </div>
             </div>
 
             <!-- Action Tasks & Time Horizons Panel -->
-            <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                <div class="flex items-center justify-between border-b border-bordercolor pb-4">
+            <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                <div class="flex items-center justify-between border-b border-bordercolor pb-3">
                     <div>
-                        <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">
                             📌 Action Tasks & Deadlines
                         </h3>
-                        <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Queue priorities with automatic urgency escalation as deadlines approach.</p>
+                        <p class="text-xs text-zinc-300">Priorities with automatic urgency escalation.</p>
                     </div>
-                    <span class="text-xs sm:text-sm font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 px-3.5 py-1.5 rounded-full font-mono" id="pendingTaskQueueCount">0 Pending</span>
+                    <span class="text-xs font-bold text-purple-300 bg-purple-950/80 border border-purple-500/30 px-2.5 py-1 rounded-full font-mono" id="pendingTaskQueueCount">0 Pending</span>
                 </div>
 
                 <!-- Fast Task Input Form with Optional Custom Deadline -->
-                <form id="taskQueueForm" onsubmit="handleTaskQueueSubmit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-4 bg-zinc-900/60 p-4 rounded-xl border border-bordercolor/80">
+                <form id="taskQueueForm" onsubmit="handleTaskQueueSubmit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-zinc-900/60 p-3 rounded-xl border border-bordercolor/80">
                     <div class="sm:col-span-4">
-                        <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Task Description</label>
-                        <input type="text" id="queueTaskText" placeholder="What needs to be done?" required class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500">
+                        <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Task Description</label>
+                        <input type="text" id="queueTaskText" placeholder="What needs to be done?" required class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-3 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Category</label>
-                        <select id="queueTaskCategory" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                        <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Category</label>
+                        <select id="queueTaskCategory" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                             <!-- Dynamically populated -->
                         </select>
                     </div>
 
                     <div class="sm:col-span-2">
-                        <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Time Horizon</label>
-                        <select id="queueTaskHorizon" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                        <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Time Horizon</label>
+                        <select id="queueTaskHorizon" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                             <option value="day">🔥 Within a Day (+24h)</option>
                             <option value="week">📌 Within a Week (+7d)</option>
                             <option value="month">⏳ Within a Month (+30d)</option>
@@ -213,28 +207,28 @@
                     </div>
 
                     <div class="sm:col-span-3">
-                        <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Custom Deadline (Optional)</label>
-                        <input type="datetime-local" id="queueTaskCustomDeadline" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                        <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Custom Deadline (Optional)</label>
+                        <input type="datetime-local" id="queueTaskCustomDeadline" class="w-full bg-zinc-950 border border-bordercolor rounded-xl px-2.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                     </div>
 
                     <div class="sm:col-span-1 flex items-end">
-                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold text-sm rounded-xl py-2.5 px-3 shadow-lg shadow-purple-600/25 transition">Add</button>
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold text-xs rounded-xl py-2 px-3 shadow-md transition">Add</button>
                     </div>
                 </form>
 
                 <!-- Filter & Search Bar Controls -->
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                     <div>
-                        <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search pending tasks..." class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-sm text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500">
+                        <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search pending tasks..." class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-1.5 text-xs text-white placeholder-zinc-400 focus:outline-none focus:border-purple-500">
                     </div>
                     <div>
-                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500">
                             <option value="all">📂 All Categories</option>
                             <!-- Dynamically populated -->
                         </select>
                     </div>
                     <div>
-                        <select id="taskFilterTimeline" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                        <select id="taskFilterTimeline" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500">
                             <option value="all">⏳ All Timelines (Deadlines)</option>
                             <option value="day">🔥 Due Within 24h (Today)</option>
                             <option value="week">📌 Due Within a Week</option>
@@ -245,63 +239,63 @@
                 </div>
 
                 <!-- Sorted Task List Container -->
-                <div id="taskQueueList" class="space-y-2.5 max-h-72 overflow-y-auto pr-1 pt-1">
+                <div id="taskQueueList" class="space-y-2.5 max-h-64 overflow-y-auto pr-1">
                     <!-- Populated dynamically via JS -->
                 </div>
             </div>
 
             <!-- Main Grid: Task Logging & Category Side Panel -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 
                 <!-- Left 2 Cols: Task Logging & Recent Logs -->
-                <div class="lg:col-span-2 space-y-6">
+                <div class="lg:col-span-2 space-y-5">
                     <!-- Task Logging Form -->
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5" id="logSection">
-                        <div class="border-b border-bordercolor pb-3.5">
-                            <h3 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">⏱️ Log Time Block</h3>
-                            <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Record completed hours or split a session across multiple categories.</p>
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4" id="logSection">
+                        <div class="border-b border-bordercolor pb-3">
+                            <h3 class="text-sm sm:text-base font-extrabold text-white flex items-center gap-1.5">⏱️ Log Time Block</h3>
+                            <p class="text-xs text-zinc-300">Record completed hours or split across categories with live sliders.</p>
                         </div>
 
-                        <form id="taskLogForm" onsubmit="handleTaskSubmit(event)" class="space-y-4">
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <form id="taskLogForm" onsubmit="handleTaskSubmit(event)" class="space-y-3.5">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">From Time</label>
-                                    <input type="datetime-local" id="logFromTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">From Time</label>
+                                    <input type="datetime-local" id="logFromTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">To Time</label>
-                                    <input type="datetime-local" id="logToTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">To Time</label>
+                                    <input type="datetime-local" id="logToTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
 
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Primary Category</label>
-                                    <select id="logCategory" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Primary Category</label>
+                                    <select id="logCategory" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                         <!-- Populated dynamically -->
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Task Description / Note</label>
-                                    <input type="text" id="logNote" placeholder="e.g. Morning Workout / Deep Work" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Task Description / Note</label>
+                                    <input type="text" id="logNote" placeholder="e.g. Morning Workout / Deep Work" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
 
-                            <!-- Optional Split / Efficiency Toggle -->
-                            <div class="p-4 rounded-xl bg-zinc-900/80 border border-bordercolor space-y-3">
+                            <!-- Optional Split / Efficiency Toggle with Sliders -->
+                            <div class="p-3.5 rounded-xl bg-zinc-900/80 border border-bordercolor space-y-3">
                                 <div class="flex items-center justify-between">
-                                    <label class="text-sm text-zinc-200 font-semibold flex items-center gap-2.5 cursor-pointer select-none">
+                                    <label class="text-xs sm:text-sm text-zinc-200 font-bold flex items-center gap-2 cursor-pointer select-none">
                                         <input type="checkbox" id="enableSplitToggle" onchange="toggleSplitSection(this)" class="w-4 h-4 rounded bg-zinc-950 border-bordercolor text-purple-600 focus:ring-purple-500">
                                         Split across multiple categories / Noise?
                                     </label>
-                                    <span class="text-xs text-zinc-400">Allocate percentages</span>
+                                    <span class="text-[11px] text-zinc-400">Dynamic allocation sliders</span>
                                 </div>
 
                                 <!-- Hidden by default until toggled -->
-                                <div id="splitSection" class="hidden space-y-4 pt-3 border-t border-bordercolor text-sm">
+                                <div id="splitSection" class="hidden space-y-3 pt-2.5 border-t border-bordercolor text-xs">
                                     <div class="flex items-center justify-between">
-                                        <span class="text-xs font-semibold text-zinc-200">Number of Category Splits:</span>
-                                        <select id="splitCountSelect" onchange="rebuildSplitRows()" class="bg-zinc-950 border border-bordercolor rounded-lg px-3 py-1.5 text-sm text-white font-semibold">
+                                        <span class="text-xs font-semibold text-zinc-300">Number of Category Splits:</span>
+                                        <select id="splitCountSelect" onchange="rebuildSplitRows()" class="bg-zinc-950 border border-bordercolor rounded-lg px-2.5 py-1 text-xs text-white font-semibold">
                                             <option value="1">2 Categories</option>
                                             <option value="2">3 Categories</option>
                                             <option value="3">4 Categories</option>
@@ -310,7 +304,7 @@
 
                                     <!-- Dynamic Split Rows Container -->
                                     <div id="dynamicSplitRows" class="space-y-2.5">
-                                        <!-- Populated dynamically via JS -->
+                                        <!-- Populated dynamically via JS with dual Sliders + Number Inputs -->
                                     </div>
 
                                     <div class="text-xs text-zinc-200 flex justify-between items-center pt-2 font-mono border-t border-bordercolor/60">
@@ -321,47 +315,51 @@
                             </div>
 
                             <div class="flex justify-end pt-1">
-                                <button type="submit" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/25 transition">Commit Time Block</button>
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 active:bg-purple-700 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">Commit Time Block</button>
                             </div>
                         </form>
                     </div>
 
-                    <!-- History / Logs Table -->
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-4">
-                        <div class="flex justify-between items-center border-b border-bordercolor pb-3.5">
+                    <!-- History / Logs Table (Mobile Card Stacked UI for scannability) -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-3.5">
+                        <div class="flex justify-between items-center border-b border-bordercolor pb-3">
                             <div>
-                                <h3 class="text-base sm:text-lg font-bold text-white">📜 Logged History</h3>
-                                <p class="text-xs text-zinc-300 mt-0.5">Committed time blocks and completed action tasks.</p>
+                                <h3 class="text-sm sm:text-base font-extrabold text-white">📜 Logged History</h3>
+                                <p class="text-xs text-zinc-300">Committed time blocks and completed action tasks.</p>
                             </div>
-                            <button onclick="clearLogs()" class="text-xs font-semibold text-red-400 hover:text-red-300 bg-red-950/40 hover:bg-red-950/70 border border-red-800/40 px-3 py-1.5 rounded-lg transition">Clear All Logs</button>
+                            <button onclick="clearLogs()" class="text-xs font-semibold text-red-400 hover:text-red-300 bg-red-950/40 hover:bg-red-950/70 border border-red-800/40 px-2.5 py-1 rounded-lg transition">Clear All</button>
                         </div>
                         <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm text-zinc-200">
-                                <thead class="border-b border-bordercolor text-xs text-zinc-300 uppercase tracking-wider bg-zinc-900/60">
+                            <table class="w-full text-left text-xs sm:text-sm text-zinc-200 hidden sm:table">
+                                <thead class="border-b border-bordercolor text-[11px] text-zinc-400 uppercase tracking-wider bg-zinc-900/60">
                                     <tr>
-                                        <th class="py-3 px-3.5 rounded-tl-lg">Category</th>
-                                        <th class="py-3 px-3.5">Duration</th>
-                                        <th class="py-3 px-3.5">From ➔ To</th>
-                                        <th class="py-3 px-3.5">Note</th>
-                                        <th class="py-3 px-3.5 text-right rounded-tr-lg">Action</th>
+                                        <th class="py-2.5 px-3">Category</th>
+                                        <th class="py-2.5 px-3">Duration</th>
+                                        <th class="py-2.5 px-3">From ➔ To</th>
+                                        <th class="py-2.5 px-3">Note</th>
+                                        <th class="py-2.5 px-3 text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="logsTableBody" class="divide-y divide-bordercolor/60">
                                     <!-- Populated dynamically -->
                                 </tbody>
                             </table>
+                            <!-- Mobile responsive view container -->
+                            <div id="logsMobileListBody" class="space-y-2.5 sm:hidden">
+                                <!-- Populated dynamically -->
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right 1 Col: Category Budgets Side Panel -->
-                <div class="space-y-6">
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                        <div class="border-b border-bordercolor pb-3.5">
-                            <h3 class="text-base sm:text-lg font-bold text-white">📊 Category Breakdown</h3>
-                            <p class="text-xs text-zinc-300 mt-0.5">Logged hours vs. mapped schedule budgets.</p>
+                <div class="space-y-5">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                        <div class="border-b border-bordercolor pb-3">
+                            <h3 class="text-sm sm:text-base font-extrabold text-white">📊 Category Breakdown</h3>
+                            <p class="text-xs text-zinc-300">Logged hours vs. mapped schedule budgets.</p>
                         </div>
-                        <div id="categoryBreakdownList" class="space-y-5">
+                        <div id="categoryBreakdownList" class="space-y-3.5">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
@@ -371,161 +369,161 @@
         </section>
 
         <!-- ================= TAB 2: TENURE & CATEGORIES SETUP ================= -->
-        <section id="tab-setup" class="hidden space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <section id="tab-setup" class="hidden space-y-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <!-- Tenure Setup Card -->
-                <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                    <div class="border-b border-bordercolor pb-3.5">
-                        <h3 class="text-base sm:text-lg font-bold text-white">1. Define Tenure Period</h3>
-                        <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Set the master start and end boundaries for your time budget.</p>
+                <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                    <div class="border-b border-bordercolor pb-3">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white">1. Define Tenure Period</h3>
+                        <p class="text-xs text-zinc-300">Set master start and end boundaries.</p>
                     </div>
-                    <form id="tenureForm" onsubmit="handleTenureSubmit(event)" class="space-y-4">
+                    <form id="tenureForm" onsubmit="handleTenureSubmit(event)" class="space-y-3.5">
                         <div>
-                            <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Start Date & Time</label>
-                            <input type="datetime-local" id="startDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Start Date & Time</label>
+                            <input type="datetime-local" id="startDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-zinc-200 mb-1.5">End Date & Time</label>
-                            <input type="datetime-local" id="endDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">End Date & Time</label>
+                            <input type="datetime-local" id="endDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                         </div>
-                        <div class="flex justify-end pt-2">
-                            <button type="submit" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/25 transition">Save Tenure</button>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">Save Tenure</button>
                         </div>
                     </form>
                 </div>
 
                 <!-- Category Manager Card -->
-                <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                    <div class="border-b border-bordercolor pb-3.5">
-                        <h3 class="text-base sm:text-lg font-bold text-white">2. Manage Categories</h3>
-                        <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Create custom life buckets with distinct colour themes.</p>
+                <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                    <div class="border-b border-bordercolor pb-3">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white">2. Manage Categories</h3>
+                        <p class="text-xs text-zinc-300">Create custom life buckets with color themes.</p>
                     </div>
-                    <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="space-y-4">
+                    <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="space-y-3.5">
                         <div>
-                            <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Category Name</label>
-                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Category Name</label>
+                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Color Theme</label>
-                            <div class="flex items-center gap-3">
-                                <input type="color" id="catColor" value="#9333ea" onchange="syncCatColorText(this.value)" class="w-12 h-11 bg-zinc-900 border border-bordercolor rounded-xl p-1 cursor-pointer shrink-0">
-                                <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-purple-500">
+                            <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Color Theme</label>
+                            <div class="flex items-center gap-2.5">
+                                <input type="color" id="catColor" value="#9333ea" onchange="syncCatColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-xl p-1 cursor-pointer shrink-0">
+                                <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-purple-500">
                             </div>
                         </div>
-                        <div class="flex justify-end pt-2">
-                            <button type="submit" class="px-5 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/25 transition">Add Category</button>
+                        <div class="flex justify-end pt-1">
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">Add Category</button>
                         </div>
                     </form>
                 </div>
             </div>
 
             <!-- Existing Categories List -->
-            <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                <div class="border-b border-bordercolor pb-3.5">
-                    <h3 class="text-base sm:text-lg font-bold text-white">Configured Categories</h3>
-                    <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Budgets automatically calculate from your mapped schedule templates.</p>
+            <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                <div class="border-b border-bordercolor pb-3">
+                    <h3 class="text-sm sm:text-base font-extrabold text-white">Configured Categories</h3>
+                    <p class="text-xs text-zinc-300">Budgets automatically calculate from your schedule templates.</p>
                 </div>
-                <div id="categoryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div id="categoryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <!-- Populated dynamically -->
                 </div>
             </div>
         </section>
 
         <!-- ================= TAB 3: SCHEDULE TEMPLATES & CALENDAR MAPPER ================= -->
-        <section id="tab-templates" class="hidden space-y-8">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section id="tab-templates" class="hidden space-y-5">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
                 
                 <!-- Left Col: Create Schedule Templates & Hourly Blocks -->
-                <div class="space-y-6">
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-4">
-                        <h3 class="text-base font-bold text-white border-b border-bordercolor pb-3">1. Create Schedule Template</h3>
-                        <form id="templateForm" onsubmit="handleTemplateSubmit(event)" class="space-y-4">
+                <div class="space-y-5">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-3.5">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white border-b border-bordercolor pb-2.5">1. Create Schedule Template</h3>
+                        <form id="templateForm" onsubmit="handleTemplateSubmit(event)" class="space-y-3.5">
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Template Name</label>
-                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
+                                <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Template Name</label>
+                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Template Accent Color</label>
-                                <div class="flex items-center gap-3">
-                                    <input type="color" id="tplColor" value="#3b82f6" onchange="syncTplColorText(this.value)" class="w-12 h-11 bg-zinc-900 border border-bordercolor rounded-xl p-1 cursor-pointer shrink-0">
-                                    <input type="text" id="tplColorHex" value="#3b82f6" placeholder="#3b82f6" oninput="syncTplColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-purple-500">
+                                <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Template Accent Color</label>
+                                <div class="flex items-center gap-2.5">
+                                    <input type="color" id="tplColor" value="#3b82f6" onchange="syncTplColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-xl p-1 cursor-pointer shrink-0">
+                                    <input type="text" id="tplColorHex" value="#3b82f6" placeholder="#3b82f6" oninput="syncTplColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white font-mono focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
                             <div class="flex justify-end">
-                                <button type="submit" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/25 transition">Save Template</button>
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">Save Template</button>
                             </div>
                         </form>
                     </div>
 
                     <!-- Template Hourly Block Editor -->
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-4">
-                        <h3 class="text-base font-bold text-white border-b border-bordercolor pb-3">2. Add Hourly Block To Template</h3>
-                        <form id="blockForm" onsubmit="handleBlockSubmit(event)" class="space-y-3.5">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-3.5">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white border-b border-bordercolor pb-2.5">2. Add Hourly Block To Template</h3>
+                        <form id="blockForm" onsubmit="handleBlockSubmit(event)" class="space-y-3">
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Select Target Template</label>
-                                <select id="blockTemplateSelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Select Target Template</label>
+                                <select id="blockTemplateSelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                     <!-- Populated dynamically -->
                                 </select>
                             </div>
-                            <div class="grid grid-cols-2 gap-3">
+                            <div class="grid grid-cols-2 gap-2.5">
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Start Time</label>
-                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Start Time</label>
+                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-semibold text-zinc-200 mb-1.5">End Time</label>
-                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                    <label class="block text-[11px] font-semibold text-zinc-300 mb-1">End Time</label>
+                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                 </div>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Category</label>
-                                <select id="blockCategorySelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-purple-500">
+                                <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Category</label>
+                                <select id="blockCategorySelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-purple-500">
                                     <!-- Populated dynamically -->
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-semibold text-zinc-200 mb-1.5">Activity Label / Description</label>
-                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
+                                <label class="block text-[11px] font-semibold text-zinc-300 mb-1">Activity Label / Description</label>
+                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-purple-500">
                             </div>
                             <div class="flex justify-end pt-1">
-                                <button type="submit" class="px-4 py-2.5 bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm rounded-xl shadow-lg shadow-purple-600/25 transition">+ Add Schedule Block</button>
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs sm:text-sm rounded-xl shadow-md transition">+ Add Schedule Block</button>
                             </div>
                         </form>
                     </div>
 
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-4">
-                        <h3 class="text-base font-bold text-white border-b border-bordercolor pb-3">Saved Templates & Timetables</h3>
-                        <div id="templateListContainer" class="space-y-4">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-3.5">
+                        <h3 class="text-sm sm:text-base font-extrabold text-white border-b border-bordercolor pb-2.5">Saved Templates & Timetables</h3>
+                        <div id="templateListContainer" class="space-y-3.5">
                             <!-- Populated dynamically -->
                         </div>
                     </div>
                 </div>
 
                 <!-- Right 2 Cols: Interactive Calendar Matrix Mapper -->
-                <div class="lg:col-span-2 space-y-6">
-                    <div class="p-6 rounded-2xl bg-cardbg border border-bordercolor shadow-xl shadow-black/20 space-y-5">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-bordercolor pb-4">
+                <div class="lg:col-span-2 space-y-5">
+                    <div class="p-4 sm:p-5 rounded-2xl bg-cardbg border border-bordercolor shadow-xl space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2.5 border-b border-bordercolor pb-3">
                             <div>
-                                <h3 class="text-base sm:text-lg font-bold text-white">3. Calendar Day Mapper</h3>
-                                <p class="text-xs sm:text-sm text-zinc-300 mt-0.5">Click dates to select them, then assign a schedule template below.</p>
+                                <h3 class="text-sm sm:text-base font-extrabold text-white">3. Calendar Day Mapper</h3>
+                                <p class="text-xs text-zinc-300">Click dates to select, then assign a template below.</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button onclick="selectAllDays()" class="px-3.5 py-2 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl border border-zinc-700 transition">Select All</button>
-                                <button onclick="clearDaySelection()" class="px-3.5 py-2 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl border border-zinc-700 transition">Clear Selection</button>
+                                <button onclick="selectAllDays()" class="px-3 py-1.5 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-white rounded-xl border border-zinc-700 transition">Select All</button>
+                                <button onclick="clearDaySelection()" class="px-3 py-1.5 text-xs font-semibold bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-xl border border-zinc-700 transition">Clear</button>
                             </div>
                         </div>
 
                         <!-- Template Assignment Bar -->
-                        <div id="assignmentBar" class="p-4 bg-zinc-900/90 rounded-xl border border-bordercolor flex flex-wrap items-center justify-between gap-3">
-                            <span class="text-sm text-white font-bold font-mono bg-zinc-950 px-3 py-1.5 rounded-lg border border-bordercolor" id="selectedCountText">0 days selected</span>
-                            <div class="flex items-center gap-2.5 flex-wrap" id="assignButtonsContainer">
+                        <div id="assignmentBar" class="p-3 bg-zinc-900/90 rounded-xl border border-bordercolor flex flex-wrap items-center justify-between gap-2.5">
+                            <span class="text-xs text-white font-bold font-mono bg-zinc-950 px-2.5 py-1 rounded-lg border border-bordercolor" id="selectedCountText">0 days selected</span>
+                            <div class="flex items-center gap-2 flex-wrap" id="assignButtonsContainer">
                                 <!-- Populated dynamically with template buttons -->
                             </div>
                         </div>
 
                         <!-- Visual Calendar Grid -->
-                        <div id="calendarGridView" class="space-y-8 max-h-[640px] overflow-y-auto pr-2 pt-1">
-                            <p class="text-sm text-zinc-300 italic text-center py-12">Please define your Tenure Start and End dates in the setup tab first.</p>
+                        <div id="calendarGridView" class="space-y-5 max-h-[600px] overflow-y-auto pr-1">
+                            <p class="text-xs text-zinc-400 italic text-center py-10">Please define your Tenure Start and End dates in the setup tab first.</p>
                         </div>
                     </div>
                 </div>
@@ -719,10 +717,10 @@
             if (tplId) {
                 const tpl = appData.templates.find(t => t.id === tplId);
                 if (tpl) {
-                    document.getElementById('todayTemplateName').innerHTML = `<span class="inline-block w-3.5 h-3.5 rounded-full" style="background-color: ${tpl.color}"></span> ${tpl.name}`;
+                    document.getElementById('todayTemplateName').innerHTML = `<span class="inline-block w-3 h-3 rounded-full" style="background-color: ${tpl.color}"></span> ${tpl.name}`;
                     
                     if (!tpl.blocks || tpl.blocks.length === 0) {
-                        timetableContainer.innerHTML = `<div class="col-span-full p-5 rounded-xl bg-zinc-900/70 border border-bordercolor text-sm text-zinc-300 text-center">No hourly schedule blocks added to this template yet.</div>`;
+                        timetableContainer.innerHTML = `<div class="col-span-full p-4 rounded-xl bg-zinc-900/70 border border-bordercolor text-xs text-zinc-300 text-center">No hourly schedule blocks added to this template yet.</div>`;
                         return;
                     }
 
@@ -746,23 +744,23 @@
                         const div = document.createElement('div');
                         
                         if (isActive) {
-                            div.className = 'p-4 rounded-xl bg-purple-950/80 border-2 border-purple-400 ring-2 ring-purple-500/30 flex items-center justify-between gap-3 cursor-pointer transition shadow-lg shadow-purple-950/60';
+                            div.className = 'p-3 rounded-xl bg-purple-950/80 border-2 border-purple-400 ring-2 ring-purple-500/30 flex items-center justify-between gap-2.5 cursor-pointer transition shadow-md shadow-purple-950/50';
                         } else {
-                            div.className = 'p-4 rounded-xl bg-zinc-900/90 border border-bordercolor flex items-center justify-between gap-3 hover:border-purple-500/60 hover:bg-zinc-900 cursor-pointer transition';
+                            div.className = 'p-3 rounded-xl bg-zinc-900/90 border border-bordercolor flex items-center justify-between gap-2.5 hover:border-purple-500/50 hover:bg-zinc-900 cursor-pointer transition';
                         }
 
                         div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
                         
                         div.innerHTML = `
-                            <div class="space-y-1.5 min-w-0">
-                                <div class="text-sm font-bold text-white flex items-center gap-2 flex-wrap">
-                                    <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${cat.color}"></span> 
+                            <div class="space-y-1 min-w-0">
+                                <div class="text-xs sm:text-sm font-bold text-white flex items-center gap-1.5 flex-wrap">
+                                    <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span> 
                                     <span class="truncate">${b.label}</span>
-                                    ${isActive ? '<span class="text-[11px] text-emerald-300 font-bold bg-emerald-950 px-2 py-0.5 rounded-md border border-emerald-500/50 animate-pulse">● LIVE NOW</span>' : ''}
+                                    ${isActive ? '<span class="text-[10px] text-emerald-300 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40 animate-pulse">● LIVE NOW</span>' : ''}
                                 </div>
-                                <div class="text-xs font-mono ${isActive ? 'text-purple-200 font-bold' : 'text-zinc-300'}">${b.start} ➔ ${b.end} <span class="font-sans text-zinc-400">(${cat.name})</span></div>
+                                <div class="text-[11px] font-mono ${isActive ? 'text-purple-200 font-bold' : 'text-zinc-300'}">${b.start} ➔ ${b.end} <span class="font-sans text-zinc-400">(${cat.name})</span></div>
                             </div>
-                            <span class="text-xs shrink-0 ${isActive ? 'text-white bg-purple-600 font-bold shadow-md shadow-purple-600/30' : 'text-purple-300 bg-purple-950/70 border border-purple-700/40 font-semibold'} px-3 py-1.5 rounded-lg transition">Log ➔</span>
+                            <span class="text-[11px] shrink-0 ${isActive ? 'text-white bg-purple-600 font-bold shadow-sm' : 'text-purple-300 bg-purple-950/70 border border-purple-700/40 font-semibold'} px-2.5 py-1 rounded-lg transition">Log ➔</span>
                         `;
                         timetableContainer.appendChild(div);
                     });
@@ -770,7 +768,7 @@
                 }
             }
             document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
-            timetableContainer.innerHTML = `<div class="col-span-full p-5 rounded-xl bg-zinc-900/60 border border-bordercolor text-sm text-zinc-300 text-center">Map a schedule template to today's date in the <strong>Schedules & Mapper</strong> tab to view your daily timetable here.</div>`;
+            timetableContainer.innerHTML = `<div class="col-span-full p-4 rounded-xl bg-zinc-900/60 border border-bordercolor text-xs text-zinc-300 text-center">Map a schedule template to today's date in the <strong>Schedules</strong> tab to view your timetable here.</div>`;
         }
 
         function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
@@ -811,18 +809,18 @@
                 const totalBudget = metrics.categoryBudgets[cat.id] || 0;
 
                 const card = document.createElement('div');
-                card.className = 'p-4 rounded-xl bg-zinc-900/90 border border-bordercolor flex items-center justify-between gap-3';
+                card.className = 'p-3 rounded-xl bg-zinc-900/90 border border-bordercolor flex items-center justify-between gap-2.5';
                 card.innerHTML = `
-                    <div class="flex items-center gap-3.5">
-                        <span class="w-4 h-4 rounded-full shrink-0 shadow-sm" style="background-color: ${cat.color}"></span>
+                    <div class="flex items-center gap-3">
+                        <span class="w-3.5 h-3.5 rounded-full shrink-0 shadow-sm" style="background-color: ${cat.color}"></span>
                         <div>
-                            <h4 class="text-sm font-bold text-white">${cat.name}</h4>
-                            <span class="text-xs font-mono text-zinc-300">Budget: ${totalBudget.toFixed(1)} hrs</span>
+                            <h4 class="text-xs sm:text-sm font-bold text-white">${cat.name}</h4>
+                            <span class="text-[11px] font-mono text-zinc-300">Budget: ${totalBudget.toFixed(1)} hrs</span>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg border border-zinc-700 transition">Edit</button>` : ''}
-                        ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-400 hover:text-red-400 text-sm px-2 py-1 rounded-lg hover:bg-zinc-800 transition">✕</button>` : ''}
+                    <div class="flex items-center gap-1.5">
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2.5 py-1 rounded-lg border border-zinc-700 transition">Edit</button>` : ''}
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-400 hover:text-red-400 text-xs px-1.5 py-1 rounded hover:bg-zinc-800 transition">✕</button>` : ''}
                     </div>`;
                 catListContainer.appendChild(card);
 
@@ -847,16 +845,16 @@
                 let pct = totalBudget > 0 ? Math.min(100, (catLoggedHours / totalBudget) * 100) : 0;
                 pct = totalBudget - catLoggedHours < 0 ? 100 : pct;
                 const bar = document.createElement('div');
-                bar.className = 'p-3.5 rounded-xl bg-zinc-900/70 border border-bordercolor/80 space-y-2';
+                bar.className = 'p-3 rounded-xl bg-zinc-900/70 border border-bordercolor/80 space-y-1.5';
                 bar.innerHTML = `
-                    <div class="flex justify-between items-center text-sm">
+                    <div class="flex justify-between items-center text-xs sm:text-sm">
                         <span class="text-white font-semibold flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
+                            <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${cat.color}"></span>
                             ${cat.name}
                         </span>
-                        <span class="text-xs font-mono text-zinc-200 font-semibold">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
+                        <span class="text-[11px] font-mono text-zinc-200 font-semibold">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
                     </div>
-                    <div class="w-full bg-zinc-950 rounded-full h-3 overflow-hidden border border-bordercolor">
+                    <div class="w-full bg-zinc-950 rounded-full h-2.5 overflow-hidden border border-bordercolor">
                         <div class="h-full rounded-full transition-all duration-300" style="width: ${pct}%; background-color: ${cat.color}"></div>
                     </div>
                 `;
@@ -869,7 +867,7 @@
             if (!cat) return;
 
             const newName = prompt('Edit category name:', cat.name);
-            if (newName === null) return; // Cancelled
+            if (newName === null) return;
             const trimmedName = newName.trim();
             if (!trimmedName) {
                 alert('Category name cannot be empty.');
@@ -877,7 +875,7 @@
             }
 
             const newColor = prompt('Edit color theme (Hex code, e.g. #9333ea):', cat.color);
-            if (newColor === null) return; // Cancelled
+            if (newColor === null) return;
             const trimmedColor = newColor.trim();
             if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
                 alert('Invalid hex color format. Please use a valid hex code like #9333ea.');
@@ -891,10 +889,14 @@
 
         function renderTasksTable() {
             const tbody = document.getElementById('logsTableBody');
+            const mobileList = document.getElementById('logsMobileListBody');
             tbody.innerHTML = '';
+            mobileList.innerHTML = '';
 
             if (appData.tasks.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-sm text-zinc-300 italic">No time blocks logged yet. Commit a time block above to see your history.</td></tr>`;
+                const emptyMsg = `<div class="p-4 text-center text-xs text-zinc-400 italic">No time blocks logged yet.</div>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-xs text-zinc-400 italic">No time blocks logged yet.</td></tr>`;
+                mobileList.innerHTML = emptyMsg;
                 return;
             }
 
@@ -907,7 +909,7 @@
                 if (t.splits && t.splits.length > 0) {
                     primaryCatId = t.splits[0].categoryId;
                     if (t.splits.length > 1) {
-                        splitBadgeText = ` <span class="text-xs text-purple-300 bg-purple-950/80 px-2 py-0.5 rounded-md border border-purple-700/50 font-mono">Split (${t.splits.length})</span>`;
+                        splitBadgeText = ` <span class="text-[10px] text-purple-300 bg-purple-950/80 px-1.5 py-0.5 rounded border border-purple-700/50 font-mono">Split (${t.splits.length})</span>`;
                     }
                 }
 
@@ -915,25 +917,45 @@
                 const f = new Date(t.from);
                 const to = new Date(t.to);
                 
-                // If start and end are identical (point-in-time task completion), display exact timestamp instead of duration
                 const isPointInTime = (t.from === t.to);
                 const durationDisplay = isPointInTime ? `<span class="text-emerald-400 font-semibold">Completed ✓</span>` : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
                 const timeDisplay = isPointInTime ? f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : `${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} ➔ ${to.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
 
+                // Desktop Table Row
                 const tr = document.createElement('tr');
-                tr.className = 'hover:bg-zinc-900/60 transition';
+                tr.className = 'hover:bg-zinc-900/60 transition text-xs';
                 tr.innerHTML = `
-                    <td class="py-3.5 px-3.5 font-semibold text-white flex items-center gap-2.5">
-                        <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                    <td class="py-3 px-3 font-semibold text-white flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
                         <span>${cat.name}</span>
                         ${splitBadgeText}
                     </td>
-                    <td class="py-3.5 px-3.5 text-purple-300 font-bold font-mono">${durationDisplay}</td>
-                    <td class="py-3.5 px-3.5 text-zinc-200 text-xs font-mono">${timeDisplay}</td>
-                    <td class="py-3.5 px-3.5 text-zinc-100 font-medium">${t.note || '-'}</td>
-                    <td class="py-3.5 px-3.5 text-right"><button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 px-2 py-1 rounded hover:bg-zinc-800 transition">✕</button></td>
+                    <td class="py-3 px-3 text-purple-300 font-bold font-mono">${durationDisplay}</td>
+                    <td class="py-3 px-3 text-zinc-300 text-[11px] font-mono">${timeDisplay}</td>
+                    <td class="py-3 px-3 text-zinc-100">${t.note || '-'}</td>
+                    <td class="py-3 px-3 text-right"><button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 px-2 py-1 rounded hover:bg-zinc-800 transition">✕</button></td>
                 `;
                 tbody.appendChild(tr);
+
+                // Mobile Card View (prevents squished table layout on small screens)
+                const card = document.createElement('div');
+                card.className = 'p-3 rounded-xl bg-zinc-900/90 border border-bordercolor space-y-2 text-xs';
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2 font-bold text-white">
+                            <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                            <span>${cat.name}</span>
+                            ${splitBadgeText}
+                        </div>
+                        <span class="font-mono font-bold text-purple-300">${durationDisplay}</span>
+                    </div>
+                    <div class="text-[11px] font-mono text-zinc-300">🕒 ${timeDisplay}</div>
+                    <div class="flex items-center justify-between pt-1 border-t border-bordercolor/60">
+                        <span class="text-zinc-100 font-medium truncate pr-2">📝 ${t.note || '-'}</span>
+                        <button onclick="deleteTask('${t.id}')" class="text-zinc-400 hover:text-red-400 px-2 py-1 bg-zinc-800 rounded text-xs shrink-0">Delete ✕</button>
+                    </div>
+                `;
+                mobileList.appendChild(card);
             });
         }
 
@@ -964,7 +986,7 @@
                 tplSelect.appendChild(opt);
 
                 const div = document.createElement('div');
-                div.className = 'p-4 rounded-xl bg-zinc-900/90 border border-bordercolor space-y-3';
+                div.className = 'p-3.5 rounded-xl bg-zinc-900/90 border border-bordercolor space-y-2.5';
                 
                 let blocksHtml = '';
                 if (tpl.blocks && tpl.blocks.length > 0) {
@@ -972,31 +994,31 @@
                     blocksHtml = sortedBlocks.map(b => {
                         const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Cat' };
                         return `
-                            <div class="flex justify-between items-center text-xs bg-zinc-950 px-3 py-2 rounded-lg border border-bordercolor">
-                                <span class="text-zinc-200"><strong class="text-white font-mono">${b.start}-${b.end}</strong>: ${b.label} <span class="text-zinc-400">(${cat.name})</span></span>
-                                <div class="flex items-center gap-2 ml-2 shrink-0">
-                                    <button onclick="editBlock('${tpl.id}', '${b.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2.5 py-1 rounded-md transition">Edit</button>
-                                    <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-400 hover:text-red-400 px-1.5 py-0.5">✕</button>
+                            <div class="flex justify-between items-center text-xs bg-zinc-950 px-2.5 py-1.5 rounded-lg border border-bordercolor gap-2">
+                                <span class="text-zinc-200 truncate"><strong class="text-white font-mono">${b.start}-${b.end}</strong>: ${b.label} <span class="text-zinc-400">(${cat.name})</span></span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <button onclick="editBlock('${tpl.id}', '${b.id}')" class="text-[11px] font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2 py-0.5 rounded transition">Edit</button>
+                                    <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-400 hover:text-red-400 px-1">✕</button>
                                 </div>
                             </div>
                         `;
                     }).join('');
                 } else {
-                    blocksHtml = `<p class="text-xs text-zinc-300 italic py-1">No hourly schedule blocks added yet.</p>`;
+                    blocksHtml = `<p class="text-xs text-zinc-400 italic py-1">No hourly schedule blocks added yet.</p>`;
                 }
                 div.innerHTML = `
-                    <div class="flex items-center justify-between border-b border-bordercolor pb-2.5">
-                        <div class="flex items-center gap-2.5">
-                            <span class="w-3.5 h-3.5 rounded-full" style="background-color: ${tpl.color}"></span>
-                            <span class="text-sm font-bold text-white">${tpl.name}</span>
+                    <div class="flex items-center justify-between border-b border-bordercolor pb-2">
+                        <div class="flex items-center gap-2 truncate pr-2">
+                            <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${tpl.color}"></span>
+                            <span class="text-xs sm:text-sm font-bold text-white truncate">${tpl.name}</span>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="duplicateTemplate('${tpl.id}')" class="text-xs font-semibold text-purple-300 hover:text-white bg-purple-950/70 hover:bg-purple-900 px-2.5 py-1 rounded-lg border border-purple-700/50 transition">Duplicate</button>
-                            <button onclick="editTemplate('${tpl.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2.5 py-1 rounded-lg transition">Edit</button>
-                            <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-400 hover:text-red-400 text-xs font-bold px-2 py-1">✕</button>
+                        <div class="flex items-center gap-1.5 shrink-0">
+                            <button onclick="duplicateTemplate('${tpl.id}')" class="text-[11px] font-semibold text-purple-300 hover:text-white bg-purple-950/70 hover:bg-purple-900 px-2 py-1 rounded-lg border border-purple-700/50 transition">Copy</button>
+                            <button onclick="editTemplate('${tpl.id}')" class="text-[11px] font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2 py-1 rounded-lg transition">Edit</button>
+                            <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-400 hover:text-red-400 text-xs font-bold px-1.5 py-1">✕</button>
                         </div>
                     </div>
-                    <div class="space-y-2">
+                    <div class="space-y-1.5">
                         ${blocksHtml}
                     </div>
                 `;
@@ -1010,7 +1032,6 @@
             const tpl = appData.templates.find(t => t.id === id);
             if (!tpl) return;
 
-            // Deep clone blocks with unique IDs
             const clonedBlocks = (tpl.blocks || []).map((b, index) => ({
                 ...b,
                 id: 'b_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 5)
@@ -1090,7 +1111,6 @@
             return now.toISOString();
         }
 
-        // Dynamically determines effective horizon based on actual time remaining until deadline
         function getEffectiveHorizon(deadlineStr) {
             const diffMs = new Date(deadlineStr) - new Date();
             const diffHours = diffMs / (1000 * 60 * 60);
@@ -1181,7 +1201,6 @@
                 if (searchText && !t.text.toLowerCase().includes(searchText)) return false;
                 if (selectedCatFilter !== 'all' && t.categoryId !== selectedCatFilter) return false;
 
-                // Evaluate effective dynamic horizon for timeline filtering
                 const effectiveHorizon = getEffectiveHorizon(t.deadline);
                 if (selectedTimelineFilter !== 'all' && effectiveHorizon !== selectedTimelineFilter) return false;
 
@@ -1192,11 +1211,10 @@
             document.getElementById('pendingTaskQueueCount').innerText = `${totalPending} Pending`;
 
             if (activeTasks.length === 0) {
-                container.innerHTML = `<div class="p-6 rounded-xl bg-zinc-900/50 border border-bordercolor text-sm text-zinc-300 text-center">No pending tasks match your filter criteria.</div>`;
+                container.innerHTML = `<div class="p-4 rounded-xl bg-zinc-900/50 border border-bordercolor text-xs text-zinc-400 text-center">No pending tasks match your filter criteria.</div>`;
                 return;
             }
 
-            // Ascending sort by deadline
             const sortedTasks = [...activeTasks].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
 
             sortedTasks.forEach(task => {
@@ -1204,31 +1222,30 @@
                 const deadlineDate = new Date(task.deadline);
                 const formattedDeadline = deadlineDate.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-                // Dynamic effective horizon badge escalation
                 const effectiveHorizon = getEffectiveHorizon(task.deadline);
                 let badgeHtml = '';
-                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-xs font-bold text-red-300 bg-red-950/80 border border-red-700/50 px-2.5 py-0.5 rounded-md animate-pulse">🔥 Within a Day</span>`;
-                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-xs font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2.5 py-0.5 rounded-md">📌 Within a Week</span>`;
-                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-xs font-bold text-sky-300 bg-sky-950/80 border border-sky-700/50 px-2.5 py-0.5 rounded-md">⏳ Within a Month</span>`;
-                else badgeHtml = `<span class="text-xs font-bold text-zinc-200 bg-zinc-800 border border-zinc-600 px-2.5 py-0.5 rounded-md">📅 Within a Year</span>`;
+                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-[10px] font-bold text-red-300 bg-red-950/80 border border-red-700/50 px-2 py-0.5 rounded animate-pulse">🔥 Within a Day</span>`;
+                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-[10px] font-bold text-amber-300 bg-amber-950/80 border border-amber-700/50 px-2 py-0.5 rounded">📌 Within a Week</span>`;
+                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-[10px] font-bold text-sky-300 bg-sky-950/80 border border-sky-700/50 px-2 py-0.5 rounded">⏳ Within a Month</span>`;
+                else badgeHtml = `<span class="text-[10px] font-bold text-zinc-200 bg-zinc-800 border border-zinc-600 px-2 py-0.5 rounded">📅 Within a Year</span>`;
 
                 const div = document.createElement('div');
-                div.className = 'flex items-center justify-between gap-4 p-3.5 rounded-xl bg-zinc-900/90 border border-bordercolor hover:border-purple-500/50 transition';
+                div.className = 'flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-zinc-900/90 border border-bordercolor hover:border-purple-500/50 transition';
                 div.innerHTML = `
-                    <div class="flex items-center gap-3.5 overflow-hidden">
-                        <span class="w-3.5 h-3.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
-                        <div class="truncate space-y-1">
-                            <div class="text-white text-sm sm:text-base font-bold flex items-center gap-2.5 flex-wrap">
+                    <div class="flex items-start sm:items-center gap-2.5 overflow-hidden w-full sm:w-auto">
+                        <span class="w-3 h-3 rounded-full shrink-0 mt-1 sm:mt-0" style="background-color: ${cat.color}"></span>
+                        <div class="truncate space-y-1 w-full">
+                            <div class="text-white text-xs sm:text-sm font-bold flex items-center gap-2 flex-wrap">
                                 <span class="truncate">${task.text}</span>
                                 ${badgeHtml}
                             </div>
-                            <div class="text-xs text-zinc-300">Due: <strong class="text-white font-mono">${formattedDeadline}</strong> <span class="text-zinc-400">• ${cat.name}</span></div>
+                            <div class="text-[11px] text-zinc-300">Due: <strong class="text-white font-mono">${formattedDeadline}</strong> • <span class="text-zinc-400 font-semibold">${cat.name}</span></div>
                         </div>
                     </div>
-                    <div class="flex items-center gap-2 shrink-0">
-                        <button onclick="editQueueTask('${task.id}')" class="text-xs font-semibold text-zinc-200 hover:text-white bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg border border-zinc-700 transition">Edit</button>
-                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-xs font-bold text-emerald-300 hover:text-white bg-emerald-950/80 hover:bg-emerald-700 px-3 py-1.5 rounded-lg border border-emerald-700/50 transition">Done ✓</button>
-                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-400 hover:text-red-400 text-sm px-2 py-1 rounded-lg hover:bg-zinc-800 transition">✕</button>
+                    <div class="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                        <button onclick="editQueueTask('${task.id}')" class="text-[11px] font-semibold text-zinc-200 hover:text-white bg-zinc-800 px-2.5 py-1 rounded-lg border border-zinc-700 transition">Edit</button>
+                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-[11px] font-bold text-emerald-300 hover:text-white bg-emerald-950/80 hover:bg-emerald-700 px-2.5 py-1 rounded-lg border border-emerald-700/50 transition">Done ✓</button>
+                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-400 hover:text-red-400 text-xs px-2 py-1 rounded hover:bg-zinc-800 transition">✕</button>
                     </div>
                 `;
                 container.appendChild(div);
@@ -1240,7 +1257,7 @@
             if (!task) return;
 
             const newText = prompt('Edit task description:', task.text);
-            if (newText === null) return; // User cancelled
+            if (newText === null) return;
             
             const trimmed = newText.trim();
             if (!trimmed) {
@@ -1334,19 +1351,10 @@
         }
 
         document.getElementById('logCategory').addEventListener('change', function() {
-            const selectedOpt = this.options[this.selectedIndex];
-            const label = document.getElementById('primaryCatNameLabel');
-            if (label && selectedOpt) label.innerText = selectedOpt.text;
-        });
-
-        document.getElementById('logCategory').addEventListener('change', function() {
             const primarySplitSelect = document.getElementById('splitPrimaryCatSelect');
             if (primarySplitSelect) {
                 primarySplitSelect.value = this.value;
             }
-            const selectedOpt = this.options[this.selectedIndex];
-            const label = document.getElementById('primaryCatNameLabel');
-            if (label && selectedOpt) label.innerText = selectedOpt.text;
         });
 
         function handleTaskSubmit(e) {
@@ -1409,35 +1417,20 @@
         }
 
         function deleteTask(id) {
-            if (!confirm('Are you sure you want to delete this logged task? (If it was completed from your action queue, it will be restored there).')) {
+            if (!confirm('Are you sure you want to delete this logged task?')) {
                 return;
             }
-            // Check if the task being deleted from history is a completed action task
             const taskLog = appData.tasks.find(t => t.id === id);
             if (taskLog && taskLog.note && taskLog.note.startsWith('[Completed Task]')) {
                 const originalText = taskLog.note.replace('[Completed Task] ', '');
-                
-                // Find if it exists in tasksQueue and unmark it as completed
                 if (!appData.tasksQueue) appData.tasksQueue = [];
                 const queuedTask = appData.tasksQueue.find(t => t.text === originalText && t.completed);
                 if (queuedTask) {
                     queuedTask.completed = false;
                     queuedTask.completedAt = null;
-                } else {
-                    // If the queue item was somehow missing, recreate it in the queue
-                    appData.tasksQueue.push({
-                        id: 'tq_' + Date.now(),
-                        text: originalText,
-                        categoryId: taskLog.splits && taskLog.splits.length > 0 ? taskLog.splits[0].categoryId : 'cat-unassigned',
-                        deadline: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(), // Default to 24h fallback
-                        createdAt: new Date().toISOString(),
-                        completed: false,
-                        completedAt: null
-                    });
                 }
             }
 
-            // Proceed with normal log deletion
             appData.tasks = appData.tasks.filter(t => t.id !== id);
             saveData();
         }
@@ -1510,7 +1503,7 @@
             const endStr = appData.tenure.end;
 
             if (!startStr || !endStr) {
-                container.innerHTML = `<p class="text-sm text-zinc-300 italic text-center py-12">Please define your Tenure Start and End dates in the setup tab first.</p>`;
+                container.innerHTML = `<p class="text-xs text-zinc-400 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>`;
                 return;
             }
 
@@ -1518,7 +1511,7 @@
             const endDate = new Date(endStr);
             
             if (endDate <= startDate) {
-                container.innerHTML = `<p class="text-sm text-red-400 italic text-center py-12">Invalid tenure range.</p>`;
+                container.innerHTML = `<p class="text-xs text-red-400 italic text-center py-8">Invalid tenure range.</p>`;
                 return;
             }
 
@@ -1542,15 +1535,15 @@
                 const monthName = new Date(y, m - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
 
                 const monthDiv = document.createElement('div');
-                monthDiv.className = 'space-y-3 bg-zinc-900/50 p-4 rounded-xl border border-bordercolor';
-                monthDiv.innerHTML = `<h4 class="text-sm font-extrabold text-white uppercase tracking-wider">${monthName}</h4>`;
+                monthDiv.className = 'space-y-2 bg-zinc-900/50 p-3.5 rounded-xl border border-bordercolor';
+                monthDiv.innerHTML = `<h4 class="text-xs font-bold text-white uppercase tracking-wider">${monthName}</h4>`;
 
                 const grid = document.createElement('div');
-                grid.className = 'grid grid-cols-7 gap-2';
+                grid.className = 'grid grid-cols-7 gap-1.5';
 
-                ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].forEach(d => {
+                ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
                     const dh = document.createElement('div');
-                    dh.className = 'text-center text-xs text-zinc-300 font-bold py-1.5';
+                    dh.className = 'text-center text-[10px] text-zinc-400 font-bold py-1';
                     dh.innerText = d;
                     grid.appendChild(dh);
                 });
@@ -1589,17 +1582,17 @@
                     if (isSelected) {
                         borderStyle = 'border-purple-400 ring-2 ring-purple-500/40';
                     } else if (isToday) {
-                        borderStyle = 'border-amber-400 ring-2 ring-amber-400/40 shadow-md shadow-amber-400/20';
+                        borderStyle = 'border-amber-400 ring-2 ring-amber-400/40 shadow-sm shadow-amber-400/20';
                     }
 
                     const pastStyle = (isPast && !isSelected && !isToday) ? 'opacity-60 hover:opacity-95' : 'opacity-100';
 
-                    dayBox.className = `h-14 rounded-xl flex flex-col items-center justify-center cursor-pointer text-sm font-bold transition border ${borderStyle} ${pastStyle} hover:border-zinc-400`;
+                    dayBox.className = `h-12 rounded-xl flex flex-col items-center justify-center cursor-pointer text-xs font-bold transition border ${borderStyle} ${pastStyle} hover:border-zinc-400`;
                     dayBox.style.backgroundColor = assignedTplId ? `${tplColor}28` : '#13151f';
                     
                     dayBox.innerHTML = `
-                        <span class="${isToday ? 'text-amber-300 font-extrabold underline decoration-amber-400 underline-offset-4' : (assignedTplId ? 'text-white font-bold' : 'text-zinc-200')}">${dayNum}</span>
-                        <span class="w-4 h-1.5 rounded-full mt-1.5" style="background-color: ${tplColor}"></span>
+                        <span class="${isToday ? 'text-amber-300 font-extrabold underline decoration-amber-400 underline-offset-2' : (assignedTplId ? 'text-white font-bold' : 'text-zinc-200')}">${dayNum}</span>
+                        <span class="w-3.5 h-1 rounded-full mt-1" style="background-color: ${tplColor}"></span>
                     `;
 
                     dayBox.onclick = () => {
@@ -1632,13 +1625,13 @@
             container.innerHTML = '';
 
             if (appData.templates.length === 0) {
-                container.innerHTML = `<span class="text-sm text-zinc-300 italic">Create a template first</span>`;
+                container.innerHTML = `<span class="text-xs text-zinc-400 italic">Create a template first</span>`;
                 return;
             }
 
             appData.templates.forEach(tpl => {
                 const btn = document.createElement('button');
-                btn.className = 'px-3.5 py-2 text-xs font-bold rounded-xl text-white shadow-md transition flex items-center gap-1.5 hover:opacity-90';
+                btn.className = 'px-3 py-1.5 text-xs font-bold rounded-xl text-white shadow-sm transition flex items-center gap-1 hover:opacity-90';
                 btn.style.backgroundColor = tpl.color;
                 btn.innerHTML = `Map to ${tpl.name}`;
                 btn.onclick = () => assignSelectedDays(tpl.id);
@@ -1646,7 +1639,7 @@
             });
 
             const clearBtn = document.createElement('button');
-            clearBtn.className = 'px-3.5 py-2 text-xs font-bold rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition';
+            clearBtn.className = 'px-3 py-1.5 text-xs font-bold rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 border border-zinc-700 transition';
             clearBtn.innerText = 'Clear Mappings';
             clearBtn.onclick = () => assignSelectedDays(null);
             container.appendChild(clearBtn);
@@ -1681,6 +1674,7 @@
             }
         }
 
+        // --- Dynamic Dual Slider + Number Input Split Engine with Live Time Calculation ---
         function rebuildSplitRows() {
             const count = parseInt(document.getElementById('splitCountSelect').value) || 1;
             const container = document.getElementById('dynamicSplitRows');
@@ -1694,18 +1688,57 @@
             const primaryCatId = document.getElementById('logCategory').value;
             const defaultShare = Math.floor(100 / (count + 1));
 
+            // Helper to get total block duration in hours
+            function getBlockDurationHrs() {
+                const from = document.getElementById('logFromTime').value;
+                const to = document.getElementById('logToTime').value;
+                if (!from || !to) return 0;
+                const f = new Date(from);
+                const t = new Date(to);
+                if (isNaN(f) || isNaN(t) || t <= f) return 0;
+                return (t - f) / (1000 * 60 * 60);
+            }
+
+            // Function to synchronize slider, number input, and calculated time label
+            window.syncSplitInput = function(sourceElement, index, type) {
+                const sliders = document.querySelectorAll('.split-slider');
+                const inputs = document.querySelectorAll('.split-pct-input');
+                const timeLabels = document.querySelectorAll('.split-time-label');
+
+                let val = parseInt(sourceElement.value) || 0;
+                if (val < 0) val = 0;
+                if (val > 100) val = 100;
+
+                sliders[index].value = val;
+                inputs[index].value = val;
+
+                const totalHrs = getBlockDurationHrs();
+                const calculatedHrs = totalHrs * (val / 100);
+                timeLabels[index].innerText = `≈ ${formatHours(calculatedHrs)}`;
+
+                updateSplitMath();
+            };
+
             const primaryRow = document.createElement('div');
-            primaryRow.className = 'grid grid-cols-12 gap-3 items-center bg-zinc-950 p-3 rounded-xl border border-purple-500/40';
+            primaryRow.className = 'bg-zinc-950 p-2.5 rounded-xl border border-purple-500/40 space-y-2';
             primaryRow.innerHTML = `
-                <div class="col-span-7">
-                    <label class="text-xs text-purple-300 font-bold block mb-1">Category #1 (Primary)</label>
-                    <select id="splitPrimaryCatSelect" onchange="syncPrimaryCategoryDropdown()" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-white">
-                        ${categoryOptionsHtml}
-                    </select>
+                <div class="flex justify-between items-center">
+                    <label class="text-[11px] text-purple-300 font-bold">Category #1 (Primary)</label>
+                    <span class="split-time-label text-[11px] font-mono text-purple-300 font-bold">≈ 0 hrs</span>
                 </div>
-                <div class="col-span-5">
-                    <label class="text-xs text-zinc-200 font-semibold block mb-1">Percentage %</label>
-                    <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-white font-mono">
+                <div class="grid grid-cols-12 gap-2 items-center">
+                    <div class="col-span-7">
+                        <select id="splitPrimaryCatSelect" onchange="syncPrimaryCategoryDropdown()" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2.5 py-1.5 text-xs text-white">
+                            ${categoryOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="col-span-3">
+                        <input type="number" min="0" max="100" value="${defaultShare}" oninput="syncSplitInput(this, 0, 'input')" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-white font-mono text-center">
+                    </div>
+                    <div class="col-span-2 text-right text-[11px] text-zinc-400 font-mono">%</div>
+                </div>
+                <div>
+                    <input type="range" min="0" max="100" value="${defaultShare}" oninput="syncSplitInput(this, 0, 'slider')" class="split-slider w-full accent-purple-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg">
                 </div>
             `;
             container.appendChild(primaryRow);
@@ -1714,21 +1747,36 @@
 
             for (let i = 1; i <= count; i++) {
                 const row = document.createElement('div');
-                row.className = 'grid grid-cols-12 gap-3 items-center bg-zinc-950/70 p-3 rounded-xl border border-bordercolor';
+                row.className = 'bg-zinc-950/70 p-2.5 rounded-xl border border-bordercolor space-y-2';
                 row.innerHTML = `
-                    <div class="col-span-7">
-                        <label class="text-xs text-zinc-200 font-semibold block mb-1">Category #${i + 1}</label>
-                        <select class="split-cat-select w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-white">
-                            ${categoryOptionsHtml}
-                        </select>
+                    <div class="flex justify-between items-center">
+                        <label class="text-[11px] text-zinc-300 font-semibold">Category #${i + 1}</label>
+                        <span class="split-time-label text-[11px] font-mono text-purple-300 font-bold">≈ 0 hrs</span>
                     </div>
-                    <div class="col-span-5">
-                        <label class="text-xs text-zinc-200 font-semibold block mb-1">Percentage %</label>
-                        <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-white font-mono">
+                    <div class="grid grid-cols-12 gap-2 items-center">
+                        <div class="col-span-7">
+                            <select class="split-cat-select w-full bg-zinc-900 border border-bordercolor rounded-lg px-2.5 py-1.5 text-xs text-white">
+                                ${categoryOptionsHtml}
+                            </select>
+                        </div>
+                        <div class="col-span-3">
+                            <input type="number" min="0" max="100" value="${defaultShare}" oninput="syncSplitInput(this, ${i}, 'input')" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-white font-mono text-center">
+                        </div>
+                        <div class="col-span-2 text-right text-[11px] text-zinc-400 font-mono">%</div>
+                    </div>
+                    <div>
+                        <input type="range" min="0" max="100" value="${defaultShare}" oninput="syncSplitInput(this, ${i}, 'slider')" class="split-slider w-full accent-purple-500 cursor-pointer h-1.5 bg-zinc-800 rounded-lg">
                     </div>
                 `;
                 container.appendChild(row);
             }
+
+            // Initialize time labels on build
+            const initialInputs = document.querySelectorAll('.split-pct-input');
+            initialInputs.forEach((inp, idx) => {
+                window.syncSplitInput(inp, idx, 'input');
+            });
+
             updateSplitMath();
         }
 

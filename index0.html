@@ -1,0 +1,1697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Ledger</title>
+    <!-- Tailwind CSS for clean dark mode UI -->
+    <script src="https://cdn.tailwindcss.com">
+        // Register a lightweight offline cache service worker dynamically
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                const swCode = `
+                    const CACHE_NAME = 'time-ledger-cache-v1';
+                    self.addEventListener('install', e => {
+                        self.skipWaiting();
+                    });
+                    self.addEventListener('activate', e => {
+                        e.waitUntil(clients.claim());
+                    });
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            fetch(e.request)
+                                .then(response => {
+                                    return caches.open(CACHE_NAME).then(cache => {
+                                        cache.put(e.request, response.clone());
+                                        return response;
+                                    });
+                                })
+                                .catch(() => caches.match(e.request))
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'text/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl).catch(err => {
+                    console.warn('Offline caching service worker skipped:', err);
+                });
+            });
+        }
+    </script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        darkbg: '#09090b',
+                        cardbg: '#121217',
+                        bordercolor: '#27272a'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-darkbg text-zinc-100 min-h-screen font-sans antialiased pb-12">
+
+    <!-- Top Navigation / Header -->
+    <header class="border-b border-bordercolor bg-cardbg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                    ⏳ Time Ledger
+                </h1>
+                <p class="text-xs text-zinc-400" id="headerTenureSub">Configure your tenure to start tracking hours.</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="switchTab('dashboard')" id="btn-dashboard" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 text-white hover:bg-zinc-700 transition">Dashboard</button>
+                <button onclick="switchTab('setup')" id="btn-setup" class="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition">Tenure & Categories</button>
+                <button onclick="switchTab('templates')" id="btn-templates" class="px-3 py-1.5 text-xs font-medium rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition">Schedules & Mapper</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6">
+
+        <!-- ================= TAB 1: DASHBOARD ================= -->
+        <section id="tab-dashboard" class="space-y-6">
+            <!-- Today's Mapped Schedule Timetable Banner -->
+            <div id="todayBanner" class="p-3 rounded-xl bg-gradient-to-r from-purple-950/40 via-zinc-900 to-zinc-900 border border-purple-500/30 space-y-2">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-1">
+                    <div>
+                        <span class="text-xs font-semibold uppercase tracking-wider text-purple-400">Today's Planned Schedule</span>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-1" id="todayTemplateName">No template mapped for today</h2>
+                    </div>
+                    <div class="text-xs text-zinc-400" id="todayDateStr"></div>
+                </div>
+
+                <!-- Timetable Schedule List -->
+                <div id="todayTimetableList" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 pt-2">
+                    <!-- Populated dynamically with hourly blocks -->
+                </div>
+            </div>
+
+            <!-- Top Metric Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="p-4 rounded-xl bg-cardbg border border-bordercolor">
+                    <span class="text-xs font-medium text-zinc-400">Total Tenure Hours</span>
+                    <div class="text-2xl font-bold text-white mt-1" id="statTotalHours">0 hrs</div>
+                    <span class="text-[10px] text-zinc-500" id="statTenureDates">Not set</span>
+                </div>
+                <div class="p-4 rounded-xl bg-cardbg border border-bordercolor">
+                    <span class="text-xs font-medium text-zinc-400">Total Logged / Burned</span>
+                    <div class="text-2xl font-bold text-emerald-400 mt-1" id="statBurnedHours">0 hrs</div>
+                    <span class="text-[10px] text-zinc-500" id="statBurnedPercent">0% of tenure</span>
+                </div>
+                <div class="p-4 rounded-xl bg-cardbg border border-bordercolor">
+                    <span class="text-xs font-medium text-zinc-400">Available Balance</span>
+                    <div class="text-2xl font-bold text-purple-400 mt-1" id="statAvailableBalance">0 hrs</div>
+                    <span class="text-[10px] text-zinc-500">Remaining until end date</span>
+                </div>
+                <div class="p-4 rounded-xl bg-cardbg border border-bordercolor">
+                    <span class="text-xs font-medium text-zinc-400">Unassigned</span>
+                    <div class="text-2xl font-bold text-amber-400 mt-1" id="statBufferHours">0 hrs</div>
+                    <span class="text-[10px] text-zinc-500">Unallocated budget reserve</span>
+                </div>
+            </div>
+
+            <!-- Action Tasks & Time Horizons Panel -->
+            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+                        📌 Action Tasks & Deadlines
+                    </h3>
+                    <span class="text-xs text-zinc-400" id="pendingTaskQueueCount">0 Pending</span>
+                </div>
+
+                <!-- Fast Task Input Form with Optional Custom Deadline -->
+                <form id="taskQueueForm" onsubmit="handleTaskQueueSubmit(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+                    <div class="sm:col-span-4">
+                        <label class="block text-[10px] text-zinc-400 mb-1">Task Description</label>
+                        <input type="text" id="queueTaskText" placeholder="What needs to be done?" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-1.5 text-xs text-zinc-100 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] text-zinc-400 mb-1">Category</label>
+                        <select id="queueTaskCategory" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200">
+                            <!-- Dynamically populated -->
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-[10px] text-zinc-400 mb-1">Time Horizon</label>
+                        <select id="queueTaskHorizon" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200">
+                            <option value="day">🔥 Within a Day (+24h)</option>
+                            <option value="week">📌 Within a Week (+7d)</option>
+                            <option value="month">⏳ Within a Month (+30d)</option>
+                            <option value="year">📅 Within a Year (+365d)</option>
+                        </select>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label class="block text-[10px] text-zinc-400 mb-1">Custom Deadline (Optional)</label>
+                        <input type="datetime-local" id="queueTaskCustomDeadline" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-2 py-1.5 text-xs text-zinc-200 focus:outline-none focus:border-purple-500">
+                    </div>
+
+                    <div class="sm:col-span-1 flex items-end">
+                        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg py-2 transition">Add</button>
+                    </div>
+                </form>
+
+                <!-- Filter & Search Bar Controls -->
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2 border-t border-bordercolor/40 text-xs">
+                    <div>
+                        <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search tasks..." class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-100 focus:outline-none focus:border-purple-500">
+                    </div>
+                    <div>
+                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-200">
+                            <option value="all">📂 All Categories</option>
+                            <!-- Dynamically populated -->
+                        </select>
+                    </div>
+                    <div>
+                        <select id="taskFilterTimeline" onchange="renderTaskQueueList()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2.5 py-1 text-xs text-zinc-200">
+                            <option value="all">⏳ All Timelines (Deadlines)</option>
+                            <option value="day">🔥 Due Within 24h (Today)</option>
+                            <option value="week">📌 Due Within a Week</option>
+                            <option value="month">⏳ Due Within a Month</option>
+                            <option value="year">📅 Due Within a Year</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sorted Task List Container -->
+                <div id="taskQueueList" class="space-y-2 max-h-56 overflow-y-auto pr-1 pt-1">
+                    <!-- Populated dynamically via JS -->
+                </div>
+            </div>
+
+            <!-- Main Grid: Task Logging & Category Side Panel -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left 2 Cols: Task Logging & Recent Logs -->
+                <div class="lg:col-span-2 space-y-6">
+                    <!-- Task Logging Form -->
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4" id="logSection">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Log Time Block</h3>
+                        <form id="taskLogForm" onsubmit="handleTaskSubmit(event)" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">From Time</label>
+                                    <input type="datetime-local" id="logFromTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">To Time</label>
+                                    <input type="datetime-local" id="logToTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">Category</label>
+                                    <select id="logCategory" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <!-- Optional Split / Efficiency Toggle -->
+                                <div class="mt-2 space-y-2 p-2.5 rounded-lg bg-zinc-950 border border-bordercolor/50">
+                                    <div class="flex items-center justify-between">
+                                        <label class="text-[11px] text-zinc-400 font-medium flex items-center gap-1.5 cursor-pointer">
+                                            <input type="checkbox" id="enableSplitToggle" onchange="toggleSplitSection(this)" class="rounded bg-zinc-900 border-bordercolor text-purple-500 focus:ring-0">
+                                            Split across multiple categories / Noise?
+                                        </label>
+                                    </div>
+
+                                    <!-- Hidden by default until toggled -->
+                                    <div id="splitSection" class="hidden space-y-3 pt-2 border-t border-bordercolor/30 text-xs">
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-[11px] text-zinc-400">Number of Category Splits:</span>
+                                            <select id="splitCountSelect" onchange="rebuildSplitRows()" class="bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
+                                                <option value="1">2</option>
+                                                <option value="2">3</option>
+                                                <option value="3">4</option>
+                                            </select>
+                                        </div>
+
+                                        <!-- Dynamic Split Rows Container -->
+                                        <div id="dynamicSplitRows" class="space-y-2">
+                                            <!-- Populated dynamically via JS -->
+                                        </div>
+
+                                        <div class="text-[11px] text-zinc-400 flex justify-between pt-1 font-mono border-t border-bordercolor/20">
+                                            <span>Buffer / Noise Remainder:</span>
+                                            <span id="bufferRemainderLabel" class="text-amber-400 font-bold">100%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">Task Description / Note</label>
+                                    <input type="text" id="logNote" placeholder="e.g. Morning Workout / Sleep" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Commit Time Block</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- History / Logs Table -->
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Logged History</h3>
+                            <button onclick="clearLogs()" class="text-xs text-red-400 hover:underline">Clear All Logs</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs text-zinc-300">
+                                <thead class="border-b border-bordercolor text-zinc-500 uppercase">
+                                    <tr>
+                                        <th class="py-2 px-3">Category</th>
+                                        <th class="py-2 px-3">Duration</th>
+                                        <th class="py-2 px-3">From -> To</th>
+                                        <th class="py-2 px-3">Note</th>
+                                        <th class="py-2 px-3 text-right">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="logsTableBody">
+                                    <!-- Populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 1 Col: Category Budgets Side Panel -->
+                <div class="space-y-6">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Category Breakdown</h3>
+                        <div id="categoryBreakdownList" class="space-y-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- ================= TAB 2: TENURE & CATEGORIES SETUP ================= -->
+        <section id="tab-setup" class="hidden space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Tenure Setup Card -->
+                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">1. Define Tenure Period</h3>
+                    <form id="tenureForm" onsubmit="handleTenureSubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Start Date & Time</label>
+                            <input type="datetime-local" id="startDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">End Date & Time</label>
+                            <input type="datetime-local" id="endDate" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Save Tenure</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Category Manager Card -->
+                <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                    <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Manage Categories</h3>
+                    <form id="categoryForm" onsubmit="handleCategorySubmit(event)" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Category Name</label>
+                            <input type="text" id="catName" placeholder="e.g. Sleep, Work, Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-zinc-400 mb-1">Color Theme</label>
+                            <div class="flex items-center gap-2">
+                                <input type="color" id="catColor" value="#9333ea" onchange="syncCatColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
+                                <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 font-mono focus:outline-none focus:border-purple-500">
+                            </div>
+                        </div>
+                        <div class="flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Add Category</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Existing Categories List -->
+            <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Configured Categories</h3>
+                <div id="categoryListContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= TAB 3: SCHEDULE TEMPLATES & CALENDAR MAPPER ================= -->
+        <section id="tab-templates" class="hidden space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                
+                <!-- Left Col: Create Schedule Templates & Hourly Blocks -->
+                <div class="space-y-6">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">1. Create Schedule Template</h3>
+                        <form id="templateForm" onsubmit="handleTemplateSubmit(event)" class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Name</label>
+                                <input type="text" id="tplName" placeholder="e.g. Workday PG, Holiday Home" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Template Accent Color</label>
+                                <div class="flex items-center gap-2">
+                                    <input type="color" id="tplColor" value="#3b82f6" onchange="syncTplColorText(this.value)" class="w-10 h-10 bg-zinc-900 border border-bordercolor rounded-lg px-1 cursor-pointer shrink-0">
+                                    <input type="text" id="tplColorHex" value="#3b82f6" placeholder="#3b82f6" oninput="syncTplColorPicker(this.value)" class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 font-mono focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">Save Template</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Template Hourly Block Editor -->
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">2. Add Hourly Block To Template</h3>
+                        <form id="blockForm" onsubmit="handleBlockSubmit(event)" class="space-y-3">
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Select Target Template</label>
+                                <select id="blockTemplateSelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">Start Time</label>
+                                    <input type="time" id="blockStartTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-medium text-zinc-400 mb-1">End Time</label>
+                                    <input type="time" id="blockEndTime" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Category</label>
+                                <select id="blockCategorySelect" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                                    <!-- Populated dynamically -->
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-zinc-400 mb-1">Activity Label / Description</label>
+                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="w-full bg-zinc-900 border border-bordercolor rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-purple-500">
+                            </div>
+                            <div class="flex justify-end">
+                                <button type="submit" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white font-medium text-xs rounded-lg transition">+ Add Schedule Block</button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <h3 class="text-sm font-semibold text-white uppercase tracking-wider">Saved Templates & Timetables</h3>
+                        <div id="templateListContainer" class="space-y-4">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right 2 Cols: Interactive Calendar Matrix Mapper -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="p-5 rounded-xl bg-cardbg border border-bordercolor space-y-4">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div>
+                                <h3 class="text-sm font-semibold text-white uppercase tracking-wider">3. Calendar Day Mapper</h3>
+                                <p class="text-xs text-zinc-400">Click dates to select them, then assign a template below.</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="selectAllDays()" class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded">Select All</button>
+                                <button onclick="clearDaySelection()" class="px-2.5 py-1 text-xs bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded">Clear Selection</button>
+                            </div>
+                        </div>
+
+                        <!-- Template Assignment Bar -->
+                        <div id="assignmentBar" class="p-3 bg-zinc-900 rounded-lg border border-bordercolor flex flex-wrap items-center justify-between gap-3">
+                            <span class="text-xs text-zinc-300 font-medium" id="selectedCountText">0 days selected</span>
+                            <div class="flex items-center gap-2 flex-wrap" id="assignButtonsContainer">
+                                <!-- Populated dynamically with template buttons -->
+                            </div>
+                        </div>
+
+                        <!-- Visual Calendar Grid -->
+                        <div id="calendarGridView" class="space-y-6 max-h-[550px] overflow-y-auto pr-2">
+                            <p class="text-xs text-zinc-500 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Application Script -->
+    <script>
+        // --- State Management ---
+        let appData = JSON.parse(localStorage.getItem('timeLedgerData')) || {
+            tenure: { start: '', end: '' },
+            categories: [
+                { id: 'cat-unassigned', name: 'Unassigned', color: '#562828' },
+                { id: 'cat-sleep', name: 'Sleep', color: '#3b82f6' },
+                { id: 'cat-work', name: 'Work', color: '#10b981' }
+            ],
+            tasks: [],
+            templates: [
+                {
+                    id: 'tpl-work',
+                    name: 'Workday PG',
+                    color: '#10b981',
+                    blocks: [
+                        { id: 'b1', start: '00:00', end: '07:00', categoryId: 'cat-sleep', label: 'Sleep' },
+                        { id: 'b2', start: '09:00', end: '17:00', categoryId: 'cat-work', label: 'Office Hours' }
+                    ]
+                }
+            ],
+            dayMappings: {}, // { "YYYY-MM-DD": "tpl-id" }
+            tasksQueue: [] // Action Task Queue Storage
+        };
+
+        let selectedDatesSet = new Set();
+
+        // --- Helper: Convert decimal hours to "X hrs Y mins" ---
+        function formatHours(decimalHours) {
+            if (isNaN(decimalHours) || decimalHours <= 0) return '0 hrs';
+            const totalMinutes = Math.round(decimalHours * 60);
+            const hrs = Math.floor(totalMinutes / 60);
+            const mins = totalMinutes % 60;
+            if (hrs === 0) return `${mins} mins`;
+            if (mins === 0) return `${hrs} hrs`;
+            return `${hrs}h:${mins}m`;
+        }
+
+        function saveData() {
+            localStorage.setItem('timeLedgerData', JSON.stringify(appData));
+            renderApp();
+        }
+
+        // --- Tab Navigation ---
+        function switchTab(tabId) {
+            ['dashboard', 'setup', 'templates'].forEach(t => {
+                document.getElementById(`tab-${t}`).classList.add('hidden');
+                document.getElementById(`btn-${t}`).classList.remove('bg-zinc-800', 'text-white');
+                document.getElementById(`btn-${t}`).classList.add('text-zinc-400');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`btn-${tabId}`).classList.add('bg-zinc-800', 'text-white');
+            document.getElementById(`btn-${tabId}`).classList.remove('text-zinc-400');
+
+            if (tabId === 'templates') {
+                renderCalendarMatrix();
+            }
+        }
+
+        // --- Core Calculations & Template-Driven Budgets ---
+        function calculateCategoryBudgets() {
+            let budgets = {};
+            appData.categories.forEach(cat => {
+                budgets[cat.id] = 0;
+            });
+
+            for (let dateStr in appData.dayMappings) {
+                const tplId = appData.dayMappings[dateStr];
+                const tpl = appData.templates.find(t => t.id === tplId);
+                if (tpl && tpl.blocks) {
+                    tpl.blocks.forEach(b => {
+                        const [startH, startM] = b.start.split(':').map(Number);
+                        const [endH, endM] = b.end.split(':').map(Number);
+                        let startMins = startH * 60 + startM;
+                        let endMins = endH * 60 + endM;
+                        
+                        if (endMins === 0 && startMins > 0) {
+                            endMins = 1440;
+                        }
+
+                        const durationHrs = Math.max(0, (endMins - startMins) / 60);
+                        if (budgets[b.categoryId] !== undefined) {
+                            budgets[b.categoryId] += durationHrs;
+                        }
+                    });
+                }
+            }
+            return budgets;
+        }
+
+        function calculateMetrics() {
+            const start = appData.tenure.start ? new Date(appData.tenure.start) : null;
+            const end = appData.tenure.end ? new Date(appData.tenure.end) : null;
+
+            if (!start || !end || isNaN(start) || isNaN(end) || end <= start) {
+                return { totalHours: 0, burnedHours: 0, availableBalance: 0, bufferHours: 0, daysCount: 0, categoryBudgets: {} };
+            }
+
+            const diffMs = end - start;
+            const totalHours = diffMs / (1000 * 60 * 60);
+            const daysCount = totalHours / 24;
+
+            const categoryBudgets = calculateCategoryBudgets();
+
+            let totalBudgeted = 0;
+            appData.categories.forEach(cat => {
+                if (cat.id !== 'cat-unassigned') {
+                    totalBudgeted += categoryBudgets[cat.id] || 0;
+                }
+            });
+
+            const bufferHours = totalHours - totalBudgeted;
+            categoryBudgets['cat-unassigned'] = bufferHours;
+
+            let burnedHours = 0;
+            appData.tasks.forEach(t => {
+                const f = new Date(t.from);
+                const to = new Date(t.to);
+                if (!isNaN(f) && !isNaN(to) && to > f) {
+                    burnedHours += (to - f) / (1000 * 60 * 60);
+                }
+            });
+
+            const availableBalance = totalHours - burnedHours;
+
+            return { totalHours, burnedHours, availableBalance, bufferHours, daysCount, categoryBudgets };
+        }
+
+        // --- Initializer & Render Engine ---
+        function renderApp() {
+            const metrics = calculateMetrics();
+
+            if (appData.tenure.start && appData.tenure.end) {
+                document.getElementById('headerTenureSub').innerText = `Tenure: ${new Date(appData.tenure.start).toLocaleDateString()} to ${new Date(appData.tenure.end).toLocaleDateString()}`;
+                document.getElementById('startDate').value = appData.tenure.start;
+                document.getElementById('endDate').value = appData.tenure.end;
+            }
+            document.getElementById('statTotalHours').innerText = formatHours(metrics.totalHours);
+            document.getElementById('statBurnedHours').innerText = formatHours(metrics.burnedHours);
+            const burnedPct = metrics.totalHours > 0 ? ((metrics.burnedHours / metrics.totalHours) * 100).toFixed(1) : 0;
+            document.getElementById('statBurnedPercent').innerText = `${burnedPct}% of tenure`;
+            document.getElementById('statAvailableBalance').innerText = formatHours(metrics.availableBalance);
+            document.getElementById('statBufferHours').innerText = formatHours(metrics.bufferHours);
+            
+            if (metrics.bufferHours < 0) {
+                document.getElementById('statBufferHours').classList.remove('text-amber-400');
+                document.getElementById('statBufferHours').classList.add('text-red-400');
+            } else {
+                document.getElementById('statBufferHours').classList.remove('text-red-400');
+                document.getElementById('statBufferHours').classList.add('text-amber-400');
+            }
+
+            if (appData.tenure.start && appData.tenure.end) {
+                document.getElementById('statTenureDates').innerText = `${metrics.daysCount.toFixed(1)} total days`;
+            }
+
+            renderTodayBanner();
+            renderCategorySelectAndList();
+            renderTasksTable();
+            renderTemplatesList();
+            renderTaskQueueList();
+
+            const fromInput = document.getElementById('logFromTime');
+            if (!fromInput.value && appData.tasks.length > 0) {
+                const lastTask = appData.tasks[appData.tasks.length - 1];
+                fromInput.value = lastTask.to;
+            } else if (!fromInput.value && appData.tenure.start) {
+                fromInput.value = appData.tenure.start;
+            }
+        }
+
+        function renderTodayBanner() {
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            document.getElementById('todayDateStr').innerText = now.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' });
+            
+            const timetableContainer = document.getElementById('todayTimetableList');
+            timetableContainer.innerHTML = '';
+
+            const tplId = appData.dayMappings[todayStr];
+            if (tplId) {
+                const tpl = appData.templates.find(t => t.id === tplId);
+                if (tpl) {
+                    document.getElementById('todayTemplateName').innerHTML = `<span style="color: ${tpl.color}">●</span> ${tpl.name}`;
+                    
+                    if (!tpl.blocks || tpl.blocks.length === 0) {
+                        timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">No hourly schedule blocks added to this template yet.</p>`;
+                        return;
+                    }
+
+                    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+                    const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
+
+                    sortedBlocks.forEach(b => {
+                        const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Task', color: '#8b5cf6' };
+                        
+                        const [startH, startM] = b.start.split(':').map(Number);
+                        const [endH, endM] = b.end.split(':').map(Number);
+                        const blockStartMins = startH * 60 + startM;
+                        let blockEndMins = endH * 60 + endM;
+
+                        if (blockEndMins === 0 && blockStartMins > 0) {
+                            blockEndMins = 1440;
+                        }
+
+                        const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;
+
+                        const div = document.createElement('div');
+                        
+                        if (isActive) {
+                            div.className = 'p-3 rounded-lg bg-purple-950/70 border-2 border-purple-500 ring-2 ring-purple-500/30 flex items-center justify-between cursor-pointer transition shadow-lg shadow-purple-950/50';
+                        } else {
+                            div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between hover:border-purple-500/50 cursor-pointer transition';
+                        }
+
+                        div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
+                        
+                        div.innerHTML = `
+                            <div class="space-y-0.5">
+                                <div class="text-[12px] font-semibold text-zinc-400 flex items-center gap-1">
+                                    <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span> 
+                                    ${b.label}
+                                    ${isActive ? '<span class="text-[9px] text-emerald-400 font-bold bg-emerald-950 px-1.5 py-0.5 rounded border border-emerald-500/40 ml-1.5 animate-pulse">● LIVE NOW</span>' : ''}
+                                </div>
+                                <div class="text-[14px] ${isActive ? 'text-purple-200 font-bold' : 'text-white-400'}">${b.start} -> ${b.end} (${cat.name})</div>
+                            </div>
+                            <span class="text-[10px] ${isActive ? 'text-white bg-purple-600 font-bold' : 'text-purple-400 bg-purple-950/50 border border-purple-800/30'} px-2 py-1 rounded transition">Log Task ➔</span>
+                        `;
+                        timetableContainer.appendChild(div);
+                    });
+                    return;
+                }
+            }
+            document.getElementById('todayTemplateName').innerText = "No schedule template mapped for today";
+            timetableContainer.innerHTML = `<p class="text-xs text-zinc-500 italic col-span-full">Map a schedule template to today's date in the "Schedules & Mapper" tab to view your timetable here.</p>`;
+        }
+
+        function prefillLogFromBlock(dateStr, startTime, endTime, categoryId, note) {
+            document.getElementById('logFromTime').value = `${dateStr}T${startTime}`;
+            document.getElementById('logToTime').value = `${dateStr}T${endTime}`;
+            document.getElementById('logCategory').value = categoryId;
+            document.getElementById('logNote').value = note;
+            
+            document.getElementById('logSection').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function renderCategorySelectAndList() {
+            const select = document.getElementById('logCategory');
+            select.innerHTML = '';
+
+            const blockCatSelect = document.getElementById('blockCategorySelect');
+            blockCatSelect.innerHTML = '';
+            
+            const catListContainer = document.getElementById('categoryListContainer');
+            catListContainer.innerHTML = '';
+
+            const breakdownContainer = document.getElementById('categoryBreakdownList');
+            breakdownContainer.innerHTML = '';
+
+            const metrics = calculateMetrics();
+
+            appData.categories.forEach(cat => {
+                const opt1 = document.createElement('option');
+                opt1.value = cat.id;
+                opt1.innerText = cat.name;
+                select.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = cat.id;
+                opt2.innerText = cat.name;
+                blockCatSelect.appendChild(opt2);
+
+                const totalBudget = metrics.categoryBudgets[cat.id] || 0;
+
+                const card = document.createElement('div');
+                card.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor flex items-center justify-between';
+                card.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <span class="w-3 h-3 rounded-full" style="background-color: ${cat.color}"></span>
+                        <div>
+                            <h4 class="text-xs font-semibold text-white">${cat.name}</h4>
+                            <span class="text-[10px] text-zinc-400">Total Budget: ${totalBudget.toFixed(1)} hrs (mapped)</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>` : ''}
+                        ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>` : ''}
+                    </div>`;
+                catListContainer.appendChild(card);
+
+                let catLoggedHours = 0;
+                appData.tasks.forEach(t => {
+                    const f = new Date(t.from);
+                    const to = new Date(t.to);
+                    if (!isNaN(f) && !isNaN(to) && to > f) {
+                        const totalTaskHours = (to - f) / (1000 * 60 * 60);
+                        
+                        if (t.splits) {
+                            t.splits.forEach(s => {
+                                if (s.categoryId === cat.id) {
+                                    catLoggedHours += totalTaskHours * (s.percentage / 100);
+                                }
+                            });
+                        } else if (t.categoryId === cat.id) {
+                            catLoggedHours += totalTaskHours;
+                        }
+                    }
+                });
+                let pct = totalBudget > 0 ? Math.min(100, (catLoggedHours / totalBudget) * 100) : 0;
+                pct = totalBudget - catLoggedHours < 0 ? 100 : pct;
+                const bar = document.createElement('div');
+                bar.className = 'space-y-1';
+                bar.innerHTML = `
+                    <div class="flex justify-between text-xs">
+                        <span class="text-zinc-300 font-medium flex items-center gap-1.5"><span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>${cat.name}</span>
+                        <span class="text-zinc-400">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
+                    </div>
+                    <div class="w-full bg-zinc-900 rounded-full h-2 overflow-hidden border border-bordercolor">
+                        <div class="h-full rounded-full" style="width: ${pct}%; background-color: ${cat.color}"></div>
+                    </div>
+                `;
+                breakdownContainer.appendChild(bar);
+            });
+        }
+        function editCategory(id) {
+            const cat = appData.categories.find(c => c.id === id);
+            if (!cat) return;
+
+            const newName = prompt('Edit category name:', cat.name);
+            if (newName === null) return; // Cancelled
+            const trimmedName = newName.trim();
+            if (!trimmedName) {
+                alert('Category name cannot be empty.');
+                return;
+            }
+
+            const newColor = prompt('Edit color theme (Hex code, e.g. #9333ea):', cat.color);
+            if (newColor === null) return; // Cancelled
+            const trimmedColor = newColor.trim();
+            if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
+                alert('Invalid hex color format. Please use a valid hex code like #9333ea.');
+                return;
+            }
+
+            cat.name = trimmedName;
+            cat.color = trimmedColor;
+            saveData();
+        }
+        function renderTasksTable() {
+            const tbody = document.getElementById('logsTableBody');
+            tbody.innerHTML = '';
+
+            if (appData.tasks.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-zinc-500 italic">No time blocks logged yet.</td></tr>`;
+                return;
+            }
+
+            const sorted = [...appData.tasks].sort((a,b) => new Date(b.from) - new Date(a.from));
+
+            sorted.forEach(t => {
+                let primaryCatId = t.categoryId;
+                let splitBadgeText = '';
+
+                if (t.splits && t.splits.length > 0) {
+                    primaryCatId = t.splits[0].categoryId;
+                    if (t.splits.length > 1) {
+                        splitBadgeText = ` <span class="text-[10px] text-purple-400 bg-purple-950/60 px-1.5 py-0.5 rounded border border-purple-800/40 font-mono">Split (${t.splits.length})</span>`;
+                    }
+                }
+
+                const cat = appData.categories.find(c => c.id === primaryCatId) || { name: 'Unknown', color: '#71717a' };
+                const f = new Date(t.from);
+                const to = new Date(t.to);
+                
+                // If start and end are identical (point-in-time task completion), display exact timestamp instead of duration
+                const isPointInTime = (t.from === t.to);
+                const durationDisplay = isPointInTime ? `<span class="text-emerald-400 font-normal">Completed</span>` : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
+                const timeDisplay = isPointInTime ? f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'}) : `${f.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})} -> ${to.toLocaleString([], {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'})}`;
+
+                const tr = document.createElement('tr');
+                tr.className = 'border-b border-bordercolor/50 hover:bg-zinc-900/40';
+                tr.innerHTML = `
+                    <td class="py-2.5 px-3 font-medium text-white flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full" style="background-color: ${cat.color}"></span>
+                        <span>${cat.name}</span>
+                        ${splitBadgeText}
+                    </td>
+                    <td class="py-2.5 px-3 text-purple-400 font-semibold">${durationDisplay}</td>
+                    <td class="py-2.5 px-3 text-zinc-400 text-[11px]">${timeDisplay}</td>
+                    <td class="py-2.5 px-3 text-zinc-300">${t.note || '-'}</td>
+                    <td class="py-2.5 px-3 text-right"><button onclick="deleteTask('${t.id}')" class="text-zinc-500 hover:text-red-400">✕</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function renderTemplatesList() {
+            const container = document.getElementById('templateListContainer');
+            container.innerHTML = '';
+
+            const tplSelect = document.getElementById('blockTemplateSelect');
+            const currentSelectedTpl = tplSelect.value;
+            tplSelect.innerHTML = '';
+
+            const catSelect = document.getElementById('blockCategorySelect');
+            const currentSelectedCat = catSelect.value;
+            catSelect.innerHTML = '';
+
+            appData.categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat.id;
+                opt.innerText = cat.name;
+                catSelect.appendChild(opt);
+            });
+            if (currentSelectedCat) catSelect.value = currentSelectedCat;
+
+            appData.templates.forEach(tpl => {
+                const opt = document.createElement('option');
+                opt.value = tpl.id;
+                opt.innerText = tpl.name;
+                tplSelect.appendChild(opt);
+
+                const div = document.createElement('div');
+                div.className = 'p-3 rounded-lg bg-zinc-900 border border-bordercolor space-y-2';
+                
+                let blocksHtml = '';
+                if (tpl.blocks && tpl.blocks.length > 0) {
+                    const sortedBlocks = [...tpl.blocks].sort((a,b) => a.start.localeCompare(b.start));
+                    blocksHtml = sortedBlocks.map(b => {
+                        const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Cat' };
+                        return `
+                            <div class="flex justify-between items-center text-[11px] bg-zinc-950 px-2 py-1 rounded border border-bordercolor/50">
+                                <span class="text-zinc-300"><strong class="text-white">${b.start}-${b.end}</strong>: ${b.label} (${cat.name})</span>
+                                <div class="flex items-center gap-1.5 ml-2">
+                                    <button onclick="editBlock('${tpl.id}', '${b.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-1.5 py-0.5 rounded transition">Edit</button>
+                                    <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="text-zinc-500 hover:text-red-400">✕</button>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    blocksHtml = `<p class="text-[11px] text-zinc-500 italic">No hourly schedule blocks added yet.</p>`;
+                }
+                div.innerHTML = `
+                    <div class="flex items-center justify-between border-b border-bordercolor/50 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full" style="background-color: ${tpl.color}"></span>
+                            <span class="text-xs font-bold text-white">${tpl.name}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="duplicateTemplate('${tpl.id}')" class="text-[10px] text-purple-400 hover:text-purple-300 bg-purple-950/50 hover:bg-purple-900/60 px-2 py-1 rounded border border-purple-800/40 transition">Duplicate</button>
+                            <button onclick="editTemplate('${tpl.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>
+                            <button onclick="deleteTemplate('${tpl.id}')" class="text-zinc-500 hover:text-red-400 text-xs"> X </button>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        ${blocksHtml}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+
+            if (currentSelectedTpl) tplSelect.value = currentSelectedTpl;
+        }
+        function duplicateTemplate(id) {
+            const tpl = appData.templates.find(t => t.id === id);
+            if (!tpl) return;
+
+            // Deep clone blocks with unique IDs
+            const clonedBlocks = (tpl.blocks || []).map((b, index) => ({
+                ...b,
+                id: 'b_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 5)
+            }));
+
+            const newTemplate = {
+                id: 'tpl_' + Date.now(),
+                name: `${tpl.name} (Copy)`,
+                color: tpl.color,
+                blocks: clonedBlocks
+            };
+
+            appData.templates.push(newTemplate);
+            saveData();
+            renderCalendarMatrix();
+        }
+        function editTemplate(id) {
+            const tpl = appData.templates.find(t => t.id === id);
+            if (!tpl) return;
+
+            const newName = prompt('Edit template name:', tpl.name);
+            if (newName === null) return;
+            const trimmedName = newName.trim();
+            if (!trimmedName) {
+                alert('Template name cannot be empty.');
+                return;
+            }
+
+            const newColor = prompt('Edit template color theme (Hex code, e.g. #3b82f6):', tpl.color);
+            if (newColor === null) return;
+            const trimmedColor = newColor.trim();
+            if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
+                alert('Invalid hex color format. Please use a valid hex code like #3b82f6.');
+                return;
+            }
+
+            tpl.name = trimmedName;
+            tpl.color = trimmedColor;
+            saveData();
+            renderCalendarMatrix();
+        }
+
+        function editBlock(tplId, blockId) {
+            const tpl = appData.templates.find(t => t.id === tplId);
+            if (!tpl || !tpl.blocks) return;
+            const block = tpl.blocks.find(b => b.id === blockId);
+            if (!block) return;
+
+            const newLabel = prompt('Edit block label/description:', block.label);
+            if (newLabel === null) return;
+            const trimmedLabel = newLabel.trim();
+            if (!trimmedLabel) {
+                alert('Block label cannot be empty.');
+                return;
+            }
+
+            const newStart = prompt('Edit start time (HH:MM 24h format):', block.start);
+            if (newStart === null) return;
+
+            const newEnd = prompt('Edit end time (HH:MM 24h format):', block.end);
+            if (newEnd === null) return;
+
+            block.label = trimmedLabel;
+            block.start = newStart.trim();
+            block.end = newEnd.trim();
+            saveData();
+        }
+        // --- Task Queue, Search, Filters, Optional Custom Deadline & Dynamic Escalation ---
+        function calculateDeadlineDate(horizonKey) {
+            const now = new Date();
+            if (horizonKey === 'day') now.setHours(now.getHours() + 24);
+            else if (horizonKey === 'week') now.setDate(now.getDate() + 7);
+            else if (horizonKey === 'month') now.setDate(now.getDate() + 30);
+            else if (horizonKey === 'year') now.setDate(now.getDate() + 365);
+            return now.toISOString();
+        }
+
+        // Dynamically determines effective horizon based on actual time remaining until deadline
+        function getEffectiveHorizon(deadlineStr) {
+            const diffMs = new Date(deadlineStr) - new Date();
+            const diffHours = diffMs / (1000 * 60 * 60);
+            const diffDays = diffHours / 24;
+
+            if (diffHours <= 24) return 'day';
+            if (diffDays <= 7) return 'week';
+            if (diffDays <= 30) return 'month';
+            return 'year';
+        }
+
+        function handleTaskQueueSubmit(e) {
+            e.preventDefault();
+            const textInput = document.getElementById('queueTaskText');
+            const catSelect = document.getElementById('queueTaskCategory');
+            const horizonSelect = document.getElementById('queueTaskHorizon');
+            const customDeadlineInput = document.getElementById('queueTaskCustomDeadline');
+
+            const text = textInput.value.trim();
+            if (!text) return;
+
+            if (!appData.tasksQueue) appData.tasksQueue = [];
+
+            let deadlineIso;
+            const customVal = customDeadlineInput.value;
+            if (customVal) {
+                deadlineIso = new Date(customVal).toISOString();
+            } else {
+                deadlineIso = calculateDeadlineDate(horizonSelect.value);
+            }
+
+            appData.tasksQueue.push({
+                id: 'tq_' + Date.now(),
+                text: text,
+                categoryId: catSelect.value,
+                deadline: deadlineIso,
+                createdAt: new Date().toISOString(),
+                completed: false,
+                completedAt: null
+            });
+
+            textInput.value = '';
+            customDeadlineInput.value = '';
+            saveData();
+        }
+
+        function renderTaskQueueList() {
+            const container = document.getElementById('taskQueueList');
+            const catSelect = document.getElementById('queueTaskCategory');
+            const filterCatSelect = document.getElementById('taskFilterCategory');
+            const searchInput = document.getElementById('taskSearchInput');
+            const timelineSelect = document.getElementById('taskFilterTimeline');
+
+            if (!container || !catSelect) return;
+
+            const currentCatSelection = catSelect.value;
+            const currentFilterCat = filterCatSelect ? filterCatSelect.value : 'all';
+
+            catSelect.innerHTML = '';
+            filterCatSelect.innerHTML = '<option value="all">📂 All Categories</option>';
+
+            appData.categories.forEach(cat => {
+                const opt1 = document.createElement('option');
+                opt1.value = cat.id;
+                opt1.innerText = cat.name;
+                catSelect.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = cat.id;
+                opt2.innerText = cat.name;
+                filterCatSelect.appendChild(opt2);
+            });
+
+            if (currentCatSelection) catSelect.value = currentCatSelection;
+            if (currentFilterCat) filterCatSelect.value = currentFilterCat;
+
+            container.innerHTML = '';
+            
+            if (!appData.tasksQueue) appData.tasksQueue = [];
+
+            const searchText = searchInput ? searchInput.value.toLowerCase() : '';
+            const selectedCatFilter = filterCatSelect ? filterCatSelect.value : 'all';
+            const selectedTimelineFilter = timelineSelect ? timelineSelect.value : 'all';
+
+            const activeTasks = appData.tasksQueue.filter(t => {
+                if (t.completed) return false;
+
+                if (searchText && !t.text.toLowerCase().includes(searchText)) return false;
+                if (selectedCatFilter !== 'all' && t.categoryId !== selectedCatFilter) return false;
+
+                // Evaluate effective dynamic horizon for timeline filtering
+                const effectiveHorizon = getEffectiveHorizon(t.deadline);
+                if (selectedTimelineFilter !== 'all' && effectiveHorizon !== selectedTimelineFilter) return false;
+
+                return true;
+            });
+
+            const totalPending = appData.tasksQueue.filter(t => !t.completed).length;
+            document.getElementById('pendingTaskQueueCount').innerText = `${totalPending} Pending`;
+
+            if (activeTasks.length === 0) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic py-3 text-center">No tasks match your filter criteria.</p>`;
+                return;
+            }
+
+            // Ascending sort by deadline
+            const sortedTasks = [...activeTasks].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+
+            sortedTasks.forEach(task => {
+                const cat = appData.categories.find(c => c.id === task.categoryId) || { name: 'General', color: '#71717a' };
+                const deadlineDate = new Date(task.deadline);
+                const formattedDeadline = deadlineDate.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+                // Dynamic effective horizon badge escalation
+                const effectiveHorizon = getEffectiveHorizon(task.deadline);
+                let badgeHtml = '';
+                if (effectiveHorizon === 'day') badgeHtml = `<span class="text-[9px] font-semibold text-red-400 bg-red-950/60 border border-red-800/40 px-1.5 py-0.5 rounded animate-pulse">🔥 Within a Day</span>`;
+                else if (effectiveHorizon === 'week') badgeHtml = `<span class="text-[9px] font-semibold text-amber-400 bg-amber-950/60 border border-amber-800/40 px-1.5 py-0.5 rounded">📌 Within a Week</span>`;
+                else if (effectiveHorizon === 'month') badgeHtml = `<span class="text-[9px] font-semibold text-blue-400 bg-blue-950/60 border border-blue-800/40 px-1.5 py-0.5 rounded">⏳ Within a Month</span>`;
+                else badgeHtml = `<span class="text-[9px] font-semibold text-zinc-400 bg-zinc-900 border border-zinc-700 px-1.5 py-0.5 rounded">📅 Within a Year</span>`;
+
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-2.5 rounded-lg bg-zinc-900/90 border border-bordercolor/70 hover:border-purple-500/40 transition text-xs';
+                div.innerHTML = `
+                    <div class="flex items-center gap-2 overflow-hidden">
+                        <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${cat.color}"></span>
+                        <div class="truncate space-y-0.5">
+                            <div class="text-white font-medium flex items-center gap-1.5">
+                                <span class="truncate">${task.text}</span>
+                                ${badgeHtml}
+                            </div>
+                            <div class="text-[10px] text-zinc-400">Due: <strong class="text-zinc-300">${formattedDeadline}</strong> (${cat.name})</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 shrink-0">
+                        <button onclick="editQueueTask('${task.id}')" class="text-[10px] text-zinc-400 hover:text-white bg-zinc-800 px-2 py-1 rounded transition">Edit</button>
+                        <button onclick="completeQueueTaskDirectly('${task.id}')" class="text-[10px] text-emerald-400 hover:text-emerald-300 bg-emerald-950/50 hover:bg-emerald-900/60 px-2 py-1 rounded border border-emerald-800/40 transition">Done ✓</button>
+                        <button onclick="deleteQueueTask('${task.id}')" class="text-zinc-500 hover:text-red-400 text-xs">✕</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+        function editQueueTask(id) {
+            const task = (appData.tasksQueue || []).find(t => t.id === id);
+            if (!task) return;
+
+            const newText = prompt('Edit task description:', task.text);
+            if (newText === null) return; // User cancelled
+            
+            const trimmed = newText.trim();
+            if (!trimmed) {
+                alert('Task description cannot be empty.');
+                return;
+            }
+
+            task.text = trimmed;
+            saveData();
+        }
+        function completeQueueTaskDirectly(id) {
+            const task = (appData.tasksQueue || []).find(t => t.id === id);
+            if (!task) return;
+
+            task.completed = true;
+            task.completedAt = new Date().toISOString();
+
+            const completionLogId = 'log_' + Date.now();
+            appData.tasks.push({
+                id: completionLogId,
+                from: task.completedAt,
+                to: task.completedAt,
+                note: `[Completed Task] ${task.text}`,
+                splits: [{ categoryId: task.categoryId, percentage: 100 }]
+            });
+
+            saveData();
+        }
+
+        function deleteQueueTask(id) {
+            if (confirm('Are you sure you want to delete this action task?')) {
+                appData.tasksQueue = (appData.tasksQueue || []).filter(t => t.id !== id);
+                saveData();
+            }
+        }
+
+        // --- Form Handlers ---
+        function handleTenureSubmit(e) {
+            e.preventDefault();
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+
+            if (new Date(end) <= new Date(start)) {
+                alert('End date must be after start date.');
+                return;
+            }
+
+            appData.tenure = { start, end };
+            saveData();
+            alert('Tenure saved successfully!');
+            switchTab('dashboard');
+        }
+// --- Color Synchronization Helpers ---
+        function syncCatColorText(val) {
+            document.getElementById('catColorHex').value = val;
+        }
+        function syncCatColorPicker(val) {
+            if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
+                document.getElementById('catColor').value = val;
+            }
+        }
+        function syncTplColorText(val) {
+            document.getElementById('tplColorHex').value = val;
+        }
+        function syncTplColorPicker(val) {
+            if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
+                document.getElementById('tplColor').value = val;
+            }
+        }
+        function handleCategorySubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('catName').value.trim();
+            const color = document.getElementById('catColorHex').value;
+            
+            if (!name) return;
+
+            const id = 'cat_' + Date.now();
+            appData.categories.push({ id, name, color });
+            document.getElementById('categoryForm').reset();
+            saveData();
+        }
+
+        function deleteCategory(id) {
+            if (confirm('Are you sure you want to delete this category?')) {
+                appData.categories = appData.categories.filter(c => c.id !== id);
+                saveData();
+            }
+        }
+
+        document.getElementById('logCategory').addEventListener('change', function() {
+            const selectedOpt = this.options[this.selectedIndex];
+            const label = document.getElementById('primaryCatNameLabel');
+            if (label && selectedOpt) label.innerText = selectedOpt.text;
+        });
+
+        document.getElementById('logCategory').addEventListener('change', function() {
+            const primarySplitSelect = document.getElementById('splitPrimaryCatSelect');
+            if (primarySplitSelect) {
+                primarySplitSelect.value = this.value;
+            }
+            const selectedOpt = this.options[this.selectedIndex];
+            const label = document.getElementById('primaryCatNameLabel');
+            if (label && selectedOpt) label.innerText = selectedOpt.text;
+        });
+
+        function handleTaskSubmit(e) {
+            e.preventDefault();
+            const from = document.getElementById('logFromTime').value;
+            const to = document.getElementById('logToTime').value;
+            const mainCategoryId = document.getElementById('logCategory').value;
+            const label = document.getElementById('logNote').value.trim();
+            const isSplitEnabled = document.getElementById('enableSplitToggle').checked;
+
+            const fDate = new Date(from);
+            const tDate = new Date(to);
+            if (isNaN(fDate) || isNaN(tDate) || tDate <= fDate) {
+                alert("Please enter valid start and end times.");
+                return;
+            }
+
+            let splits = [];
+            let totalPct = 0;
+
+            if (isSplitEnabled) {
+                const primaryCatSelect = document.getElementById('splitPrimaryCatSelect');
+                const secondaryCatSelects = document.querySelectorAll('.split-cat-select');
+                const pctInputs = document.querySelectorAll('.split-pct-input');
+
+                if (primaryCatSelect && pctInputs.length > 0) {
+                    const pId = primaryCatSelect.value;
+                    const pVal = parseInt(pctInputs[0].value) || 0;
+                    if (pVal > 0) {
+                        splits.push({ categoryId: pId, percentage: pVal });
+                        totalPct += pVal;
+                    }
+                }
+
+                for (let i = 0; i < secondaryCatSelects.length; i++) {
+                    const cId = secondaryCatSelects[i].value;
+                    const pVal = parseInt(pctInputs[i + 1].value) || 0;
+                    if (pVal > 0) {
+                        splits.push({ categoryId: cId, percentage: pVal });
+                        totalPct += pVal;
+                    }
+                }
+
+                const remainder = 100 - totalPct;
+                if (remainder > 0) {
+                    splits.push({ categoryId: 'cat-unassigned', percentage: remainder });
+                }
+            } else {
+                splits.push({ categoryId: mainCategoryId, percentage: 100 });
+            }
+
+            const taskId = 't_' + Date.now();
+            appData.tasks.push({ id: taskId, from, to,note: label, splits });
+
+            saveData();
+            
+            document.getElementById('taskLogForm').reset();
+            document.getElementById('splitSection').classList.add('hidden');
+            document.getElementById('logFromTime').value = to;
+        }
+
+        function deleteTask(id) {
+            if (!confirm('Are you sure you want to delete this logged task? (If it was completed from your action queue, it will be restored there).')) {
+                return;
+            }
+            // Check if the task being deleted from history is a completed action task
+            const taskLog = appData.tasks.find(t => t.id === id);
+            if (taskLog && taskLog.note && taskLog.note.startsWith('[Completed Task]')) {
+                const originalText = taskLog.note.replace('[Completed Task] ', '');
+                
+                // Find if it exists in tasksQueue and unmark it as completed
+                if (!appData.tasksQueue) appData.tasksQueue = [];
+                const queuedTask = appData.tasksQueue.find(t => t.text === originalText && t.completed);
+                if (queuedTask) {
+                    queuedTask.completed = false;
+                    queuedTask.completedAt = null;
+                } else {
+                    // If the queue item was somehow missing, recreate it in the queue
+                    appData.tasksQueue.push({
+                        id: 'tq_' + Date.now(),
+                        text: originalText,
+                        categoryId: taskLog.splits && taskLog.splits.length > 0 ? taskLog.splits[0].categoryId : 'cat-unassigned',
+                        deadline: new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toISOString(), // Default to 24h fallback
+                        createdAt: new Date().toISOString(),
+                        completed: false,
+                        completedAt: null
+                    });
+                }
+            }
+
+            // Proceed with normal log deletion
+            appData.tasks = appData.tasks.filter(t => t.id !== id);
+            saveData();
+        }
+
+        function clearLogs() {
+            if (confirm('Are you sure you want to clear all logged time history?')) {
+                appData.tasks = [];
+                saveData();
+            }
+        }
+
+        function handleTemplateSubmit(e) {
+            e.preventDefault();
+            const name = document.getElementById('tplName').value.trim();
+            const color = document.getElementById('tplColorHex').value;
+            if (!name) return;
+
+            const id = 'tpl_' + Date.now();
+            appData.templates.push({ id, name, color, blocks: [] });
+            document.getElementById('templateForm').reset();
+            saveData();
+            renderCalendarMatrix();
+        }
+
+        function handleBlockSubmit(e) {
+            e.preventDefault();
+            const tplId = document.getElementById('blockTemplateSelect').value;
+            const start = document.getElementById('blockStartTime').value;
+            const end = document.getElementById('blockEndTime').value;
+            const categoryId = document.getElementById('blockCategorySelect').value;
+            const label = document.getElementById('blockLabel').value.trim();
+
+            const tpl = appData.templates.find(t => t.id === tplId);
+            if (!tpl) return;
+
+            if (!tpl.blocks) tpl.blocks = [];
+            const blockId = 'b_' + Date.now();
+            tpl.blocks.push({ id: blockId, start, end, categoryId, label });
+
+            document.getElementById('blockLabel').value = '';
+            document.getElementById('blockStartTime').value = end;
+
+            saveData();
+        }
+
+        function deleteBlock(tplId, blockId) {
+            if (confirm('Remove this hourly block from the template?')) {
+                const tpl = appData.templates.find(t => t.id === tplId);
+                if (!tpl || !tpl.blocks) return;
+                tpl.blocks = tpl.blocks.filter(b => b.id !== blockId);
+                saveData();
+            }
+        }
+
+        function deleteTemplate(id) {
+            if (confirm('Are you sure you want to delete this schedule template and its mappings?')) {
+                appData.templates = appData.templates.filter(t => t.id !== id);
+                for (let date in appData.dayMappings) {
+                    if (appData.dayMappings[date] === id) delete appData.dayMappings[date];
+                }
+                saveData();
+                renderCalendarMatrix();
+            }
+        }
+
+        // --- Interactive Calendar Matrix Mapper ---
+        function renderCalendarMatrix() {
+            const container = document.getElementById('calendarGridView');
+            const startStr = appData.tenure.start;
+            const endStr = appData.tenure.end;
+
+            if (!startStr || !endStr) {
+                container.innerHTML = `<p class="text-xs text-zinc-500 italic text-center py-8">Please define your Tenure Start and End dates in the setup tab first.</p>`;
+                return;
+            }
+
+            const startDate = new Date(startStr);
+            const endDate = new Date(endStr);
+            
+            if (endDate <= startDate) {
+                container.innerHTML = `<p class="text-xs text-red-400 italic text-center py-8">Invalid tenure range.</p>`;
+                return;
+            }
+
+            let monthsMap = {};
+            let curr = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const endDateObj = new Date(endStr);
+            
+            while (curr < endDateObj) {
+                const yearMonthKey = `${curr.getFullYear()}-${String(curr.getMonth() + 1).padStart(2, '0')}`;
+                
+                if (!monthsMap[yearMonthKey]) monthsMap[yearMonthKey] = [];
+                monthsMap[yearMonthKey].push(new Date(curr));
+
+                curr.setDate(curr.getDate() + 1);
+            }
+
+            container.innerHTML = '';
+
+            for (let ym in monthsMap) {
+                const [y, m] = ym.split('-');
+                const monthName = new Date(y, m - 1, 1).toLocaleString('default', { month: 'long', year: 'numeric' });
+
+                const monthDiv = document.createElement('div');
+                monthDiv.className = 'space-y-2';
+                monthDiv.innerHTML = `<h4 class="text-xs font-bold text-zinc-400 uppercase tracking-wider">${monthName}</h4>`;
+
+                const grid = document.createElement('div');
+                grid.className = 'grid grid-cols-7 gap-1.5';
+
+                ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].forEach(d => {
+                    const dh = document.createElement('div');
+                    dh.className = 'text-center text-[10px] text-zinc-600 font-bold py-1';
+                    dh.innerText = d;
+                    grid.appendChild(dh);
+                });
+
+                const firstDayIndex = monthsMap[ym][0].getDay();
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const emptyBox = document.createElement('div');
+                    grid.appendChild(emptyBox);
+                }
+
+                monthsMap[ym].forEach(dateObj => {
+                    const year = dateObj.getFullYear();
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const dateKey = `${year}-${month}-${day}`;
+
+                    const now = new Date();
+                    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                    const isToday = (dateKey === todayKey);
+                    const isPast = (dateKey < todayKey);
+
+                    const dayNum = dateObj.getDate();
+                    const assignedTplId = appData.dayMappings[dateKey];
+                    let tplColor = '#27272a';
+
+                    if (assignedTplId) {
+                        const tpl = appData.templates.find(t => t.id === assignedTplId);
+                        if (tpl) tplColor = tpl.color;
+                    }
+
+                    const isSelected = selectedDatesSet.has(dateKey);
+
+                    const dayBox = document.createElement('div');
+                    
+                    let borderStyle = 'border-bordercolor';
+                    if (isSelected) {
+                        borderStyle = 'border-purple-500 ring-2 ring-purple-500/30';
+                    } else if (isToday) {
+                        borderStyle = 'border-amber-400 ring-1 ring-amber-400/50 shadow-sm shadow-amber-400/20';
+                    }
+
+                    const pastStyle = (isPast && !isSelected && !isToday) ? 'opacity-50 hover:opacity-80' : 'opacity-100';
+
+                    dayBox.className = `h-10 rounded-lg flex flex-col items-center justify-center cursor-pointer text-xs font-medium transition border ${borderStyle} ${pastStyle} hover:border-zinc-400`;
+                    dayBox.style.backgroundColor = assignedTplId ? `${tplColor}22` : '#121217';
+                    
+                    dayBox.innerHTML = `
+                        <span class="${isToday ? 'text-amber-300 font-extrabold underline decoration-amber-400 underline-offset-2' : (assignedTplId ? 'text-white font-bold' : 'text-zinc-300')}">${dayNum}</span>
+                        <span class="w-1.5 h-1.5 rounded-full mt-0.5" style="background-color: ${tplColor}"></span>
+                    `;
+
+                    dayBox.onclick = () => {
+                        if (selectedDatesSet.has(dateKey)) {
+                            selectedDatesSet.delete(dateKey);
+                        } else {
+                            selectedDatesSet.add(dateKey);
+                        }
+                        renderCalendarMatrix();
+                        updateAssignmentBar();
+                    };
+
+                    grid.appendChild(dayBox);
+                });
+
+                monthDiv.appendChild(grid);
+                container.appendChild(monthDiv);
+            }
+
+            updateAssignmentBar();
+            renderAssignButtons();
+        }
+
+        function updateAssignmentBar() {
+            document.getElementById('selectedCountText').innerText = `${selectedDatesSet.size} days selected`;
+        }
+
+        function renderAssignButtons() {
+            const container = document.getElementById('assignButtonsContainer');
+            container.innerHTML = '';
+
+            if (appData.templates.length === 0) {
+                container.innerHTML = `<span class="text-xs text-zinc-500 italic">Create a template first</span>`;
+                return;
+            }
+
+            appData.templates.forEach(tpl => {
+                const btn = document.createElement('button');
+                btn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg text-white transition flex items-center gap-1.5';
+                btn.style.backgroundColor = tpl.color;
+                btn.innerHTML = `Map to ${tpl.name}`;
+                btn.onclick = () => assignSelectedDays(tpl.id);
+                container.appendChild(btn);
+            });
+
+            const clearBtn = document.createElement('button');
+            clearBtn.className = 'px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition';
+            clearBtn.innerText = 'Clear Mappings';
+            clearBtn.onclick = () => assignSelectedDays(null);
+            container.appendChild(clearBtn);
+        }
+
+        function assignSelectedDays(tplId) {
+            if (selectedDatesSet.size === 0) {
+                alert('Please click and select at least one day in the calendar grid first.');
+                return;
+            }
+
+            selectedDatesSet.forEach(dateKey => {
+                if (tplId === null) {
+                    delete appData.dayMappings[dateKey];
+                } else {
+                    appData.dayMappings[dateKey] = tplId;
+                }
+            });
+
+            selectedDatesSet.clear();
+            saveData();
+            renderCalendarMatrix();
+        }
+
+        function toggleSplitSection(checkbox) {
+            const section = document.getElementById('splitSection');
+            if (checkbox.checked) {
+                section.classList.remove('hidden');
+                rebuildSplitRows();
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        function rebuildSplitRows() {
+            const count = parseInt(document.getElementById('splitCountSelect').value) || 1;
+            const container = document.getElementById('dynamicSplitRows');
+            container.innerHTML = '';
+
+            let categoryOptionsHtml = '';
+            appData.categories.forEach(cat => {
+                categoryOptionsHtml += `<option value="${cat.id}">${cat.name}</option>`;
+            });
+
+            const primaryCatId = document.getElementById('logCategory').value;
+            const defaultShare = Math.floor(100 / (count + 1));
+
+            const primaryRow = document.createElement('div');
+            primaryRow.className = 'grid grid-cols-12 gap-2 items-center bg-zinc-900/80 p-2 rounded border border-purple-500/40';
+            primaryRow.innerHTML = `
+                <div class="col-span-7">
+                    <label class="text-[10px] text-purple-400 font-semibold block mb-0.5">Category #1 (Primary)</label>
+                    <select id="splitPrimaryCatSelect" onchange="syncPrimaryCategoryDropdown()" class="w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
+                        ${categoryOptionsHtml}
+                    </select>
+                </div>
+                <div class="col-span-5">
+                    <label class="text-[10px] text-zinc-400 block mb-0.5">Percentage %</label>
+                    <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
+                </div>
+            `;
+            container.appendChild(primaryRow);
+
+            document.getElementById('splitPrimaryCatSelect').value = primaryCatId;
+
+            for (let i = 1; i <= count; i++) {
+                const row = document.createElement('div');
+                row.className = 'grid grid-cols-12 gap-2 items-center bg-zinc-900/50 p-2 rounded border border-bordercolor/40';
+                row.innerHTML = `
+                    <div class="col-span-7">
+                        <label class="text-[10px] text-zinc-400 block mb-0.5">Category #${i + 1}</label>
+                        <select class="split-cat-select w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
+                            ${categoryOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="col-span-5">
+                        <label class="text-[10px] text-zinc-400 block mb-0.5">Percentage %</label>
+                        <input type="number" min="0" max="100" value="${defaultShare}" oninput="updateSplitMath()" class="split-pct-input w-full bg-zinc-900 border border-bordercolor rounded px-2 py-1 text-xs text-zinc-200">
+                    </div>
+                `;
+                container.appendChild(row);
+            }
+            updateSplitMath();
+        }
+
+        function syncPrimaryCategoryDropdown() {
+            const primarySelect = document.getElementById('splitPrimaryCatSelect');
+            if (primarySelect) {
+                document.getElementById('logCategory').value = primarySelect.value;
+            }
+            updateSplitMath();
+        }
+
+        function updateSplitMath() {
+            const pctInputs = document.querySelectorAll('.split-pct-input');
+            let totalAssigned = 0;
+            pctInputs.forEach(input => {
+                totalAssigned += parseInt(input.value) || 0;
+            });
+
+            const isSplitEnabled = document.getElementById('enableSplitToggle').checked;
+            if (!isSplitEnabled) {
+                totalAssigned = 100;
+            }
+
+            const remainder = Math.max(0, 100 - totalAssigned);
+            document.getElementById('bufferRemainderLabel').innerText = remainder + '%';
+            
+            if (remainder < 0) {
+                document.getElementById('bufferRemainderLabel').classList.add('text-red-400');
+                document.getElementById('bufferRemainderLabel').classList.remove('text-amber-400');
+            } else {
+                document.getElementById('bufferRemainderLabel').classList.remove('text-red-400');
+                document.getElementById('bufferRemainderLabel').classList.add('text-amber-400');
+            }
+        }
+
+        function selectAllDays() {
+            const startStr = appData.tenure.start;
+            const endStr = appData.tenure.end;
+            if (!startStr || !endStr) return;
+
+            let curr = new Date(startStr);
+            const end = new Date(endStr);
+            selectedDatesSet.clear();
+
+            while (curr < end) {
+                const year = curr.getFullYear();
+                const month = String(curr.getMonth() + 1).padStart(2, '0');
+                const day = String(curr.getDate()).padStart(2, '0');
+                selectedDatesSet.add(`${year}-${month}-${day}`);
+                curr.setDate(curr.getDate() + 1);
+            }
+            renderCalendarMatrix();
+        }
+
+        function clearDaySelection() {
+            selectedDatesSet.clear();
+            renderCalendarMatrix();
+        }
+
+        // Initial load
+        renderApp();
+    </script>
+</body>
+</html>

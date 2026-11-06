@@ -675,9 +675,10 @@ html, body {
 }
 
 .btn-primary {
-    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+    background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899) border-box;
+    border: none;
     color: #ffffff;
-    box-shadow: 0 0 18px rgba(168, 85, 247, 0.4);
+    box-shadow: none;
 }
 .btn-primary:hover {
     filter: brightness(1.1);

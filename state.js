@@ -51,7 +51,6 @@ function saveData() {
     localStorage.setItem('timeLedgerData', JSON.stringify(appData));
     renderApp();
 }
-
 // --- Core Calculations & Template-Driven Budgets ---
 function calculateCategoryBudgets() {
     let budgets = {};
@@ -61,17 +60,16 @@ function calculateCategoryBudgets() {
 
     const startStr = appData.tenure.start;
     const endStr = appData.tenure.end;
-    let minDateKey = null, maxDateKey = null;
-    if (startStr && endStr) {
-        const s = new Date(startStr);
-        const e = new Date(endStr);
-        const lastDay = (e.getHours() === 0 && e.getMinutes() === 0 && e > s) ? new Date(e.getTime() - 1) : e;
-        minDateKey = `${s.getFullYear()}-${String(s.getMonth() + 1).padStart(2, '0')}-${String(s.getDate()).padStart(2, '0')}`;
-        maxDateKey = `${lastDay.getFullYear()}-${String(lastDay.getMonth() + 1).padStart(2, '0')}-${String(lastDay.getDate()).padStart(2, '0')}`;
-    }
+    if (!startStr || !endStr) return budgets;
+
+    const tenureStart = new Date(startStr);
+    const tenureEnd = new Date(endStr);
+    if (isNaN(tenureStart) || isNaN(tenureEnd) || tenureEnd <= tenureStart) return budgets;
 
     for (let dateStr in appData.dayMappings) {
-        if (minDateKey && maxDateKey && (dateStr < minDateKey || dateStr > maxDateKey)) continue;
+        const [y, m, d] = dateStr.split('-').map(Number);
+        if (!y || !m || !d) continue;
+
         const tplId = appData.dayMappings[dateStr];
         const tpl = appData.templates.find(t => t.id === tplId);
         if (tpl && tpl.blocks) {
@@ -85,9 +83,21 @@ function calculateCategoryBudgets() {
                     endMins = 1440;
                 }
 
-                const durationHrs = Math.max(0, (endMins - startMins) / 60);
-                if (budgets[b.categoryId] !== undefined) {
-                    budgets[b.categoryId] += durationHrs;
+                if (endMins <= startMins) return;
+
+                // Actual timestamps for this block on this calendar date
+                const blockStart = new Date(y, m - 1, d, 0, startMins, 0, 0);
+                const blockEnd = new Date(y, m - 1, d, 0, endMins, 0, 0);
+
+                // Clip block duration to the active [tenureStart, tenureEnd] window
+                const overlapStart = Math.max(blockStart.getTime(), tenureStart.getTime());
+                const overlapEnd = Math.min(blockEnd.getTime(), tenureEnd.getTime());
+
+                if (overlapEnd > overlapStart) {
+                    const durationHrs = (overlapEnd - overlapStart) / (1000 * 60 * 60);
+                    if (budgets[b.categoryId] !== undefined) {
+                        budgets[b.categoryId] += durationHrs;
+                    }
                 }
             });
         }

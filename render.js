@@ -154,11 +154,17 @@ function renderCategorySelectAndList() {
         catListContainer.appendChild(card);
 
         let catLoggedHours = 0;
+        const tStart = appData.tenure.start ? new Date(appData.tenure.start).getTime() : null;
+        const tEnd = appData.tenure.end ? new Date(appData.tenure.end).getTime() : null;
+
         appData.tasks.forEach(t => {
             const f = new Date(t.from);
             const to = new Date(t.to);
             if (!isNaN(f) && !isNaN(to) && to > f) {
-                const totalTaskHours = (to - f) / (1000 * 60 * 60);
+                const overlapStart = tStart ? Math.max(f.getTime(), tStart) : f.getTime();
+                const overlapEnd = tEnd ? Math.min(to.getTime(), tEnd) : to.getTime();
+                if (overlapEnd <= overlapStart) return;
+                const totalTaskHours = (overlapEnd - overlapStart) / (1000 * 60 * 60);
                 if (t.splits) {
                     t.splits.forEach(s => {
                         if (s.categoryId === cat.id) {

@@ -134,7 +134,11 @@ function calculateMetrics() {
         const f = new Date(t.from);
         const to = new Date(t.to);
         if (!isNaN(f) && !isNaN(to) && to > f) {
-            burnedHours += (to - f) / (1000 * 60 * 60);
+            const overlapStart = Math.max(f.getTime(), start.getTime());
+            const overlapEnd = Math.min(to.getTime(), end.getTime());
+            if (overlapEnd > overlapStart) {
+                burnedHours += (overlapEnd - overlapStart) / (1000 * 60 * 60);
+            }
         }
     });
 

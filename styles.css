@@ -1326,3 +1326,7 @@ html, body {
     color: var(--text-secondary);
     margin-top: 0.15rem;
 }
+#todayChecklistPanel{
+    margin-left: 1.00rem;
+    margin-right: 1.00rem;
+}

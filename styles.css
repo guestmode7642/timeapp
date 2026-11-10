@@ -1275,7 +1275,6 @@ html, body {
     border-width: 1.5px;
     border-style: solid;
     max-height: 400px;
-    min-height: 300px;
     overflow-y: auto;
     margin-top: 0.75rem;
     margin-left: 1.5rem;

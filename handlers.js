@@ -431,13 +431,94 @@ function handleTemplateSubmit(e) {
     renderCalendarMatrix();
 }
 
+// --- Draft Checklist State for Block Form ---
+let currentBlockDraftChecklist = [];
+let editingDraftChecklistId = null;
+
+function openChecklistEntryBox(editItemId = null) {
+    const box = document.getElementById('blockChecklistEntryBox');
+    const titleInp = document.getElementById('chkItemTitle');
+    const descInp = document.getElementById('chkItemDesc');
+    const saveBtn = document.getElementById('saveChkItemBtn');
+    if (!box) return;
+
+    box.classList.remove('hidden');
+
+    if (editItemId) {
+        const item = currentBlockDraftChecklist.find(c => c.id === editItemId);
+        if (item) {
+            editingDraftChecklistId = editItemId;
+            titleInp.value = item.title || '';
+            descInp.value = item.description || '';
+            saveBtn.innerText = 'Update Entry ✓';
+        }
+    } else {
+        editingDraftChecklistId = null;
+        titleInp.value = '';
+        descInp.value = '';
+        saveBtn.innerText = 'Add Entry ✓';
+    }
+    titleInp.focus();
+}
+
+function closeChecklistEntryBox() {
+    const box = document.getElementById('blockChecklistEntryBox');
+    if (box) box.classList.add('hidden');
+    editingDraftChecklistId = null;
+    document.getElementById('chkItemTitle').value = '';
+    document.getElementById('chkItemDesc').value = '';
+}
+
+function saveDraftChecklistItem() {
+    const titleInp = document.getElementById('chkItemTitle');
+    const descInp = document.getElementById('chkItemDesc');
+    const title = titleInp.value.trim();
+    const description = descInp.value.trim();
+
+    if (!title) {
+        alert('Please enter a checklist title.');
+        return;
+    }
+
+    if (editingDraftChecklistId) {
+        const existing = currentBlockDraftChecklist.find(c => c.id === editingDraftChecklistId);
+        if (existing) {
+            existing.title = title;
+            existing.description = description;
+        }
+    } else {
+        currentBlockDraftChecklist.push({
+            id: 'chk_' + Date.now() + '_' + Math.random().toString(36).substring(2, 5),
+            title,
+            description,
+            completedDates: []
+        });
+    }
+
+    closeChecklistEntryBox();
+    renderBlockDraftChecklist();
+}
+
+function deleteDraftChecklistItem(itemId) {
+    currentBlockDraftChecklist = currentBlockDraftChecklist.filter(c => c.id !== itemId);
+    if (editingDraftChecklistId === itemId) {
+        closeChecklistEntryBox();
+    }
+    renderBlockDraftChecklist();
+}
+
 function duplicateTemplate(id) {
     const tpl = appData.templates.find(t => t.id === id);
     if (!tpl) return;
 
     const clonedBlocks = (tpl.blocks || []).map((b, index) => ({
         ...b,
-        id: 'b_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 5)
+        id: 'b_' + Date.now() + '_' + index + '_' + Math.random().toString(36).substring(2, 5),
+        checklist: (b.checklist || []).map((chk, cIdx) => ({
+            ...chk,
+            id: 'chk_' + Date.now() + '_' + index + '_' + cIdx + '_' + Math.random().toString(36).substring(2, 5),
+            completedDates: []
+        }))
     }));
 
     const newTemplate = {
@@ -479,6 +560,9 @@ function deleteTemplate(id) {
 
 function cancelBlockEdit() {
     editingBlockState = null;
+    currentBlockDraftChecklist = [];
+    closeChecklistEntryBox();
+    renderBlockDraftChecklist();
     document.getElementById('blockLabel').value = '';
     setFormEditMode('blockForm', false, 'Update Schedule Block ✓', '+ Add Schedule Block');
 }
@@ -491,9 +575,17 @@ function handleBlockSubmit(e) {
     const categoryId = document.getElementById('blockCategorySelect').value;
     const label = document.getElementById('blockLabel').value.trim();
 
+    // If the user typed a checklist title in the open box without clicking "Add Entry ✓", include it automatically
+    const pendingChkTitle = document.getElementById('chkItemTitle') ? document.getElementById('chkItemTitle').value.trim() : '';
+    if (pendingChkTitle) {
+        saveDraftChecklistItem();
+    }
+
     const targetTpl = appData.templates.find(t => t.id === tplId);
     if (!targetTpl) return;
     if (!targetTpl.blocks) targetTpl.blocks = [];
+
+    const checklistToSave = currentBlockDraftChecklist.map(c => ({ ...c }));
 
     if (editingBlockState) {
         const sourceTpl = appData.templates.find(t => t.id === editingBlockState.tplId);
@@ -504,26 +596,30 @@ function handleBlockSubmit(e) {
         if (existingBlock) {
             if (editingBlockState.tplId !== tplId) {
                 sourceTpl.blocks = sourceTpl.blocks.filter(b => b.id !== editingBlockState.blockId);
-                targetTpl.blocks.push({ ...existingBlock, start, end, categoryId, label });
+                targetTpl.blocks.push({ ...existingBlock, start, end, categoryId, label, checklist: checklistToSave });
             } else {
                 existingBlock.start = start;
                 existingBlock.end = end;
                 existingBlock.categoryId = categoryId;
                 existingBlock.label = label;
+                existingBlock.checklist = checklistToSave;
             }
         }
         cancelBlockEdit();
     } else {
         const blockId = 'b_' + Date.now();
-        targetTpl.blocks.push({ id: blockId, start, end, categoryId, label });
+        targetTpl.blocks.push({ id: blockId, start, end, categoryId, label, checklist: checklistToSave });
         document.getElementById('blockLabel').value = '';
         document.getElementById('blockStartTime').value = end;
+        currentBlockDraftChecklist = [];
+        closeChecklistEntryBox();
+        renderBlockDraftChecklist();
     }
 
     saveData();
 }
 
-function editBlock(tplId, blockId) {
+function editBlock(tplId, blockId, focusChecklistId = null) {
     const tpl = appData.templates.find(t => t.id === tplId);
     if (!tpl || !tpl.blocks) return;
     const block = tpl.blocks.find(b => b.id === blockId);
@@ -536,9 +632,54 @@ function editBlock(tplId, blockId) {
     document.getElementById('blockCategorySelect').value = block.categoryId;
     document.getElementById('blockLabel').value = block.label;
 
+    currentBlockDraftChecklist = (block.checklist || []).map(c => ({
+        ...c,
+        completedDates: Array.isArray(c.completedDates) ? [...c.completedDates] : []
+    }));
+    closeChecklistEntryBox();
+    renderBlockDraftChecklist();
+
     setFormEditMode('blockForm', true, 'Update Schedule Block ✓', '+ Add Schedule Block', cancelBlockEdit);
     document.getElementById('blockForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
-    document.getElementById('blockLabel').focus();
+
+    if (focusChecklistId) {
+        openChecklistEntryBox(focusChecklistId);
+    } else {
+        document.getElementById('blockLabel').focus();
+    }
+}
+
+// --- Today's Checklist Actions (Check / Uncheck, Edit in Form, Delete) ---
+function toggleChecklistItemToday(tplId, blockId, chkId, dateKey) {
+    const tpl = appData.templates.find(t => t.id === tplId);
+    if (!tpl || !tpl.blocks) return;
+    const block = tpl.blocks.find(b => b.id === blockId);
+    if (!block || !block.checklist) return;
+    const item = block.checklist.find(c => c.id === chkId);
+    if (!item) return;
+
+    if (!Array.isArray(item.completedDates)) item.completedDates = [];
+    if (item.completedDates.includes(dateKey)) {
+        item.completedDates = item.completedDates.filter(d => d !== dateKey);
+    } else {
+        item.completedDates.push(dateKey);
+    }
+    saveData();
+}
+
+function jumpToEditChecklistItem(tplId, blockId, chkId) {
+    switchTab('templates');
+    editBlock(tplId, blockId, chkId);
+}
+
+function deleteChecklistItemFromToday(tplId, blockId, chkId) {
+    if (!confirm('Remove this item from the template checklist?')) return;
+    const tpl = appData.templates.find(t => t.id === tplId);
+    if (!tpl || !tpl.blocks) return;
+    const block = tpl.blocks.find(b => b.id === blockId);
+    if (!block || !block.checklist) return;
+    block.checklist = block.checklist.filter(c => c.id !== chkId);
+    saveData();
 }
 
 function deleteBlock(tplId, blockId) {

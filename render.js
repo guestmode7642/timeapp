@@ -39,6 +39,7 @@ function renderApp() {
     renderTasksTable();
     renderTemplatesList();
     renderTaskQueueList();
+    renderTodayChecklists();
 
     const fromInput = document.getElementById('logFromTime');
     if (!fromInput.value && appData.tasks.length > 0) {
@@ -314,12 +315,35 @@ function renderTemplatesList() {
     });
     if (currentSelectedCat) catSelect.value = currentSelectedCat;
 
+    // Keep all templates populated in the Block Builder dropdown
     appData.templates.forEach(tpl => {
         const opt = document.createElement('option');
         opt.value = tpl.id;
         opt.innerText = tpl.name;
         tplSelect.appendChild(opt);
+    });
+    if (currentSelectedTpl) tplSelect.value = currentSelectedTpl;
 
+    // Filter displayed template cards by the search bar query
+    const searchInput = document.getElementById('templateSearchInput');
+    const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+
+    const filteredTemplates = appData.templates.filter(tpl => {
+        if (!searchQuery) return true;
+        if (tpl.name.toLowerCase().includes(searchQuery)) return true;
+        return (tpl.blocks || []).some(b => {
+            const cat = appData.categories.find(c => c.id === b.categoryId);
+            const catName = cat ? cat.name.toLowerCase() : '';
+            return (b.label && b.label.toLowerCase().includes(searchQuery)) || catName.includes(searchQuery);
+        });
+    });
+
+    if (filteredTemplates.length === 0) {
+        container.innerHTML = `<div class="empty-state">No templates match your search.</div>`;
+        return;
+    }
+
+    filteredTemplates.forEach(tpl => {
         const div = document.createElement('div');
         div.className = 'template-card';
 
@@ -328,9 +352,13 @@ function renderTemplatesList() {
             const sortedBlocks = [...tpl.blocks].sort((a, b) => a.start.localeCompare(b.start));
             blocksHtml = sortedBlocks.map(b => {
                 const cat = appData.categories.find(c => c.id === b.categoryId) || { name: 'Cat' };
+                const chkCount = (b.checklist && b.checklist.length) ? b.checklist.length : 0;
+                const chkBadge = chkCount > 0
+                    ? ` <span class="split-badge">📋 ${chkCount}</span>`
+                    : '';
                 return `
                     <div class="template-block-row">
-                        <span style="color:var(--text-primary);"><strong class="font-mono" style="color:#fff;">${b.start}-${b.end}</strong>: ${b.label} <span style="color:var(--text-secondary);">(${cat.name})</span></span>
+                        <span style="color:var(--text-primary);"><strong class="font-mono" style="color:#fff;">${b.start}-${b.end}</strong>: ${b.label} <span style="color:var(--text-secondary);">(${cat.name})</span>${chkBadge}</span>
                         <div class="btn-row">
                             <button onclick="editBlock('${tpl.id}', '${b.id}')" class="btn btn-secondary btn-sm">Edit</button>
                             <button onclick="deleteBlock('${tpl.id}', '${b.id}')" class="btn-icon-delete">✕</button>
@@ -360,8 +388,6 @@ function renderTemplatesList() {
         `;
         container.appendChild(div);
     });
-
-    if (currentSelectedTpl) tplSelect.value = currentSelectedTpl;
 }
 
 function renderTaskQueueList() {
@@ -723,4 +749,158 @@ function updateSplitMath() {
         label.classList.remove('danger');
         label.classList.add('warning');
     }
+}
+function renderBlockDraftChecklist() {
+    const container = document.getElementById('blockDraftChecklistContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (!currentBlockDraftChecklist || currentBlockDraftChecklist.length === 0) {
+        return;
+    }
+
+    currentBlockDraftChecklist.forEach((item, idx) => {
+        const div = document.createElement('div');
+        div.className = 'template-block-row';
+        div.innerHTML = `
+            <div style="min-width:0;">
+                <div style="font-weight:700; color:#fff; font-size:0.8rem;">${idx + 1}. ${item.title}</div>
+                ${item.description ? `<div style="font-size:0.72rem; color:var(--text-secondary);">${item.description}</div>` : ''}
+            </div>
+            <div class="btn-row">
+                <button type="button" onclick="openChecklistEntryBox('${item.id}')" class="btn btn-secondary btn-sm">Edit</button>
+                <button type="button" onclick="deleteDraftChecklistItem('${item.id}')" class="btn-icon-delete">✕</button>
+            </div>
+        `;
+        container.appendChild(div);
+    });
+}
+
+function renderTodayChecklists() {
+    const container = document.getElementById('todayChecklistContainer');
+    const subEl = document.getElementById('checklistTemplateSub');
+    const countEl = document.getElementById('checklistProgressCount');
+    if (!container) return;
+
+    container.innerHTML = '';
+
+    const now = new Date();
+    const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const tplId = appData.dayMappings[todayStr];
+
+    if (!tplId) {
+        if (subEl) subEl.innerText = 'No schedule template mapped for today.';
+        if (countEl) countEl.innerText = '0 / 0 Done';
+        container.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">Map a template to today's date in the <strong>Schedules</strong> tab to view its checklist here.</div>`;
+        return;
+    }
+
+    const tpl = appData.templates.find(t => t.id === tplId);
+    if (!tpl) {
+        if (subEl) subEl.innerText = 'No schedule template mapped for today.';
+        if (countEl) countEl.innerText = '0 / 0 Done';
+        container.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No template found for today.</div>`;
+        return;
+    }
+
+    if (subEl) {
+        subEl.innerHTML = `Active Template: <strong style="color:#fff;">${tpl.name}</strong> (${todayStr})`;
+    }
+
+    // Sort blocks in chronological order and group checklist entries by Category in order of appearance
+    const sortedBlocks = [...(tpl.blocks || [])].sort((a, b) => a.start.localeCompare(b.start));
+    const categoryGroups = [];
+    const categoryGroupMap = {};
+
+    let totalItems = 0;
+    let completedItems = 0;
+
+    sortedBlocks.forEach(block => {
+        if (!block.checklist || block.checklist.length === 0) return;
+
+        if (!categoryGroupMap[block.categoryId]) {
+            const cat = appData.categories.find(c => c.id === block.categoryId) || {
+                id: block.categoryId,
+                name: 'Category',
+                color: '#6366f1'
+            };
+            const group = {
+                category: cat,
+                entries: []
+            };
+            categoryGroupMap[block.categoryId] = group;
+            categoryGroups.push(group);
+        }
+
+        block.checklist.forEach(chk => {
+            const isDone = Array.isArray(chk.completedDates) && chk.completedDates.includes(todayStr);
+            totalItems++;
+            if (isDone) completedItems++;
+
+            categoryGroupMap[block.categoryId].entries.push({
+                tplId: tpl.id,
+                blockId: block.id,
+                blockTime: `${block.start}-${block.end}`,
+                blockLabel: block.label,
+                chk
+            });
+        });
+    });
+
+    if (countEl) {
+        countEl.innerText = `${completedItems} / ${totalItems} Done`;
+    }
+
+    if (categoryGroups.length === 0) {
+        container.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No checklist items added to <strong>${tpl.name}</strong> yet. Edit any block in the <strong>Schedules</strong> tab and click <strong>+ Add Checklist</strong>.</div>`;
+        return;
+    }
+
+    categoryGroups.forEach(group => {
+        const cat = group.category;
+        const doneInCat = group.entries.filter(e => Array.isArray(e.chk.completedDates) && e.chk.completedDates.includes(todayStr)).length;
+
+        const box = document.createElement('div');
+        box.className = 'checklist-cat-box';
+        box.style.borderColor = `${cat.color}88`;
+        box.style.backgroundColor = `${cat.color}16`;
+
+        const itemsHtml = group.entries.map(entry => {
+            const isDone = Array.isArray(entry.chk.completedDates) && entry.chk.completedDates.includes(todayStr);
+            return `
+                <div class="checklist-item-row ${isDone ? 'is-done' : ''}">
+                    <label style="display:flex; align-items:flex-start; gap:0.6rem; cursor:pointer; min-width:0; flex:1;">
+                        <input type="checkbox" class="form-checkbox" style="margin-top:0.2rem;"
+                            ${isDone ? 'checked' : ''}
+                            onchange="toggleChecklistItemToday('${entry.tplId}', '${entry.blockId}', '${entry.chk.id}', '${todayStr}')">
+                        <div style="min-width:0;">
+                            <div class="checklist-item-title">${entry.chk.title}</div>
+                            ${entry.chk.description ? `<div class="checklist-item-desc">${entry.chk.description}</div>` : ''}
+                            <div class="font-mono" style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">⏰ ${entry.blockTime} (${entry.blockLabel})</div>
+                        </div>
+                    </label>
+                    <div class="btn-row" style="flex-shrink:0;">
+                        <button onclick="jumpToEditChecklistItem('${entry.tplId}', '${entry.blockId}', '${entry.chk.id}')" class="btn btn-secondary btn-sm">Edit</button>
+                        <button onclick="deleteChecklistItemFromToday('${entry.tplId}', '${entry.blockId}', '${entry.chk.id}')" class="btn-icon-delete">✕</button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        box.innerHTML = `
+            <div class="checklist-cat-header">
+                <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; color:#fff; font-size:0.9rem;">
+                    <span class="color-dot" style="background-color: ${cat.color}"></span>
+                    <span>${cat.name}</span>
+                </div>
+                <span class="font-mono" style="font-size:0.75rem; font-weight:700; color:#fff; background:rgba(0,0,0,0.35); padding:0.15rem 0.55rem; border-radius:999px;">
+                    ${doneInCat}/${group.entries.length}
+                </span>
+            </div>
+            <div class="stack-sm">
+                ${itemsHtml}
+            </div>
+        `;
+        container.appendChild(box);
+    });
 }

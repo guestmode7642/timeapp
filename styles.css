@@ -1070,6 +1070,11 @@ html, body {
 /* ==========================================================================
    TEMPLATES & CALENDAR MATRIX MAPPER
    ========================================================================== */
+.template-scroll-box {
+    max-height: 700px;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
 
 .template-card {
     background: #0b0e19;
@@ -1241,4 +1246,72 @@ html, body {
     background: rgba(10, 13, 24, 0.55);
     border: 1px dashed var(--border-subtle);
     border-radius: 0.75rem;
+}
+/* ==========================================================================
+   TEMPLATE CHECKLISTS (CATEGORY-COLOURED BOXES)
+   ========================================================================== */
+
+.checklist-cat-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+}
+
+@media (min-width: 768px) {
+    .checklist-cat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.checklist-cat-box {
+    border-radius: 0.9rem;
+    padding: 0.95rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    border-width: 1.5px;
+    border-style: solid;
+}
+
+.checklist-cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.checklist-item-row {
+    background: rgba(8, 11, 20, 0.82);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.65rem;
+    padding: 0.6rem 0.75rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.65rem;
+    transition: all 0.15s ease;
+}
+
+.checklist-item-row.is-done {
+    opacity: 0.6;
+    background: rgba(6, 9, 16, 0.5);
+}
+
+.checklist-item-title {
+    font-size: 0.84rem;
+    font-weight: 700;
+    color: #ffffff;
+}
+
+.checklist-item-row.is-done .checklist-item-title {
+    text-decoration: line-through;
+    color: var(--text-secondary);
+}
+
+.checklist-item-desc {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-top: 0.15rem;
 }

@@ -222,6 +222,21 @@
 
         <!-- ================= TAB 2: ACTION TASKS & DEADLINES ================= -->
         <section id="tab-tasks" class="tab-section hidden">
+
+            <!-- Today's Template Checklist Panel (Grouped by Category Colour) -->
+            <div class="panel" id="todayChecklistPanel">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title">✅ Today's Template Checklist</h3>
+                        <p class="panel-sub" id="checklistTemplateSub">Routine checks grouped by category from today's active template.</p>
+                    </div>
+                    <span class="counter-pill" id="checklistProgressCount">0 / 0 Done</span>
+                </div>
+                <div id="todayChecklistContainer" class="checklist-cat-grid">
+                    <!-- Populated dynamically -->
+                </div>
+            </div>
+
             <div class="panel">
                 <div class="panel-header">
                     <div>
@@ -419,17 +434,50 @@
                                 <label class="form-label" for="blockLabel">Activity Label / Description</label>
                                 <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="form-input">
                             </div>
+
+                            <!-- Repeatable Checklist Builder for this Category Block -->
+                            <div class="sub-panel stack-sm">
+                                <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+                                    <span class="form-label" style="margin-bottom:0;">📋 Block Checklist Items (Optional)</span>
+                                    <button type="button" id="toggleChecklistInputBtn" onclick="openChecklistEntryBox()" class="btn btn-secondary btn-sm">+ Add Checklist</button>
+                                </div>
+
+                                <!-- Input Box for Adding / Editing a Single Checklist Entry -->
+                                <div id="blockChecklistEntryBox" class="stack-sm hidden" style="padding-top:0.5rem; border-top:1px solid var(--border-subtle);">
+                                    <div>
+                                        <label class="form-label" for="chkItemTitle">Checklist Title</label>
+                                        <input type="text" id="chkItemTitle" placeholder="e.g. Iron clothes / Pack laptop" class="form-input">
+                                    </div>
+                                    <div>
+                                        <label class="form-label" for="chkItemDesc">Description (Optional)</label>
+                                        <input type="text" id="chkItemDesc" placeholder="Any extra details..." class="form-input">
+                                    </div>
+                                    <div class="btn-row" style="justify-content:flex-end;">
+                                        <button type="button" onclick="closeChecklistEntryBox()" class="btn btn-secondary btn-sm">Cancel</button>
+                                        <button type="button" id="saveChkItemBtn" onclick="saveDraftChecklistItem()" class="btn btn-success btn-sm">Add Entry ✓</button>
+                                    </div>
+                                </div>
+
+                                <!-- Draft Checklist Items Added to This Block -->
+                                <div id="blockDraftChecklistContainer" class="stack-sm">
+                                    <!-- Populated dynamically -->
+                                </div>
+                            </div>
+
                             <div class="form-actions">
                                 <button type="submit" class="btn btn-primary">+ Add Schedule Block</button>
                             </div>
                         </form>
                     </div>
 
-                    <div class="panel">
+                        <div class="panel">
                         <div class="panel-header">
                             <h3 class="panel-title">Saved Templates &amp; Timetables</h3>
                         </div>
-                        <div id="templateListContainer" class="stack-md">
+                        <div>
+                            <input type="text" id="templateSearchInput" oninput="renderTemplatesList()" placeholder="🔍 Search templates by name or activity..." class="form-input">
+                        </div>
+                        <div id="templateListContainer" class="template-scroll-box stack-md">
                             <!-- Populated dynamically -->
                         </div>
                     </div>

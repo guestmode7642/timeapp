@@ -1255,7 +1255,6 @@ html, body {
 .checklist-cat-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.75rem;
     max-height: 700px;
     min-height: 500px;
     overflow-y: auto;
@@ -1279,6 +1278,7 @@ html, body {
     max-height: 400px;
     min-height: 300px;
     overflow-y: auto;
+    margin-top: 0.75rem;
     margin-left: 1.5rem;
     margin-right: 1.5rem;
     -webkit-overflow-scrolling: touch;
@@ -1327,6 +1327,6 @@ html, body {
     margin-top: 0.15rem;
 }
 #todayChecklistPanel{
-    margin-left: 2.50rem;
-    margin-right: 2.50rem;
+    margin-left: 2.0rem;
+    margin-right: 2.0rem;
 }

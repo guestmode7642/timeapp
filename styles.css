@@ -1256,7 +1256,6 @@ html, body {
     display: grid;
     grid-template-columns: 1fr;
     max-height: 700px;
-    min-height: 500px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -1269,7 +1268,7 @@ html, body {
 
 .checklist-cat-box {
     border-radius: 0.9rem;
-    padding: 0.50rem;
+    padding: 0.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.50rem;

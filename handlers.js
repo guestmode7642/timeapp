@@ -500,6 +500,7 @@ function saveDraftChecklistItem() {
 }
 
 function deleteDraftChecklistItem(itemId) {
+    if (!confirm('Are you sure you want to delete this checklist item?')) return;
     currentBlockDraftChecklist = currentBlockDraftChecklist.filter(c => c.id !== itemId);
     if (editingDraftChecklistId === itemId) {
         closeChecklistEntryBox();

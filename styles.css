@@ -1257,6 +1257,7 @@ html, body {
     grid-template-columns: 1fr;
     max-height: 700px;
     overflow-y: auto;
+    gap: 0.5rem;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1325,7 +1326,7 @@ html, body {
     color: var(--text-secondary);
     margin-top: 0.15rem;
 }
-#todayChecklistPanel{
+/*#todayChecklistPanel{
     margin-left: 2.0rem;
     margin-right: 2.0rem;
-}
+}*/

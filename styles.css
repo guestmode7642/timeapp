@@ -1259,7 +1259,8 @@ html, body {
     max-height: 600px;
     min-height: 500px;
     overflow-y: auto;
-    padding-right: 0.25rem;
+    padding-right: 0.5rem;
+    padding-left: 0.5rem;
     -webkit-overflow-scrolling: touch;
 }
 

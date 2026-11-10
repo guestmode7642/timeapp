@@ -1255,12 +1255,12 @@ html, body {
 .checklist-cat-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 2.0rem;
+    gap: 3.0rem;
     max-height: 700px;
     min-height: 500px;
     overflow-y: auto;
-    padding-right: 1.0rem;
-    padding-left: 1.0rem;
+    padding-right: 2.0rem;
+    padding-left: 2.0rem;
     -webkit-overflow-scrolling: touch;
 }
 

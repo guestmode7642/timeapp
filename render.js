@@ -177,6 +177,11 @@ function renderCategorySelectAndList() {
             }
         });
 
+        // Hide category from Breakdown if both logged and planned hours are 0
+        const hasLogged = Math.round(catLoggedHours * 60) > 0;
+        const hasBudget = Math.round(Math.abs(totalBudget) * 60) > 0;
+        if (!hasLogged && !hasBudget) return;
+
         let pct = totalBudget > 0 ? Math.min(100, (catLoggedHours / totalBudget) * 100) : 0;
         pct = totalBudget - catLoggedHours < 0 ? 100 : pct;
 
@@ -196,6 +201,10 @@ function renderCategorySelectAndList() {
         `;
         breakdownContainer.appendChild(bar);
     });
+
+    if (breakdownContainer.children.length === 0) {
+        breakdownContainer.innerHTML = `<div class="empty-state">No planned or logged hours for any category yet.</div>`;
+    }
 }
 
 function renderTasksTable() {

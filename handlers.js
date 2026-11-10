@@ -79,15 +79,63 @@ function syncTplColorPicker(val) {
     }
 }
 
+// --- In-Form Edit State & UI Helper ---
+let editingCategoryId = null;
+let editingQueueTaskId = null;
+let editingTemplateId = null;
+let editingBlockState = null; // { tplId, blockId }
+
+function setFormEditMode(formId, isEditing, updateText, defaultText, onCancel) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const actionsDiv = form.querySelector('.form-actions');
+    if (submitBtn) submitBtn.innerText = isEditing ? updateText : defaultText;
+
+    const existingCancel = form.querySelector('.cancel-edit-btn');
+    if (existingCancel) existingCancel.remove();
+
+    if (isEditing && actionsDiv) {
+        actionsDiv.style.gap = '0.5rem';
+        const cancelBtn = document.createElement('button');
+        cancelBtn.type = 'button';
+        cancelBtn.className = 'btn btn-secondary cancel-edit-btn';
+        cancelBtn.innerText = 'Cancel';
+        cancelBtn.onclick = onCancel;
+        actionsDiv.insertBefore(cancelBtn, submitBtn);
+    }
+}
+
+function cancelCategoryEdit() {
+    editingCategoryId = null;
+    document.getElementById('categoryForm').reset();
+    syncCatColorText('#9333ea');
+    setFormEditMode('categoryForm', false, 'Update Category ✓', 'Add Category');
+}
+
 function handleCategorySubmit(e) {
     e.preventDefault();
     const name = document.getElementById('catName').value.trim();
-    const color = document.getElementById('catColorHex').value;
+    const color = document.getElementById('catColorHex').value.trim();
     if (!name) return;
+    if (!/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
+        alert('Invalid hex color format. Please use a valid hex code like #9333ea.');
+        return;
+    }
 
-    const id = 'cat_' + Date.now();
-    appData.categories.push({ id, name, color });
-    document.getElementById('categoryForm').reset();
+    if (editingCategoryId) {
+        const cat = appData.categories.find(c => c.id === editingCategoryId);
+        if (cat) {
+            cat.name = name;
+            cat.color = color;
+        }
+        cancelCategoryEdit();
+    } else {
+        const id = 'cat_' + Date.now();
+        appData.categories.push({ id, name, color });
+        document.getElementById('categoryForm').reset();
+        syncCatColorText('#9333ea');
+    }
     saveData();
 }
 
@@ -95,25 +143,14 @@ function editCategory(id) {
     const cat = appData.categories.find(c => c.id === id);
     if (!cat) return;
 
-    const newName = prompt('Edit category name:', cat.name);
-    if (newName === null) return;
-    const trimmedName = newName.trim();
-    if (!trimmedName) {
-        alert('Category name cannot be empty.');
-        return;
-    }
+    editingCategoryId = id;
+    document.getElementById('catName').value = cat.name;
+    document.getElementById('catColor').value = cat.color;
+    document.getElementById('catColorHex').value = cat.color;
 
-    const newColor = prompt('Edit color theme (Hex code, e.g. #9333ea):', cat.color);
-    if (newColor === null) return;
-    const trimmedColor = newColor.trim();
-    if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
-        alert('Invalid hex color format. Please use a valid hex code like #9333ea.');
-        return;
-    }
-
-    cat.name = trimmedName;
-    cat.color = trimmedColor;
-    saveData();
+    setFormEditMode('categoryForm', true, 'Update Category ✓', 'Add Category', cancelCategoryEdit);
+    document.getElementById('categoryForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('catName').focus();
 }
 
 function deleteCategory(id) {
@@ -140,6 +177,14 @@ function deleteCategory(id) {
 }
 
 // --- Task Queue Handlers ---
+function cancelQueueTaskEdit() {
+    editingQueueTaskId = null;
+    document.getElementById('queueTaskTitle').value = '';
+    document.getElementById('queueTaskText').value = '';
+    document.getElementById('queueTaskCustomDeadline').value = '';
+    setFormEditMode('taskQueueForm', false, 'Update Task ✓', '+ Add Action Task');
+}
+
 function handleTaskQueueSubmit(e) {
     e.preventDefault();
     const titleInput = document.getElementById('queueTaskTitle');
@@ -162,21 +207,33 @@ function handleTaskQueueSubmit(e) {
         deadlineIso = calculateDeadlineDate(horizonSelect.value);
     }
 
-    appData.tasksQueue.push({
-        id: 'tq_' + Date.now(),
-        title: title,
-        description: description,
-        text: title,
-        categoryId: catSelect.value,
-        deadline: deadlineIso,
-        createdAt: new Date().toISOString(),
-        completed: false,
-        completedAt: null
-    });
+    if (editingQueueTaskId) {
+        const task = appData.tasksQueue.find(t => t.id === editingQueueTaskId);
+        if (task) {
+            task.title = title;
+            task.text = title;
+            task.description = description;
+            task.categoryId = catSelect.value;
+            task.deadline = deadlineIso;
+        }
+        cancelQueueTaskEdit();
+    } else {
+        appData.tasksQueue.push({
+            id: 'tq_' + Date.now(),
+            title: title,
+            description: description,
+            text: title,
+            categoryId: catSelect.value,
+            deadline: deadlineIso,
+            createdAt: new Date().toISOString(),
+            completed: false,
+            completedAt: null
+        });
+        titleInput.value = '';
+        textInput.value = '';
+        customDeadlineInput.value = '';
+    }
 
-    titleInput.value = '';
-    textInput.value = '';
-    customDeadlineInput.value = '';
     saveData();
 }
 
@@ -184,23 +241,16 @@ function editQueueTask(id) {
     const task = (appData.tasksQueue || []).find(t => t.id === id);
     if (!task) return;
 
-    const currentTitle = task.title || task.text || '';
-    const newTitle = prompt('Edit task title:', currentTitle);
-    if (newTitle === null) return;
-    const trimmedTitle = newTitle.trim();
-    if (!trimmedTitle) {
-        alert('Task title cannot be empty.');
-        return;
-    }
+    editingQueueTaskId = id;
+    document.getElementById('queueTaskTitle').value = task.title || task.text || '';
+    document.getElementById('queueTaskText').value = task.description || '';
+    document.getElementById('queueTaskCategory').value = task.categoryId;
+    document.getElementById('queueTaskHorizon').value = getEffectiveHorizon(task.deadline);
+    document.getElementById('queueTaskCustomDeadline').value = toLocalDatetimeString(task.deadline);
 
-    const currentDesc = task.description || '';
-    const newDesc = prompt('Edit task description (optional):', currentDesc);
-    if (newDesc === null) return;
-
-    task.title = trimmedTitle;
-    task.text = trimmedTitle;
-    task.description = newDesc.trim();
-    saveData();
+    setFormEditMode('taskQueueForm', true, 'Update Task ✓', '+ Add Action Task', cancelQueueTaskEdit);
+    document.getElementById('taskQueueForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('queueTaskTitle').focus();
 }
 
 function completeQueueTaskDirectly(id) {
@@ -347,16 +397,36 @@ function clearLogs() {
     }
 }
 
-// --- Template & Schedule Block Handlers ---
+function cancelTemplateEdit() {
+    editingTemplateId = null;
+    document.getElementById('templateForm').reset();
+    syncTplColorText('#3b82f6');
+    setFormEditMode('templateForm', false, 'Update Template ✓', 'Save Template');
+}
+
 function handleTemplateSubmit(e) {
     e.preventDefault();
     const name = document.getElementById('tplName').value.trim();
-    const color = document.getElementById('tplColorHex').value;
+    const color = document.getElementById('tplColorHex').value.trim();
     if (!name) return;
+    if (!/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
+        alert('Invalid hex color format. Please use a valid hex code like #3b82f6.');
+        return;
+    }
 
-    const id = 'tpl_' + Date.now();
-    appData.templates.push({ id, name, color, blocks: [] });
-    document.getElementById('templateForm').reset();
+    if (editingTemplateId) {
+        const tpl = appData.templates.find(t => t.id === editingTemplateId);
+        if (tpl) {
+            tpl.name = name;
+            tpl.color = color;
+        }
+        cancelTemplateEdit();
+    } else {
+        const id = 'tpl_' + Date.now();
+        appData.templates.push({ id, name, color, blocks: [] });
+        document.getElementById('templateForm').reset();
+        syncTplColorText('#3b82f6');
+    }
     saveData();
     renderCalendarMatrix();
 }
@@ -386,26 +456,14 @@ function editTemplate(id) {
     const tpl = appData.templates.find(t => t.id === id);
     if (!tpl) return;
 
-    const newName = prompt('Edit template name:', tpl.name);
-    if (newName === null) return;
-    const trimmedName = newName.trim();
-    if (!trimmedName) {
-        alert('Template name cannot be empty.');
-        return;
-    }
+    editingTemplateId = id;
+    document.getElementById('tplName').value = tpl.name;
+    document.getElementById('tplColor').value = tpl.color;
+    document.getElementById('tplColorHex').value = tpl.color;
 
-    const newColor = prompt('Edit template color theme (Hex code, e.g. #3b82f6):', tpl.color);
-    if (newColor === null) return;
-    const trimmedColor = newColor.trim();
-    if (!/^#([0-9A-F]{3}){1,2}$/i.test(trimmedColor)) {
-        alert('Invalid hex color format. Please use a valid hex code like #3b82f6.');
-        return;
-    }
-
-    tpl.name = trimmedName;
-    tpl.color = trimmedColor;
-    saveData();
-    renderCalendarMatrix();
+    setFormEditMode('templateForm', true, 'Update Template ✓', 'Save Template', cancelTemplateEdit);
+    document.getElementById('templateForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('tplName').focus();
 }
 
 function deleteTemplate(id) {
@@ -419,6 +477,12 @@ function deleteTemplate(id) {
     }
 }
 
+function cancelBlockEdit() {
+    editingBlockState = null;
+    document.getElementById('blockLabel').value = '';
+    setFormEditMode('blockForm', false, 'Update Schedule Block ✓', '+ Add Schedule Block');
+}
+
 function handleBlockSubmit(e) {
     e.preventDefault();
     const tplId = document.getElementById('blockTemplateSelect').value;
@@ -427,15 +491,34 @@ function handleBlockSubmit(e) {
     const categoryId = document.getElementById('blockCategorySelect').value;
     const label = document.getElementById('blockLabel').value.trim();
 
-    const tpl = appData.templates.find(t => t.id === tplId);
-    if (!tpl) return;
+    const targetTpl = appData.templates.find(t => t.id === tplId);
+    if (!targetTpl) return;
+    if (!targetTpl.blocks) targetTpl.blocks = [];
 
-    if (!tpl.blocks) tpl.blocks = [];
-    const blockId = 'b_' + Date.now();
-    tpl.blocks.push({ id: blockId, start, end, categoryId, label });
+    if (editingBlockState) {
+        const sourceTpl = appData.templates.find(t => t.id === editingBlockState.tplId);
+        const existingBlock = sourceTpl && sourceTpl.blocks
+            ? sourceTpl.blocks.find(b => b.id === editingBlockState.blockId)
+            : null;
 
-    document.getElementById('blockLabel').value = '';
-    document.getElementById('blockStartTime').value = end;
+        if (existingBlock) {
+            if (editingBlockState.tplId !== tplId) {
+                sourceTpl.blocks = sourceTpl.blocks.filter(b => b.id !== editingBlockState.blockId);
+                targetTpl.blocks.push({ ...existingBlock, start, end, categoryId, label });
+            } else {
+                existingBlock.start = start;
+                existingBlock.end = end;
+                existingBlock.categoryId = categoryId;
+                existingBlock.label = label;
+            }
+        }
+        cancelBlockEdit();
+    } else {
+        const blockId = 'b_' + Date.now();
+        targetTpl.blocks.push({ id: blockId, start, end, categoryId, label });
+        document.getElementById('blockLabel').value = '';
+        document.getElementById('blockStartTime').value = end;
+    }
 
     saveData();
 }
@@ -446,24 +529,16 @@ function editBlock(tplId, blockId) {
     const block = tpl.blocks.find(b => b.id === blockId);
     if (!block) return;
 
-    const newLabel = prompt('Edit block label/description:', block.label);
-    if (newLabel === null) return;
-    const trimmedLabel = newLabel.trim();
-    if (!trimmedLabel) {
-        alert('Block label cannot be empty.');
-        return;
-    }
+    editingBlockState = { tplId, blockId };
+    document.getElementById('blockTemplateSelect').value = tplId;
+    document.getElementById('blockStartTime').value = block.start;
+    document.getElementById('blockEndTime').value = block.end;
+    document.getElementById('blockCategorySelect').value = block.categoryId;
+    document.getElementById('blockLabel').value = block.label;
 
-    const newStart = prompt('Edit start time (HH:MM 24h format):', block.start);
-    if (newStart === null) return;
-
-    const newEnd = prompt('Edit end time (HH:MM 24h format):', block.end);
-    if (newEnd === null) return;
-
-    block.label = trimmedLabel;
-    block.start = newStart.trim();
-    block.end = newEnd.trim();
-    saveData();
+    setFormEditMode('blockForm', true, 'Update Schedule Block ✓', '+ Add Schedule Block', cancelBlockEdit);
+    document.getElementById('blockForm').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('blockLabel').focus();
 }
 
 function deleteBlock(tplId, blockId) {

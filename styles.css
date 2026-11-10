@@ -1073,6 +1073,7 @@ html, body {
 .template-scroll-box {
     max-height: 700px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding-right: 0.25rem;
 }
 

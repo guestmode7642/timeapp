@@ -1257,6 +1257,7 @@ html, body {
     grid-template-columns: 1fr;
     gap: 0.9rem;
     max-height: 600px;
+    min-height: 500px;
     overflow-y: auto;
     padding-right: 0.25rem;
     -webkit-overflow-scrolling: touch;
@@ -1277,6 +1278,7 @@ html, body {
     border-width: 1.5px;
     border-style: solid;
     max-height: 300px;
+    min-height: 200px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }

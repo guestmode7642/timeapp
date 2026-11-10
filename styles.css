@@ -1255,12 +1255,12 @@ html, body {
 .checklist-cat-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 1.9rem;
-    max-height: 600px;
+    gap: 2.0rem;
+    max-height: 700px;
     min-height: 500px;
     overflow-y: auto;
-    padding-right: 0.5rem;
-    padding-left: 0.5rem;
+    padding-right: 1.0rem;
+    padding-left: 1.0rem;
     -webkit-overflow-scrolling: touch;
 }
 
@@ -1278,8 +1278,8 @@ html, body {
     gap: 0.65rem;
     border-width: 1.5px;
     border-style: solid;
-    max-height: 300px;
-    min-height: 200px;
+    max-height: 400px;
+    min-height: 300px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }

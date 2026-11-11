@@ -876,7 +876,7 @@ function renderTodayChecklists() {
                         <div style="min-width:0;">
                             <div class="checklist-item-title">${entry.chk.title}</div>
                             ${entry.chk.description ? `<div class="checklist-item-desc">${entry.chk.description}</div>` : ''}
-                            <div class="font-mono" style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">⏰ ${entry.blockTime} (${entry.blockLabel})</div>
+                            <!-- <div class="font-mono" style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">⏰ ${entry.blockTime} (${entry.blockLabel})</div> -->
                         </div>
                     </label>
                     <div class="btn-row" style="flex-shrink:0;">

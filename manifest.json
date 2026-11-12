@@ -1,0 +1,18 @@
+{
+  "name": "Time Ledger",
+  "short_name": "Time Ledger",
+  "description": "Personal Tenure, Schedule & Time Ledger",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060810",
+  "theme_color": "#0b0e18",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%234f46e5'/><text x='50%25' y='54%25' dominant-baseline='central' text-anchor='middle' font-size='58'>⏳</text></svg>",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

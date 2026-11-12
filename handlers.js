@@ -1054,28 +1054,8 @@ if (blockSubSelectEl) {
 });
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        const swCode = `
-            const CACHE_NAME = 'time-ledger-cache-v6';
-            self.addEventListener('install', e => self.skipWaiting());
-            self.addEventListener('activate', e => e.waitUntil(clients.claim()));
-            self.addEventListener('fetch', e => {
-                if (e.request.method !== 'GET' || e.request.url.includes('/api/')) {
-                    return;
-                }
-                e.respondWith(
-                    fetch(e.request)
-                        .then(response => caches.open(CACHE_NAME).then(cache => {
-                            cache.put(e.request, response.clone());
-                            return response;
-                        }))
-                        .catch(() => caches.match(e.request))
-                );
-            });
-        `;
-        const blob = new Blob([swCode], { type: 'text/javascript' });
-        const swUrl = URL.createObjectURL(blob);
-        navigator.serviceWorker.register(swUrl).catch(err => {
-            console.warn('Offline caching service worker skipped:', err);
+        navigator.serviceWorker.register('/sw.js').catch(err => {
+            console.warn('Service worker registration skipped:', err);
         });
     });
 }

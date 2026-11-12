@@ -37,7 +37,6 @@ html, body {
         radial-gradient(at 10% 0%, rgba(34, 211, 238, 0.14) 0px, transparent 45%),
         radial-gradient(at 50% 0%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
         radial-gradient(at 90% 10%, rgba(16, 185, 129, 0.10) 0px, transparent 45%);
-    background-attachment: fixed;
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: 14px;
@@ -45,7 +44,11 @@ html, body {
     -webkit-font-smoothing: antialiased;
     padding-bottom: 3rem;
 }
-
+@media (min-width: 1024px) {
+    html, body {
+        background-attachment: fixed;
+    }
+}
 .hidden {
     display: none !important;
 }

@@ -2,28 +2,43 @@
 // STATE MANAGEMENT, STORAGE & CORE MATH ENGINE
 // ==========================================================================
 
-let appData = JSON.parse(localStorage.getItem('timeLedgerData')) || {
-    tenure: { start: '', end: '' },
-    categories: [
-        { id: 'cat-unassigned', name: 'Unassigned', color: '#562828' },
-        { id: 'cat-sleep', name: 'Sleep', color: '#3b82f6' },
-        { id: 'cat-work', name: 'Work', color: '#10b981' }
-    ],
-    tasks: [],
-    templates: [
-        {
-            id: 'tpl-work',
-            name: 'Workday PG',
-            color: '#10b981',
-            blocks: [
-                { id: 'b1', start: '00:00', end: '07:00', categoryId: 'cat-sleep', label: 'Sleep' },
-                { id: 'b2', start: '09:00', end: '17:00', categoryId: 'cat-work', label: 'Office Hours' }
-            ]
-        }
-    ],
-    dayMappings: {}, // { "YYYY-MM-DD": "tpl-id" }
-    tasksQueue: []   // Action Task Queue Storage
-};
+function getDefaultAppData() {
+    return {
+        tenure: { start: '', end: '' },
+        categories: [
+            { id: 'cat-unassigned', name: 'Unassigned', color: '#562828' },
+            { id: 'cat-sleep', name: 'Sleep', color: '#3b82f6' },
+            { id: 'cat-work', name: 'Work', color: '#10b981' }
+        ],
+        tasks: [],
+        templates: [
+            {
+                id: 'tpl-work',
+                name: 'Workday PG',
+                color: '#10b981',
+                blocks: [
+                    { id: 'b1', start: '00:00', end: '07:00', categoryId: 'cat-sleep', label: 'Sleep' },
+                    { id: 'b2', start: '09:00', end: '17:00', categoryId: 'cat-work', label: 'Office Hours' }
+                ]
+            }
+        ],
+        dayMappings: {},
+        tasksQueue: []
+    };
+}
+
+let authSession = JSON.parse(localStorage.getItem('timeLedgerSession')) || null; // { username, token }
+
+function getActiveStorageKey() {
+    return authSession && authSession.username
+        ? `timeLedgerData_${authSession.username}`
+        : 'timeLedgerData';
+}
+
+// Automatically migrate existing local data when you log in for the first time
+let appData = JSON.parse(localStorage.getItem(getActiveStorageKey()))
+    || JSON.parse(localStorage.getItem('timeLedgerData'))
+    || getDefaultAppData();
 
 let selectedDatesSet = new Set();
 
@@ -47,6 +62,16 @@ function formatHours(decimalHours) {
     return `${sign}${hrs}h:${mins}m`;
 }
 
+function updateAccountHeaderUI() {
+    const btn = document.getElementById('userAccountBtn');
+    if (!btn) return;
+    if (authSession && authSession.username) {
+        btn.innerText = `👤 ${authSession.username} (Logout)`;
+    } else {
+        btn.innerText = '👤 Login';
+    }
+}
+
 function setSyncBadgeState(status, label) {
     const badge = document.getElementById('cloudSyncBadge');
     if (!badge) return;
@@ -64,18 +89,21 @@ function setSyncBadgeState(status, label) {
 }
 
 async function pushToCloud() {
-    if (window.location.protocol === 'file:') return;
+    if (window.location.protocol === 'file:' || !authSession || !authSession.token) return;
     setSyncBadgeState('syncing', '🔄 Saving...');
     try {
         const res = await fetch('/api/sync', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(appData)
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${authSession.token}`
+            },
+            body: JSON.stringify({ data: appData })
         });
         if (res.ok) {
             setSyncBadgeState('synced', '☁️ Synced');
         } else {
-            setSyncBadgeState('offline', '⚠️ Local Only');
+            setSyncBadgeState('offline', '⚠️ Sync Error');
         }
     } catch (err) {
         setSyncBadgeState('offline', '⚠️ Offline');
@@ -83,17 +111,35 @@ async function pushToCloud() {
 }
 
 async function pullFromCloud(forceOverwrite = false) {
+    updateAccountHeaderUI();
     if (window.location.protocol === 'file:') return;
+
+    if (!authSession || !authSession.token) {
+        const modal = document.getElementById('authModal');
+        if (modal) modal.classList.remove('hidden');
+        return;
+    }
+
     setSyncBadgeState('syncing', '🔄 Syncing...');
     try {
-        const res = await fetch('/api/sync');
+        const res = await fetch('/api/sync', {
+            headers: { Authorization: `Bearer ${authSession.token}` }
+        });
+        if (res.status === 401) {
+            authSession = null;
+            localStorage.removeItem('timeLedgerSession');
+            updateAccountHeaderUI();
+            const modal = document.getElementById('authModal');
+            if (modal) modal.classList.remove('hidden');
+            return;
+        }
         if (!res.ok) {
             setSyncBadgeState('offline', '⚠️ Local Only');
             return;
         }
+
         const { data: cloudData } = await res.json();
 
-        // If cloud is empty, seed it with this device's existing localStorage data
         if (!cloudData) {
             await pushToCloud();
             return;
@@ -105,11 +151,10 @@ async function pullFromCloud(forceOverwrite = false) {
 
         if (forceOverwrite || isLocalFreshInstall || cloudTime >= localTime) {
             appData = cloudData;
-            localStorage.setItem('timeLedgerData', JSON.stringify(appData));
+            localStorage.setItem(getActiveStorageKey(), JSON.stringify(appData));
             if (typeof renderApp === 'function') renderApp();
             setSyncBadgeState('synced', '☁️ Synced');
         } else {
-            // Local device has newer offline edits; push them to cloud
             await pushToCloud();
         }
     } catch (err) {
@@ -119,7 +164,7 @@ async function pullFromCloud(forceOverwrite = false) {
 
 function saveData() {
     appData.updatedAt = Date.now();
-    localStorage.setItem('timeLedgerData', JSON.stringify(appData));
+    localStorage.setItem(getActiveStorageKey(), JSON.stringify(appData));
     renderApp();
     pushToCloud();
 }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Time Ledger</title>
-    <link rel="stylesheet" href="styles.css?v=4">
+    <link rel="stylesheet" href="styles.css?v=5">
 </head>
 <body>
 
@@ -14,11 +14,15 @@
             <div class="brand-group">
                 <div class="brand-icon">⏳</div>
                 <div>
-                    <div style="display:flex; align-items:center; gap:0.55rem;">
+                    <div style="display:flex; align-items:center; gap:0.45rem; flex-wrap:wrap;">
                         <h1 class="brand-title">Time Ledger</h1>
                         <button type="button" id="cloudSyncBadge" onclick="pullFromCloud(true)"
                             style="background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.3); color:#94a3b8; font-size:0.68rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:999px; cursor:pointer;">
                             ☁️ Local
+                        </button>
+                        <button type="button" id="userAccountBtn" onclick="handleAccountButtonClick()"
+                            style="background:rgba(49,46,129,0.6); border:1px solid rgba(129,140,248,0.45); color:#c7d2fe; font-size:0.68rem; font-weight:700; padding:0.15rem 0.55rem; border-radius:999px; cursor:pointer;">
+                            👤 Login
                         </button>
                     </div>
                     <p class="brand-sub" id="headerTenureSub">Configure tenure to track hours.</p>
@@ -636,11 +640,44 @@
                 </div>
             </div>
         </div>
+    <!-- ================= USER AUTH MODAL (SHOWN ONLY IF LOGGED OUT) ================= -->
+        <div id="authModal" class="modal-backdrop hidden">
+            <div class="modal-card" style="max-width: 420px;">
+                <div class="panel-header">
+                    <div>
+                        <h3 class="panel-title" id="authModalTitle">🔐 Sign In to Time Ledger</h3>
+                        <p class="panel-sub">Sign in once on this device—you will stay logged in automatically.</p>
+                    </div>
+                </div>
+
+                <form id="authForm" onsubmit="handleAuthSubmit(event)" class="stack-md">
+                    <input type="hidden" id="authActionInput" value="login">
+                    <div>
+                        <label class="form-label" for="authUsername">Username</label>
+                        <input type="text" id="authUsername" placeholder="e.g. vamsi" required autocomplete="username" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label" for="authPassword">Password</label>
+                        <input type="password" id="authPassword" placeholder="Enter password..." required autocomplete="current-password" class="form-input">
+                    </div>
+                    <p id="authErrorMsg" class="hidden" style="font-size:0.78rem; color:#fb7185; font-weight:700;"></p>
+
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; padding-top:0.25rem;">
+                        <button type="button" id="authSwitchModeBtn" onclick="toggleAuthMode()" class="btn btn-secondary btn-sm">
+                            Need an account? Sign Up
+                        </button>
+                        <button type="submit" id="authSubmitBtn" class="btn btn-primary">
+                            Login ➔
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </main>
 
     <!-- Modular Offline Scripts -->
-    <script src="state.js?v=4"></script>
-    <script src="render.js?v=4"></script>
-    <script src="handlers.js?v=4"></script>
+    <script src="state.js?v=5"></script>
+    <script src="render.js?v=5"></script>
+    <script src="handlers.js?v=5"></script>
 </body>
 </html>

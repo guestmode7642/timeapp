@@ -1055,7 +1055,7 @@ if (blockSubSelectEl) {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         const swCode = `
-            const CACHE_NAME = 'time-ledger-cache-v5';
+            const CACHE_NAME = 'time-ledger-cache-v6';
             self.addEventListener('install', e => self.skipWaiting());
             self.addEventListener('activate', e => e.waitUntil(clients.claim()));
             self.addEventListener('fetch', e => {
@@ -1079,7 +1079,99 @@ if ('serviceWorker' in navigator) {
         });
     });
 }
+// --- Multi-User Auth Handlers (Persistent LocalStorage Session) ---
+function toggleAuthMode() {
+    const actionInput = document.getElementById('authActionInput');
+    const titleEl = document.getElementById('authModalTitle');
+    const submitBtn = document.getElementById('authSubmitBtn');
+    const switchBtn = document.getElementById('authSwitchModeBtn');
+    const errEl = document.getElementById('authErrorMsg');
+    if (errEl) errEl.classList.add('hidden');
 
+    if (actionInput.value === 'login') {
+        actionInput.value = 'signup';
+        titleEl.innerText = '✨ Create Time Ledger Account';
+        submitBtn.innerText = 'Sign Up ➔';
+        switchBtn.innerText = 'Have an account? Login';
+    } else {
+        actionInput.value = 'login';
+        titleEl.innerText = '🔐 Sign In to Time Ledger';
+        submitBtn.innerText = 'Login ➔';
+        switchBtn.innerText = 'Need an account? Sign Up';
+    }
+}
+
+async function handleAuthSubmit(e) {
+    e.preventDefault();
+    const action = document.getElementById('authActionInput').value;
+    const username = document.getElementById('authUsername').value.trim().toLowerCase();
+    const password = document.getElementById('authPassword').value;
+    const errEl = document.getElementById('authErrorMsg');
+    const submitBtn = document.getElementById('authSubmitBtn');
+
+    errEl.classList.add('hidden');
+    submitBtn.disabled = true;
+
+    try {
+        const res = await fetch('/api/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action, username, password })
+        });
+        const result = await res.json();
+
+        if (!res.ok) {
+            errEl.innerText = result.error || 'Authentication failed.';
+            errEl.classList.remove('hidden');
+            submitBtn.disabled = false;
+            return;
+        }
+
+        // Save persistent session in localStorage so user never has to log in again on this device
+        authSession = { username: result.username, token: result.token };
+        localStorage.setItem('timeLedgerSession', JSON.stringify(authSession));
+
+        if (result.data) {
+            appData = result.data;
+            localStorage.setItem(getActiveStorageKey(), JSON.stringify(appData));
+        } else {
+            // New account: if this device already had local schedule data, keep & upload it; otherwise start fresh
+            const existingUserLocal = JSON.parse(localStorage.getItem(getActiveStorageKey()));
+            if (existingUserLocal) {
+                appData = existingUserLocal;
+            }
+            localStorage.setItem(getActiveStorageKey(), JSON.stringify(appData));
+            await pushToCloud();
+        }
+
+        document.getElementById('authModal').classList.add('hidden');
+        document.getElementById('authForm').reset();
+        updateAccountHeaderUI();
+        setSyncBadgeState('synced', '☁️ Synced');
+        renderApp();
+    } catch (err) {
+        errEl.innerText = 'Network error. Please try again.';
+        errEl.classList.remove('hidden');
+    } finally {
+        submitBtn.disabled = false;
+    }
+}
+
+function handleAccountButtonClick() {
+    if (authSession && authSession.username) {
+        if (confirm(`Logged in as "${authSession.username}". Do you want to log out on this device?`)) {
+            authSession = null;
+            localStorage.removeItem('timeLedgerSession');
+            appData = getDefaultAppData();
+            updateAccountHeaderUI();
+            setSyncBadgeState('offline', '☁️ Logged Out');
+            renderApp();
+            document.getElementById('authModal').classList.remove('hidden');
+        }
+    } else {
+        document.getElementById('authModal').classList.remove('hidden');
+    }
+}
 // Initial local render + immediate cloud sync
 renderApp();
 pullFromCloud();

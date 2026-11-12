@@ -87,6 +87,11 @@ function renderTodayBanner() {
                 const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;
                 const div = document.createElement('div');
                 div.className = `schedule-block-card ${isActive ? 'live' : ''}`;
+                if (!isActive) {
+                    div.style.background = `linear-gradient(135deg, ${cat.color}38, var(--bg-panel))`;
+                    div.style.borderColor = `${cat.color}88`;
+                    div.style.boxShadow = `0 0 20px -6px ${cat.color}40`;
+                }
                 div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
 
                 div.innerHTML = `
@@ -139,15 +144,18 @@ function renderCategorySelectAndList() {
 
         const card = document.createElement('div');
         card.className = 'item-card';
+        card.style.background = `linear-gradient(135deg, ${cat.color}38, var(--bg-panel))`;
+        card.style.borderColor = `${cat.color}88`;
+        card.style.boxShadow = `0 0 22px -6px ${cat.color}40`;
         card.innerHTML = `
-            <div style="display:flex; align-items:center; gap:0.65rem;">
-                <span class="color-dot" style="background-color: ${cat.color}"></span>
-                <div>
+            <div style="display:flex; align-items:flex-start; gap:0.65rem; min-width:0;">
+                <span class="color-dot" style="background-color: ${cat.color}; margin-top:0.35rem;"></span>
+                <div style="min-width:0;">
                     <h4 style="font-size:0.88rem; font-weight:800; color:#fff;">${cat.name}</h4>
-                    <span class="font-mono" style="font-size:0.75rem; color:var(--text-secondary);">Budget: ${totalBudget.toFixed(1)} hrs</span>
+                    ${cat.description ? `<p style="font-size:0.76rem; color:var(--text-secondary); margin-top:0.15rem; word-break:break-word;">${cat.description}</p>` : ''}
                 </div>
             </div>
-            <div class="btn-row">
+            <div class="btn-row" style="flex-shrink:0;">
                 ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="btn btn-secondary btn-sm">Edit</button>` : ''}
                 ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="btn-icon-delete">✕</button>` : ''}
             </div>
@@ -188,6 +196,9 @@ function renderCategorySelectAndList() {
 
         const bar = document.createElement('div');
         bar.className = 'breakdown-card';
+        bar.style.background = `linear-gradient(135deg, ${cat.color}38, var(--bg-panel))`;
+        bar.style.borderColor = `${cat.color}88`;
+        bar.style.boxShadow = `0 0 22px -6px ${cat.color}40`;
         bar.innerHTML = `
             <div class="breakdown-top">
                 <span style="display:flex; align-items:center; gap:0.45rem; color:#fff;">
@@ -346,6 +357,9 @@ function renderTemplatesList() {
     filteredTemplates.forEach(tpl => {
         const div = document.createElement('div');
         div.className = 'template-card';
+        div.style.background = `linear-gradient(135deg, ${tpl.color}38, var(--bg-panel))`;
+        div.style.borderColor = `${tpl.color}88`;
+        div.style.boxShadow = `0 0 24px -6px ${tpl.color}40`;
 
         let blocksHtml = '';
         if (tpl.blocks && tpl.blocks.length > 0) {
@@ -775,7 +789,6 @@ function renderBlockDraftChecklist() {
         container.appendChild(div);
     });
 }
-
 function renderTodayChecklists() {
     const container = document.getElementById('todayChecklistContainer');
     const subEl = document.getElementById('checklistTemplateSub');
@@ -807,10 +820,9 @@ function renderTodayChecklists() {
         subEl.innerHTML = `Active Template: <strong style="color:#fff;">${tpl.name}</strong> (${todayStr})`;
     }
 
-    // Sort blocks in chronological order and group checklist entries by Category in order of appearance
+    // Sort blocks in chronological order; each block (point in time) with checklists gets its own box
     const sortedBlocks = [...(tpl.blocks || [])].sort((a, b) => a.start.localeCompare(b.start));
-    const categoryGroups = [];
-    const categoryGroupMap = {};
+    const blockGroups = [];
 
     let totalItems = 0;
     let completedItems = 0;
@@ -818,32 +830,29 @@ function renderTodayChecklists() {
     sortedBlocks.forEach(block => {
         if (!block.checklist || block.checklist.length === 0) return;
 
-        if (!categoryGroupMap[block.categoryId]) {
-            const cat = appData.categories.find(c => c.id === block.categoryId) || {
-                id: block.categoryId,
-                name: 'Category',
-                color: '#6366f1'
-            };
-            const group = {
-                category: cat,
-                entries: []
-            };
-            categoryGroupMap[block.categoryId] = group;
-            categoryGroups.push(group);
-        }
+        const cat = appData.categories.find(c => c.id === block.categoryId) || {
+            id: block.categoryId,
+            name: 'Category',
+            color: '#6366f1'
+        };
 
-        block.checklist.forEach(chk => {
+        const entries = block.checklist.map(chk => {
             const isDone = Array.isArray(chk.completedDates) && chk.completedDates.includes(todayStr);
             totalItems++;
             if (isDone) completedItems++;
 
-            categoryGroupMap[block.categoryId].entries.push({
+            return {
                 tplId: tpl.id,
                 blockId: block.id,
-                blockTime: `${block.start}-${block.end}`,
-                blockLabel: block.label,
                 chk
-            });
+            };
+        });
+
+        blockGroups.push({
+            category: cat,
+            blockTime: `${block.start} ➔ ${block.end}`,
+            blockLabel: block.label,
+            entries
         });
     });
 
@@ -851,19 +860,20 @@ function renderTodayChecklists() {
         countEl.innerText = `${completedItems} / ${totalItems} Done`;
     }
 
-    if (categoryGroups.length === 0) {
+    if (blockGroups.length === 0) {
         container.innerHTML = `<div class="empty-state" style="grid-column: 1 / -1;">No checklist items added to <strong>${tpl.name}</strong> yet. Edit any block in the <strong>Schedules</strong> tab and click <strong>+ Add Checklist</strong>.</div>`;
         return;
     }
 
-    categoryGroups.forEach(group => {
+    blockGroups.forEach(group => {
         const cat = group.category;
-        const doneInCat = group.entries.filter(e => Array.isArray(e.chk.completedDates) && e.chk.completedDates.includes(todayStr)).length;
+        const doneInBox = group.entries.filter(e => Array.isArray(e.chk.completedDates) && e.chk.completedDates.includes(todayStr)).length;
 
         const box = document.createElement('div');
         box.className = 'checklist-cat-box';
-        box.style.borderColor = `${cat.color}88`;
-        box.style.backgroundColor = `${cat.color}16`;
+        box.style.background = `linear-gradient(135deg, ${cat.color}42, var(--bg-panel))`;
+        box.style.borderColor = `${cat.color}99`;
+        box.style.boxShadow = `0 0 24px -6px ${cat.color}45`;
 
         const itemsHtml = group.entries.map(entry => {
             const isDone = Array.isArray(entry.chk.completedDates) && entry.chk.completedDates.includes(todayStr);
@@ -876,7 +886,6 @@ function renderTodayChecklists() {
                         <div style="min-width:0;">
                             <div class="checklist-item-title">${entry.chk.title}</div>
                             ${entry.chk.description ? `<div class="checklist-item-desc">${entry.chk.description}</div>` : ''}
-                            <!-- <div class="font-mono" style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">⏰ ${entry.blockTime} (${entry.blockLabel})</div> -->
                         </div>
                     </label>
                     <div class="btn-row" style="flex-shrink:0;">
@@ -889,12 +898,16 @@ function renderTodayChecklists() {
 
         box.innerHTML = `
             <div class="checklist-cat-header">
-                <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; color:#fff; font-size:0.9rem;">
-                    <span class="color-dot" style="background-color: ${cat.color}"></span>
-                    <span>${cat.name}</span>
+                <div style="min-width:0;">
+                    <div style="display:flex; align-items:center; gap:0.5rem; font-weight:800; color:#fff; font-size:0.9rem;">
+                        <span class="color-dot" style="background-color: ${cat.color}"></span>
+                        <span>${cat.name}</span>
+                        <span style="font-size:0.76rem; font-weight:600; color:var(--text-secondary);">• ${group.blockLabel}</span>
+                    </div>
+                    <div class="font-mono" style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.15rem;">⏰ ${group.blockTime}</div>
                 </div>
-                <span class="font-mono" style="font-size:0.75rem; font-weight:700; color:#fff; background:rgba(0,0,0,0.35); padding:0.15rem 0.55rem; border-radius:999px;">
-                    ${doneInCat}/${group.entries.length}
+                <span class="font-mono" style="font-size:0.75rem; font-weight:700; color:#fff; background:rgba(0,0,0,0.35); padding:0.15rem 0.55rem; border-radius:999px; flex-shrink:0;">
+                    ${doneInBox}/${group.entries.length}
                 </span>
             </div>
             <div class="stack-sm">

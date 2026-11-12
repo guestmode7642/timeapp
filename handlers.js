@@ -116,6 +116,8 @@ function cancelCategoryEdit() {
 function handleCategorySubmit(e) {
     e.preventDefault();
     const name = document.getElementById('catName').value.trim();
+    const descInput = document.getElementById('catDesc');
+    const description = descInput ? descInput.value.trim() : '';
     const color = document.getElementById('catColorHex').value.trim();
     if (!name) return;
     if (!/^#([0-9A-F]{3}){1,2}$/i.test(color)) {
@@ -127,12 +129,13 @@ function handleCategorySubmit(e) {
         const cat = appData.categories.find(c => c.id === editingCategoryId);
         if (cat) {
             cat.name = name;
+            cat.description = description;
             cat.color = color;
         }
         cancelCategoryEdit();
     } else {
         const id = 'cat_' + Date.now();
-        appData.categories.push({ id, name, color });
+        appData.categories.push({ id, name, description, color });
         document.getElementById('categoryForm').reset();
         syncCatColorText('#9333ea');
     }
@@ -145,6 +148,9 @@ function editCategory(id) {
 
     editingCategoryId = id;
     document.getElementById('catName').value = cat.name;
+    if (document.getElementById('catDesc')) {
+        document.getElementById('catDesc').value = cat.description || '';
+    }
     document.getElementById('catColor').value = cat.color;
     document.getElementById('catColorHex').value = cat.color;
 

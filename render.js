@@ -207,6 +207,7 @@ function renderCategorySelectAndList() {
                 </span>
                 <span class="font-mono" style="font-size:0.76rem; color:var(--text-secondary);">${formatHours(catLoggedHours)} / ${formatHours(totalBudget)}</span>
             </div>
+            ${cat.description ? `<p style="font-size:0.75rem; color:var(--text-secondary); word-break:break-word;">${cat.description}</p>` : ''}
             <div class="progress-track">
                 <div class="progress-fill" style="width: ${pct}%; background-color: ${cat.color}"></div>
             </div>

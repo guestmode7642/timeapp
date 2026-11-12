@@ -114,13 +114,22 @@
                                 </div>
                             </div>
 
-                            <div class="form-grid-3">
+                            <div class="form-grid-2">
                                 <div>
                                     <label class="form-label" for="logCategory">Primary Category</label>
                                     <select id="logCategory" required class="form-select">
                                         <!-- Populated dynamically -->
                                     </select>
                                 </div>
+                                <div>
+                                    <label class="form-label" for="logSubcategory">Primary Subcategory</label>
+                                    <select id="logSubcategory" class="form-select">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-grid-2">
                                 <div>
                                     <label class="form-label" for="logTitle">Task Title</label>
                                     <input type="text" id="logTitle" placeholder="e.g. Deep Work / Workout" required class="form-input">
@@ -130,7 +139,6 @@
                                     <input type="text" id="logNote" placeholder="Details or notes..." class="form-input">
                                 </div>
                             </div>
-
                             <!-- Optional Split / Efficiency Toggle with Sliders -->
                             <div class="split-container">
                                 <div class="split-header">
@@ -358,6 +366,30 @@
                                 <input type="text" id="catColorHex" value="#9333ea" placeholder="#9333ea" oninput="syncCatColorPicker(this.value)" class="form-input font-mono">
                             </div>
                         </div>
+
+                        <!-- Repeatable Subcategory Builder -->
+                        <div class="sub-panel stack-sm">
+                            <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem;">
+                                <span class="form-label" style="margin-bottom:0;">🗂️ Subcategories (Auto-includes General)</span>
+                                <button type="button" onclick="openSubcategoryEntryBox()" class="btn btn-secondary btn-sm">+ Add Subcategory</button>
+                            </div>
+
+                            <div id="catSubcategoryEntryBox" class="stack-sm hidden" style="padding-top:0.5rem; border-top:1px solid var(--border-subtle);">
+                                <div>
+                                    <label class="form-label" for="subCatNameInput">Subcategory Name</label>
+                                    <input type="text" id="subCatNameInput" placeholder="e.g. Exercise, Lunch, Upskilling" class="form-input">
+                                </div>
+                                <div class="btn-row" style="justify-content:flex-end;">
+                                    <button type="button" onclick="closeSubcategoryEntryBox()" class="btn btn-secondary btn-sm">Cancel</button>
+                                    <button type="button" id="saveSubCatBtn" onclick="saveDraftSubcategory()" class="btn btn-success btn-sm">Add Subcategory ✓</button>
+                                </div>
+                            </div>
+
+                            <div id="catDraftSubcategoriesList" class="stack-sm">
+                                <!-- Populated dynamically -->
+                            </div>
+                        </div>
+
                         <div class="form-actions">
                             <button type="submit" class="btn btn-primary">Add Category</button>
                         </div>
@@ -428,15 +460,55 @@
                                     <input type="time" id="blockEndTime" required class="form-input">
                                 </div>
                             </div>
-                            <div>
-                                <label class="form-label" for="blockCategorySelect">Category</label>
-                                <select id="blockCategorySelect" required class="form-select">
-                                    <!-- Populated dynamically -->
-                                </select>
+                            <div class="form-grid-2">
+                                <div>
+                                    <label class="form-label" for="blockCategorySelect">Primary Category</label>
+                                    <select id="blockCategorySelect" required class="form-select">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label" for="blockSubcategorySelect">Primary Subcategory</label>
+                                    <select id="blockSubcategorySelect" class="form-select">
+                                        <!-- Populated dynamically -->
+                                    </select>
+                                </div>
                             </div>
                             <div>
                                 <label class="form-label" for="blockLabel">Activity Label / Description</label>
-                                <input type="text" id="blockLabel" placeholder="e.g. Deep Work / Exercise" required class="form-input">
+                                <input type="text" id="blockLabel" placeholder="e.g. Office Hours / Morning Routine" required class="form-input">
+                            </div>
+
+                            <!-- Optional Template Block Split (Carve out Lunch / Subcategories) -->
+                            <div class="split-container">
+                                <div class="split-header">
+                                    <label class="checkbox-label" for="enableBlockSplitToggle">
+                                        <input type="checkbox" id="enableBlockSplitToggle" onchange="toggleBlockSplitSection(this)" class="form-checkbox">
+                                        <span>Split block across categories / subcategories?</span>
+                                    </label>
+                                    <span class="split-hint">Allocate exact hrs/mins or %</span>
+                                </div>
+
+                                <div id="blockSplitSection" class="split-body hidden">
+                                    <div class="split-count-bar">
+                                        <span class="form-label-inline">Number of Splits:</span>
+                                        <select id="blockSplitCountSelect" onchange="rebuildBlockSplitRows()" class="form-select-sm">
+                                            <option value="1">2 Categories</option>
+                                            <option value="2">3 Categories</option>
+                                            <option value="3">4 Categories</option>
+                                            <option value="4">5 Categories</option>
+                                        </select>
+                                    </div>
+
+                                    <div id="dynamicBlockSplitRows" class="stack-sm">
+                                        <!-- Populated dynamically -->
+                                    </div>
+
+                                    <div class="split-footer">
+                                        <span>Unassigned / Buffer Remainder:</span>
+                                        <span id="blockBufferRemainderLabel" class="remainder-val warning">100%</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Repeatable Checklist Builder for this Category Block -->
@@ -516,7 +588,48 @@
 
             </div>
         </section>
+<!-- ================= CATEGORY SUBCATEGORY BREAKDOWN MODAL ================= -->
+        <div id="categoryBreakdownModal" class="modal-backdrop hidden" onclick="handleModalBackdropClick(event)">
+            <div id="categoryModalCard" class="modal-card">
+                <div class="panel-header">
+                    <div style="min-width:0;">
+                        <div style="display:flex; align-items:center; gap:0.55rem; flex-wrap:wrap;">
+                            <span id="modalCatDot" class="color-dot"></span>
+                            <h3 class="panel-title" id="modalCatTitle">Category Breakdown</h3>
+                            <span class="counter-pill" id="modalCatTotalBadge">0 hrs / 0 hrs</span>
+                        </div>
+                        <p class="panel-sub" id="modalCatDesc"></p>
+                    </div>
+                    <button type="button" onclick="closeCategoryBreakdownModal()" class="btn-icon-delete">✕</button>
+                </div>
 
+                <!-- Chart Mode Switcher -->
+                <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+                    <span class="form-label" style="margin-bottom:0;">Subcategory Distribution &amp; Progress</span>
+                    <div class="btn-row">
+                        <button type="button" id="pieModeLoggedBtn" onclick="switchModalPieMode('logged')" class="btn btn-secondary btn-sm">🔥 Logged Share</button>
+                        <button type="button" id="pieModePlannedBtn" onclick="switchModalPieMode('planned')" class="btn btn-secondary btn-sm">📅 Planned Budget</button>
+                    </div>
+                </div>
+
+                <div class="modal-Variable-grid">
+                    <!-- Left: SVG Donut / Pie Chart & Legend -->
+                    <div class="sub-panel" style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1rem;">
+                        <div id="modalPieChartContainer" class="pie-chart-wrap">
+                            <!-- SVG Donut populated dynamically -->
+                        </div>
+                        <div id="modalPieLegend" class="pie-legend-grid">
+                            <!-- Legend populated dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Right: Horizontal Progress Bars per Subcategory -->
+                    <div id="modalSubcategoryBarsList" class="stack-sm" style="max-height:360px; overflow-y:auto; padding-right:0.25rem;">
+                        <!-- Horizontal bars populated dynamically -->
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <!-- Modular Offline Scripts -->

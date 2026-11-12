@@ -52,19 +52,51 @@ function saveData() {
     renderApp();
 }
 // --- Core Calculations & Template-Driven Budgets ---
+// --- Helper: Guarantee every category has at least the default 'General' subcategory ---
+function getCategorySubcategories(cat) {
+    if (!cat) return [{ id: 'sub_general', name: 'General' }];
+    if (!Array.isArray(cat.subcategories) || cat.subcategories.length === 0) {
+        cat.subcategories = [{ id: 'sub_general', name: 'General' }];
+    } else if (!cat.subcategories.some(s => s.id === 'sub_general')) {
+        cat.subcategories.unshift({ id: 'sub_general', name: 'General' });
+    }
+    return cat.subcategories;
+}
+
+// --- Core Calculations & Template-Driven Budgets (Categories + Subcategories) ---
 function calculateCategoryBudgets() {
     let budgets = {};
+    let subcategoryBudgets = {};
+
     appData.categories.forEach(cat => {
         budgets[cat.id] = 0;
+        subcategoryBudgets[cat.id] = {};
+        getCategorySubcategories(cat).forEach(sub => {
+            subcategoryBudgets[cat.id][sub.id] = 0;
+        });
     });
 
     const startStr = appData.tenure.start;
     const endStr = appData.tenure.end;
-    if (!startStr || !endStr) return budgets;
+    if (!startStr || !endStr) return { budgets, subcategoryBudgets };
 
     const tenureStart = new Date(startStr);
     const tenureEnd = new Date(endStr);
-    if (isNaN(tenureStart) || isNaN(tenureEnd) || tenureEnd <= tenureStart) return budgets;
+    if (isNaN(tenureStart) || isNaN(tenureEnd) || tenureEnd <= tenureStart) {
+        return { budgets, subcategoryBudgets };
+    }
+
+    const addBudgetShare = (catId, subId, hrs) => {
+        if (budgets[catId] === undefined) budgets[catId] = 0;
+        budgets[catId] += hrs;
+
+        if (!subcategoryBudgets[catId]) subcategoryBudgets[catId] = {};
+        const targetSubId = subId || 'sub_general';
+        if (subcategoryBudgets[catId][targetSubId] === undefined) {
+            subcategoryBudgets[catId][targetSubId] = 0;
+        }
+        subcategoryBudgets[catId][targetSubId] += hrs;
+    };
 
     for (let dateStr in appData.dayMappings) {
         const [y, m, d] = dateStr.split('-').map(Number);
@@ -82,27 +114,29 @@ function calculateCategoryBudgets() {
                 if (endMins === 0 && startMins > 0) {
                     endMins = 1440;
                 }
-
                 if (endMins <= startMins) return;
 
-                // Actual timestamps for this block on this calendar date
                 const blockStart = new Date(y, m - 1, d, 0, startMins, 0, 0);
                 const blockEnd = new Date(y, m - 1, d, 0, endMins, 0, 0);
 
-                // Clip block duration to the active [tenureStart, tenureEnd] window
                 const overlapStart = Math.max(blockStart.getTime(), tenureStart.getTime());
                 const overlapEnd = Math.min(blockEnd.getTime(), tenureEnd.getTime());
 
                 if (overlapEnd > overlapStart) {
                     const durationHrs = (overlapEnd - overlapStart) / (1000 * 60 * 60);
-                    if (budgets[b.categoryId] !== undefined) {
-                        budgets[b.categoryId] += durationHrs;
+                    if (Array.isArray(b.splits) && b.splits.length > 0) {
+                        b.splits.forEach(s => {
+                            const shareHrs = durationHrs * ((parseFloat(s.percentage) || 0) / 100);
+                            addBudgetShare(s.categoryId, s.subcategoryId || 'sub_general', shareHrs);
+                        });
+                    } else {
+                        addBudgetShare(b.categoryId, b.subcategoryId || 'sub_general', durationHrs);
                     }
                 }
             });
         }
     }
-    return budgets;
+    return { budgets, subcategoryBudgets };
 }
 
 function calculateMetrics() {
@@ -110,14 +144,22 @@ function calculateMetrics() {
     const end = appData.tenure.end ? new Date(appData.tenure.end) : null;
 
     if (!start || !end || isNaN(start) || isNaN(end) || end <= start) {
-        return { totalHours: 0, burnedHours: 0, availableBalance: 0, bufferHours: 0, daysCount: 0, categoryBudgets: {} };
+        return {
+            totalHours: 0,
+            burnedHours: 0,
+            availableBalance: 0,
+            bufferHours: 0,
+            daysCount: 0,
+            categoryBudgets: {},
+            subcategoryBudgets: {}
+        };
     }
 
     const diffMs = end - start;
     const totalHours = diffMs / (1000 * 60 * 60);
     const daysCount = totalHours / 24;
 
-    const categoryBudgets = calculateCategoryBudgets();
+    const { budgets: categoryBudgets, subcategoryBudgets } = calculateCategoryBudgets();
 
     let totalBudgeted = 0;
     appData.categories.forEach(cat => {
@@ -128,6 +170,8 @@ function calculateMetrics() {
 
     const bufferHours = totalHours - totalBudgeted;
     categoryBudgets['cat-unassigned'] = bufferHours;
+    if (!subcategoryBudgets['cat-unassigned']) subcategoryBudgets['cat-unassigned'] = {};
+    subcategoryBudgets['cat-unassigned']['sub_general'] = bufferHours;
 
     let burnedHours = 0;
     appData.tasks.forEach(t => {
@@ -144,7 +188,15 @@ function calculateMetrics() {
 
     const availableBalance = totalHours - burnedHours;
 
-    return { totalHours, burnedHours, availableBalance, bufferHours, daysCount, categoryBudgets };
+    return {
+        totalHours,
+        burnedHours,
+        availableBalance,
+        bufferHours,
+        daysCount,
+        categoryBudgets,
+        subcategoryBudgets
+    };
 }
 
 // --- Task Queue Deadline Helpers ---

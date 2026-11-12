@@ -442,7 +442,16 @@ html, body {
     border-radius: 0.55rem;
     flex-shrink: 0;
 }
-
+.done-chip {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #a7f3d0;
+    background: rgba(6, 95, 70, 0.85);
+    border: 1px solid rgba(52, 211, 153, 0.55);
+    padding: 0.35rem 0.65rem;
+    border-radius: 0.55rem;
+    flex-shrink: 0;
+}
 .schedule-block-card.live .log-chip {
     color: #022c22;
     background: #34d399;

@@ -51,6 +51,60 @@ function renderApp() {
     }
 }
 
+function isScheduleBlockCompleted(dateStr, startTime, endTime, categoryId) {
+    const [y, m, d] = dateStr.split('-').map(Number);
+    const [startH, startM] = startTime.split(':').map(Number);
+    const [endH, endM] = endTime.split(':').map(Number);
+
+    const startMins = startH * 60 + startM;
+    let endMins = endH * 60 + endM;
+    if (endMins === 0 && startMins > 0) {
+        endMins = 1440;
+    }
+    if (endMins <= startMins) return false;
+
+    const blockStartMs = new Date(y, m - 1, d, 0, startMins, 0, 0).getTime();
+    const blockEndMs = new Date(y, m - 1, d, 0, endMins, 0, 0).getTime();
+
+    // Collect logged intervals for this category that overlap the block window
+    const intervals = [];
+    (appData.tasks || []).forEach(t => {
+        const f = new Date(t.from).getTime();
+        const to = new Date(t.to).getTime();
+        if (isNaN(f) || isNaN(to) || to <= f) return;
+
+        const matchesCategory = (t.categoryId === categoryId) ||
+            (Array.isArray(t.splits) && t.splits.some(s => s.categoryId === categoryId && s.percentage > 0));
+        if (!matchesCategory) return;
+
+        const overlapStart = Math.max(f, blockStartMs);
+        const overlapEnd = Math.min(to, blockEndMs);
+        if (overlapEnd > overlapStart) {
+            intervals.push([overlapStart, overlapEnd]);
+        }
+    });
+
+    if (intervals.length === 0) return false;
+
+    // Merge overlapping/contiguous logged intervals and check if they cover the entire block
+    intervals.sort((a, b) => a[0] - b[0]);
+    let coveredMs = 0;
+    let [curStart, curEnd] = intervals[0];
+
+    for (let i = 1; i < intervals.length; i++) {
+        const [nextStart, nextEnd] = intervals[i];
+        if (nextStart <= curEnd) {
+            curEnd = Math.max(curEnd, nextEnd);
+        } else {
+            coveredMs += (curEnd - curStart);
+            [curStart, curEnd] = [nextStart, nextEnd];
+        }
+    }
+    coveredMs += (curEnd - curStart);
+
+    return coveredMs >= (blockEndMs - blockStartMs);
+}
+
 function renderTodayBanner() {
     const now = new Date();
     const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -85,14 +139,21 @@ function renderTodayBanner() {
                 }
 
                 const isActive = currentMinutes >= blockStartMins && currentMinutes < blockEndMins;
+                const isCompleted = isScheduleBlockCompleted(todayStr, b.start, b.end, b.categoryId);
+
                 const div = document.createElement('div');
-                div.className = `schedule-block-card ${isActive ? 'live' : ''}`;
+                div.className = `schedule-block-card ${isActive ? 'live' : ''} ${isCompleted ? 'is-completed' : ''}`;
                 if (!isActive) {
                     div.style.background = `linear-gradient(135deg, ${cat.color}38, var(--bg-panel))`;
                     div.style.borderColor = `${cat.color}88`;
                     div.style.boxShadow = `0 0 20px -6px ${cat.color}40`;
                 }
-                div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
+
+                if (!isCompleted) {
+                    div.onclick = () => prefillLogFromBlock(todayStr, b.start, b.end, b.categoryId, b.label);
+                } else {
+                    div.style.cursor = 'default';
+                }
 
                 div.innerHTML = `
                     <div style="min-width: 0;">
@@ -103,7 +164,9 @@ function renderTodayBanner() {
                         </div>
                         <div class="block-time-row">${b.start} ➔ ${b.end} (${cat.name})</div>
                     </div>
-                    <span class="log-chip">Log ➔</span>
+                    ${isCompleted
+                        ? '<span class="done-chip">Done ✓</span>'
+                        : '<span class="log-chip">Log ➔</span>'}
                 `;
                 timetableContainer.appendChild(div);
             });
@@ -220,6 +283,41 @@ function renderCategorySelectAndList() {
     }
 }
 
+function formatLogTimestampRange(fromStr, toStr) {
+    const f = new Date(fromStr);
+    const to = new Date(toStr);
+    if (isNaN(f) || isNaN(to)) return '-';
+
+    const now = new Date();
+    const toDateKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    const todayKey = toDateKey(now);
+    const yesterdayObj = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+    const yesterdayKey = toDateKey(yesterdayObj);
+
+    const getDayLabel = (d) => {
+        const key = toDateKey(d);
+        if (key === todayKey) return 'Today';
+        if (key === yesterdayKey) return 'Yesterday';
+        return d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    };
+
+    const getTimeLabel = (d) => d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    // Point-in-time completed action task
+    if (fromStr === toStr) {
+        return `${getDayLabel(f)}, ${getTimeLabel(f)}`;
+    }
+
+    // Same calendar day: show the day label only once
+    if (toDateKey(f) === toDateKey(to)) {
+        return `${getDayLabel(f)}, ${getTimeLabel(f)} ➔ ${getTimeLabel(to)}`;
+    }
+
+    // Spans across multiple days: show both day labels
+    return `${getDayLabel(f)}, ${getTimeLabel(f)} ➔ ${getDayLabel(to)}, ${getTimeLabel(to)}`;
+}
+
 function renderTasksTable() {
     const tbody = document.getElementById('logsTableBody');
     const mobileList = document.getElementById('logsMobileListBody');
@@ -255,9 +353,7 @@ function renderTasksTable() {
             ? `<span style="color:#34d399; font-weight:700;">Completed ✓</span>`
             : `${((to - f) / (1000 * 60 * 60)).toFixed(1)} hrs`;
 
-        const timeDisplay = isPointInTime
-            ? `<span class="time-pill">${f.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>`
-            : `<span class="time-pill">${f.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })} ➔ ${to.toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>`;
+        const timeDisplay = `<span class="time-pill">${formatLogTimestampRange(t.from, t.to)}</span>`;
 
         const taskTitle = t.title || t.note || '-';
         const taskDesc = (t.title && t.note) ? t.note : '';

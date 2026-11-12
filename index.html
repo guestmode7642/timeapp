@@ -14,7 +14,13 @@
             <div class="brand-group">
                 <div class="brand-icon">⏳</div>
                 <div>
-                    <h1 class="brand-title">Time Ledger</h1>
+                    <div style="display:flex; align-items:center; gap:0.55rem;">
+                        <h1 class="brand-title">Time Ledger</h1>
+                        <button type="button" id="cloudSyncBadge" onclick="pullFromCloud(true)"
+                            style="background:rgba(15,23,42,0.85); border:1px solid rgba(148,163,184,0.3); color:#94a3b8; font-size:0.68rem; font-weight:700; padding:0.15rem 0.5rem; border-radius:999px; cursor:pointer;">
+                            ☁️ Local
+                        </button>
+                    </div>
                     <p class="brand-sub" id="headerTenureSub">Configure tenure to track hours.</p>
                 </div>
             </div>

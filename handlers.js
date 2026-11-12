@@ -1055,10 +1055,13 @@ if (blockSubSelectEl) {
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         const swCode = `
-            const CACHE_NAME = 'time-ledger-cache-v2';
+            const CACHE_NAME = 'time-ledger-cache-v5';
             self.addEventListener('install', e => self.skipWaiting());
             self.addEventListener('activate', e => e.waitUntil(clients.claim()));
             self.addEventListener('fetch', e => {
+                if (e.request.method !== 'GET' || e.request.url.includes('/api/')) {
+                    return;
+                }
                 e.respondWith(
                     fetch(e.request)
                         .then(response => caches.open(CACHE_NAME).then(cache => {
@@ -1077,5 +1080,13 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Initial render
+// Initial local render + immediate cloud sync
 renderApp();
+pullFromCloud();
+
+// Auto-pull latest data whenever you switch back to this tab on phone or laptop
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+        pullFromCloud();
+    }
+});

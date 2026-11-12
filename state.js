@@ -47,9 +47,81 @@ function formatHours(decimalHours) {
     return `${sign}${hrs}h:${mins}m`;
 }
 
+function setSyncBadgeState(status, label) {
+    const badge = document.getElementById('cloudSyncBadge');
+    if (!badge) return;
+    badge.innerText = label;
+    if (status === 'synced') {
+        badge.style.color = '#34d399';
+        badge.style.borderColor = 'rgba(52, 211, 153, 0.5)';
+    } else if (status === 'syncing') {
+        badge.style.color = '#67e8f9';
+        badge.style.borderColor = 'rgba(34, 211, 238, 0.5)';
+    } else {
+        badge.style.color = '#94a3b8';
+        badge.style.borderColor = 'rgba(148, 163, 184, 0.3)';
+    }
+}
+
+async function pushToCloud() {
+    if (window.location.protocol === 'file:') return;
+    setSyncBadgeState('syncing', '🔄 Saving...');
+    try {
+        const res = await fetch('/api/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(appData)
+        });
+        if (res.ok) {
+            setSyncBadgeState('synced', '☁️ Synced');
+        } else {
+            setSyncBadgeState('offline', '⚠️ Local Only');
+        }
+    } catch (err) {
+        setSyncBadgeState('offline', '⚠️ Offline');
+    }
+}
+
+async function pullFromCloud(forceOverwrite = false) {
+    if (window.location.protocol === 'file:') return;
+    setSyncBadgeState('syncing', '🔄 Syncing...');
+    try {
+        const res = await fetch('/api/sync');
+        if (!res.ok) {
+            setSyncBadgeState('offline', '⚠️ Local Only');
+            return;
+        }
+        const { data: cloudData } = await res.json();
+
+        // If cloud is empty, seed it with this device's existing localStorage data
+        if (!cloudData) {
+            await pushToCloud();
+            return;
+        }
+
+        const localTime = appData.updatedAt || 0;
+        const cloudTime = cloudData.updatedAt || 0;
+        const isLocalFreshInstall = !appData.tenure.start && (!appData.tasks || appData.tasks.length === 0);
+
+        if (forceOverwrite || isLocalFreshInstall || cloudTime >= localTime) {
+            appData = cloudData;
+            localStorage.setItem('timeLedgerData', JSON.stringify(appData));
+            if (typeof renderApp === 'function') renderApp();
+            setSyncBadgeState('synced', '☁️ Synced');
+        } else {
+            // Local device has newer offline edits; push them to cloud
+            await pushToCloud();
+        }
+    } catch (err) {
+        setSyncBadgeState('offline', '⚠️ Offline');
+    }
+}
+
 function saveData() {
+    appData.updatedAt = Date.now();
     localStorage.setItem('timeLedgerData', JSON.stringify(appData));
     renderApp();
+    pushToCloud();
 }
 // --- Core Calculations & Template-Driven Budgets ---
 // --- Helper: Guarantee every category has at least the default 'General' subcategory ---

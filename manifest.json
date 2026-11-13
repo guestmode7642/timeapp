@@ -1,10 +1,11 @@
 {
   "name": "Time Ledger",
-  "short_name": "Time Ledger",
+  "short_name": "TimeLedger",
   "description": "Personal Tenure, Schedule & Time Ledger",
   "start_url": "/",
   "display": "fullscreen",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
+  "display_override": ["fullscreen","standalone"],
   "background_color": "#060810",
   "theme_color": "#0b0e18",
   "icons": [

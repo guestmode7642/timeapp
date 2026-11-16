@@ -1,4 +1,4 @@
-// ==========================================================================
+/ ==========================================================================
 // EVENT HANDLERS, CRUD ACTIONS & INITIALIZATION
 // ==========================================================================
 
@@ -231,6 +231,39 @@ function handleCategorySubmit(e) {
             cat.description = description;
             cat.color = color;
             cat.subcategories = finalSubcategories;
+
+            const validSubIds = new Set(finalSubcategories.map(s => s.id));
+            appData.tasks.forEach(t => {
+                if (t.categoryId === editingCategoryId && !validSubIds.has(t.subcategoryId)) {
+                    t.subcategoryId = 'sub_general';
+                }
+                if (Array.isArray(t.splits)) {
+                    t.splits.forEach(s => {
+                        if (s.categoryId === editingCategoryId && !validSubIds.has(s.subcategoryId)) {
+                            s.subcategoryId = 'sub_general';
+                        }
+                    });
+                }
+            });
+            (appData.tasksQueue || []).forEach(tq => {
+                if (tq.categoryId === editingCategoryId && !validSubIds.has(tq.subcategoryId)) {
+                    tq.subcategoryId = 'sub_general';
+                }
+            });
+            appData.templates.forEach(tpl => {
+                (tpl.blocks || []).forEach(b => {
+                    if (b.categoryId === editingCategoryId && !validSubIds.has(b.subcategoryId)) {
+                        b.subcategoryId = 'sub_general';
+                    }
+                    if (Array.isArray(b.splits)) {
+                        b.splits.forEach(s => {
+                            if (s.categoryId === editingCategoryId && !validSubIds.has(s.subcategoryId)) {
+                                s.subcategoryId = 'sub_general';
+                            }
+                        });
+                    }
+                });
+            });
         }
         cancelCategoryEdit();
     } else {
@@ -269,34 +302,81 @@ function editCategory(id) {
 }
 
 function deleteCategory(id) {
-    if (confirm('Are you sure you want to delete this category? Any logs, tasks, or schedule blocks using it will be moved to Unassigned.')) {
-        appData.categories = appData.categories.filter(c => c.id !== id);
+    if (appData.categories.length <= 1) {
+        alert('You must keep at least one category.');
+        return;
+    }
+
+    const remainingCategories = appData.categories.filter(c => c.id !== id);
+    const fallbackCat = remainingCategories.find(c => c.id === 'cat-unassigned') || remainingCategories[0];
+    const fallbackCatId = fallbackCat.id;
+
+    if (confirm(`Are you sure you want to delete this category? Any logs, tasks, or schedule blocks using it will be moved to "${fallbackCat.name}".`)) {
+        appData.categories = remainingCategories;
         appData.tasks.forEach(t => {
-            if (t.categoryId === id) t.categoryId = 'cat-unassigned';
+            if (t.categoryId === id) {
+                t.categoryId = fallbackCatId;
+                t.subcategoryId = 'sub_general';
+            }
             if (t.splits) {
                 t.splits.forEach(s => {
-                    if (s.categoryId === id) s.categoryId = 'cat-unassigned';
+                    if (s.categoryId === id) {
+                        s.categoryId = fallbackCatId;
+                        s.subcategoryId = 'sub_general';
+                    }
                 });
             }
         });
         (appData.tasksQueue || []).forEach(tq => {
-            if (tq.categoryId === id) tq.categoryId = 'cat-unassigned';
+            if (tq.categoryId === id) {
+                tq.categoryId = fallbackCatId;
+                tq.subcategoryId = 'sub_general';
+            }
         });
         appData.templates.forEach(tpl => {
             (tpl.blocks || []).forEach(b => {
-                if (b.categoryId === id) b.categoryId = 'cat-unassigned';
+                if (b.categoryId === id) {
+                    b.categoryId = fallbackCatId;
+                    b.subcategoryId = 'sub_general';
+                }
+                if (Array.isArray(b.splits)) {
+                    b.splits.forEach(s => {
+                        if (s.categoryId === id) {
+                            s.categoryId = fallbackCatId;
+                            s.subcategoryId = 'sub_general';
+                        }
+                    });
+                }
             });
         });
+        if (editingCategoryId === id) cancelCategoryEdit();
         saveData();
     }
 }
 
 // --- Task Queue Handlers ---
+function handleQueueCategoryChange() {
+    const catSelect = document.getElementById('queueTaskCategory');
+    const subSelect = document.getElementById('queueTaskSubcategory');
+    if (catSelect && subSelect) {
+        populateSubcategorySelect(subSelect, catSelect.value, 'sub_general');
+    }
+}
+
+function handleTaskFilterCategoryChange() {
+    const filterSubSelect = document.getElementById('taskFilterSubcategory');
+    if (filterSubSelect) {
+        filterSubSelect.value = 'all';
+    }
+    renderTaskQueueList();
+}
+
 function cancelQueueTaskEdit() {
     editingQueueTaskId = null;
     document.getElementById('queueTaskTitle').value = '';
     document.getElementById('queueTaskText').value = '';
     document.getElementById('queueTaskCustomDeadline').value = '';
+    handleQueueCategoryChange();
     setFormEditMode('taskQueueForm', false, 'Update Task ✓', '+ Add Action Task');
 }
 
@@ -305,12 +385,15 @@ function handleTaskQueueSubmit(e) {
     const titleInput = document.getElementById('queueTaskTitle');
     const textInput = document.getElementById('queueTaskText');
     const catSelect = document.getElementById('queueTaskCategory');
+    const subSelect = document.getElementById('queueTaskSubcategory');
     const horizonSelect = document.getElementById('queueTaskHorizon');
     const customDeadlineInput = document.getElementById('queueTaskCustomDeadline');
 
     const title = titleInput.value.trim();
     const description = textInput.value.trim();
     if (!title) return;
+
+    const subcategoryId = subSelect ? subSelect.value : 'sub_general';
 
     if (!appData.tasksQueue) appData.tasksQueue = [];
 
@@ -329,6 +412,7 @@ function handleTaskQueueSubmit(e) {
             task.text = title;
             task.description = description;
             task.categoryId = catSelect.value;
+            task.subcategoryId = subcategoryId;
             task.deadline = deadlineIso;
         }
         cancelQueueTaskEdit();
@@ -339,6 +423,7 @@ function handleTaskQueueSubmit(e) {
             description: description,
             text: title,
             categoryId: catSelect.value,
+            subcategoryId: subcategoryId,
             deadline: deadlineIso,
             createdAt: new Date().toISOString(),
             completed: false,
@@ -347,6 +432,7 @@ function handleTaskQueueSubmit(e) {
         titleInput.value = '';
         textInput.value = '';
         customDeadlineInput.value = '';
+        handleQueueCategoryChange();
     }
 
     saveData();
@@ -360,6 +446,11 @@ function editQueueTask(id) {
     document.getElementById('queueTaskTitle').value = task.title || task.text || '';
     document.getElementById('queueTaskText').value = task.description || '';
     document.getElementById('queueTaskCategory').value = task.categoryId;
+    populateSubcategorySelect(
+        document.getElementById('queueTaskSubcategory'),
+        task.categoryId,
+        task.subcategoryId || 'sub_general'
+    );
     document.getElementById('queueTaskHorizon').value = getEffectiveHorizon(task.deadline);
     document.getElementById('queueTaskCustomDeadline').value = toLocalDatetimeString(task.deadline);
 
@@ -377,14 +468,17 @@ function completeQueueTaskDirectly(id) {
     task.completedAt = localTimestamp;
 
     const taskTitle = task.title || task.text;
+    const subId = task.subcategoryId || 'sub_general';
     const completionLogId = 'log_' + Date.now();
     appData.tasks.push({
         id: completionLogId,
+        categoryId: task.categoryId,
+        subcategoryId: subId,
         from: localTimestamp,
         to: localTimestamp,
         title: `[Completed Task] ${taskTitle}`,
         note: task.description || '',
-        splits: [{ categoryId: task.categoryId, percentage: 100 }]
+        splits: [{ categoryId: task.categoryId, subcategoryId: subId, percentage: 100 }]
     });
 
     saveData();
@@ -477,7 +571,8 @@ function handleTaskSubmit(e) {
 
         const remainder = Math.max(0, 100 - totalPct);
         if (remainder > 0.05) {
-            splits.push({ categoryId: 'cat-unassigned', subcategoryId: 'sub_general', percentage: remainder });
+            const remCat = appData.categories.find(c => c.id === 'cat-unassigned') || appData.categories[0];
+            splits.push({ categoryId: remCat ? remCat.id : 'cat-unassigned', subcategoryId: 'sub_general', percentage: remainder });
         }
     } else {
         splits.push({ categoryId: mainCategoryId, subcategoryId: mainSubcategoryId, percentage: 100 });
@@ -794,7 +889,8 @@ function handleBlockSubmit(e) {
 
         const remainder = Math.max(0, 100 - totalPct);
         if (remainder > 0.05) {
-            splits.push({ categoryId: 'cat-unassigned', subcategoryId: 'sub_general', percentage: remainder, isRemainder: true });
+            const remCat = appData.categories.find(c => c.id === 'cat-unassigned') || appData.categories[0];
+            splits.push({ categoryId: remCat ? remCat.id : 'cat-unassigned', subcategoryId: 'sub_general', percentage: remainder, isRemainder: true });
         }
     } else {
         splits.push({ categoryId, subcategoryId, percentage: 100 });

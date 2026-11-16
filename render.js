@@ -282,8 +282,8 @@ function renderCategorySelectAndList() {
                 </div>
             </div>
             <div class="btn-row" style="flex-shrink:0;">
-                ${cat.id !== 'cat-unassigned' ? `<button onclick="editCategory('${cat.id}')" class="btn btn-secondary btn-sm">Edit</button>` : ''}
-                ${cat.id !== 'cat-unassigned' ? `<button onclick="deleteCategory('${cat.id}')" class="btn-icon-delete">✕</button>` : ''}
+                <button onclick="editCategory('${cat.id}')" class="btn btn-secondary btn-sm">Edit</button>
+                <button onclick="deleteCategory('${cat.id}')" class="btn-icon-delete">✕</button>
             </div>
         `;
         catListContainer.appendChild(card);
@@ -599,14 +599,18 @@ function renderTemplatesList() {
 function renderTaskQueueList() {
     const container = document.getElementById('taskQueueList');
     const catSelect = document.getElementById('queueTaskCategory');
+    const subSelect = document.getElementById('queueTaskSubcategory');
     const filterCatSelect = document.getElementById('taskFilterCategory');
+    const filterSubSelect = document.getElementById('taskFilterSubcategory');
     const searchInput = document.getElementById('taskSearchInput');
     const timelineSelect = document.getElementById('taskFilterTimeline');
 
     if (!container || !catSelect) return;
 
     const currentCatSelection = catSelect.value;
+    const currentSubSelection = subSelect ? subSelect.value : 'sub_general';
     const currentFilterCat = filterCatSelect ? filterCatSelect.value : 'all';
+    const currentFilterSub = filterSubSelect ? filterSubSelect.value : 'all';
 
     catSelect.innerHTML = '';
     filterCatSelect.innerHTML = '<option value="all">📂 All Categories</option>';
@@ -623,14 +627,58 @@ function renderTaskQueueList() {
         filterCatSelect.appendChild(opt2);
     });
 
-    if (currentCatSelection) catSelect.value = currentCatSelection;
-    if (currentFilterCat) filterCatSelect.value = currentFilterCat;
+    if (currentCatSelection && appData.categories.some(c => c.id === currentCatSelection)) {
+        catSelect.value = currentCatSelection;
+    }
+    if (subSelect) {
+        populateSubcategorySelect(subSelect, catSelect.value, currentSubSelection);
+    }
+
+    if (currentFilterCat && (currentFilterCat === 'all' || appData.categories.some(c => c.id === currentFilterCat))) {
+        filterCatSelect.value = currentFilterCat;
+    }
+
+    const selectedCatFilter = filterCatSelect ? filterCatSelect.value : 'all';
+
+    if (filterSubSelect) {
+        filterSubSelect.innerHTML = '<option value="all">🗂️ All Subcategories</option>';
+        if (selectedCatFilter !== 'all') {
+            const targetCat = appData.categories.find(c => c.id === selectedCatFilter);
+            const subs = getCategorySubcategories(targetCat);
+            subs.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.innerText = sub.name;
+                filterSubSelect.appendChild(opt);
+            });
+        } else {
+            const genOpt = document.createElement('option');
+            genOpt.value = 'sub_general';
+            genOpt.innerText = 'General (All Categories)';
+            filterSubSelect.appendChild(genOpt);
+
+            appData.categories.forEach(cat => {
+                const subs = getCategorySubcategories(cat);
+                subs.forEach(sub => {
+                    if (sub.id === 'sub_general') return;
+                    const opt = document.createElement('option');
+                    opt.value = sub.id;
+                    opt.innerText = `${sub.name} (${cat.name})`;
+                    filterSubSelect.appendChild(opt);
+                });
+            });
+        }
+
+        const hasSubOpt = Array.from(filterSubSelect.options).some(o => o.value === currentFilterSub);
+        filterSubSelect.value = hasSubOpt ? currentFilterSub : 'all';
+    }
+
+    const selectedSubFilter = filterSubSelect ? filterSubSelect.value : 'all';
 
     container.innerHTML = '';
     if (!appData.tasksQueue) appData.tasksQueue = [];
 
     const searchText = searchInput ? searchInput.value.toLowerCase() : '';
-    const selectedCatFilter = filterCatSelect ? filterCatSelect.value : 'all';
     const selectedTimelineFilter = timelineSelect ? timelineSelect.value : 'all';
 
     const activeTasks = appData.tasksQueue.filter(t => {
@@ -639,6 +687,9 @@ function renderTaskQueueList() {
         const tDesc = (t.description || '').toLowerCase();
         if (searchText && !tTitle.includes(searchText) && !tDesc.includes(searchText)) return false;
         if (selectedCatFilter !== 'all' && t.categoryId !== selectedCatFilter) return false;
+
+        const taskSubId = t.subcategoryId || 'sub_general';
+        if (selectedSubFilter !== 'all' && taskSubId !== selectedSubFilter) return false;
 
         const effectiveHorizon = getEffectiveHorizon(t.deadline);
         if (selectedTimelineFilter !== 'all' && effectiveHorizon !== selectedTimelineFilter) return false;
@@ -658,6 +709,9 @@ function renderTaskQueueList() {
 
     sortedTasks.forEach(task => {
         const cat = appData.categories.find(c => c.id === task.categoryId) || { name: 'General', color: '#71717a' };
+        const subs = getCategorySubcategories(cat);
+        const subObj = subs.find(s => s.id === (task.subcategoryId || 'sub_general')) || { id: 'sub_general', name: 'General' };
+
         const deadlineDate = new Date(task.deadline);
         const formattedDeadline = deadlineDate.toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
@@ -692,7 +746,7 @@ function renderTaskQueueList() {
                     </div>
                     ${displayDesc ? `<p style="font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem;">${displayDesc}</p>` : ''}
                     <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">
-                        Due: <strong class="font-mono" style="color:#fff;">${formattedDeadline}</strong> • <span>${cat.name}</span>
+                        Due: <strong class="font-mono" style="color:#fff;">${formattedDeadline}</strong> • <span>${cat.name} ➔ ${subObj.name}</span>
                     </div>
                 </div>
             </div>

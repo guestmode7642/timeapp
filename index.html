@@ -8,8 +8,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Time Ledger">
     <title>Time Ledger</title>
-    <link rel="manifest" href="/manifest.json?v=5">
-    <link rel="stylesheet" href="styles.css?v=6">
+    <link rel="manifest" href="/manifest.json?v=1">
+    <link rel="stylesheet" href="styles.css?v=1">
 </head>
 <body>
 
@@ -281,7 +281,13 @@
                         </div>
                         <div>
                             <label class="form-label" for="queueTaskCategory">Category</label>
-                            <select id="queueTaskCategory" class="form-select">
+                            <select id="queueTaskCategory" onchange="handleQueueCategoryChange()" class="form-select">
+                                <!-- Populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="queueTaskSubcategory">Subcategory</label>
+                            <select id="queueTaskSubcategory" class="form-select">
                                 <!-- Populated dynamically -->
                             </select>
                         </div>
@@ -305,13 +311,18 @@
                 </form>
 
                 <!-- Filter & Search Bar Controls -->
-                <div class="form-grid-3">
+                <div class="form-grid-4">
                     <div>
                         <input type="text" id="taskSearchInput" oninput="renderTaskQueueList()" placeholder="🔍 Search pending tasks by title or description..." class="form-input">
                     </div>
                     <div>
-                        <select id="taskFilterCategory" onchange="renderTaskQueueList()" class="form-select">
+                        <select id="taskFilterCategory" onchange="handleTaskFilterCategoryChange()" class="form-select">
                             <option value="all">📂 All Categories</option>
+                        </select>
+                    </div>
+                    <div>
+                        <select id="taskFilterSubcategory" onchange="renderTaskQueueList()" class="form-select">
+                            <option value="all">🗂️ All Subcategories</option>
                         </select>
                     </div>
                     <div>
@@ -681,8 +692,8 @@
     </main>
 
     <!-- Modular Offline Scripts -->
-    <script src="state.js?v=5"></script>
-    <script src="render.js?v=5"></script>
-    <script src="handlers.js?v=5"></script>
+    <script src="state.js?v=1"></script>
+    <script src="render.js?v=1"></script>
+    <script src="handlers.js?v=1"></script>
 </body>
 </html>

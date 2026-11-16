@@ -286,9 +286,13 @@ function calculateMetrics() {
     });
 
     const bufferHours = totalHours - totalBudgeted;
-    categoryBudgets['cat-unassigned'] = bufferHours;
-    if (!subcategoryBudgets['cat-unassigned']) subcategoryBudgets['cat-unassigned'] = {};
-    subcategoryBudgets['cat-unassigned']['sub_general'] = bufferHours;
+    if (appData.categories.some(c => c.id === 'cat-unassigned')) {
+        if (!subcategoryBudgets['cat-unassigned']) subcategoryBudgets['cat-unassigned'] = {};
+        const customUnassignedSubHrs = Object.entries(subcategoryBudgets['cat-unassigned'])
+            .reduce((sum, [sId, val]) => (sId !== 'sub_general' ? sum + val : sum), 0);
+        categoryBudgets['cat-unassigned'] = bufferHours;
+        subcategoryBudgets['cat-unassigned']['sub_general'] = bufferHours - customUnassignedSubHrs;
+    }
 
     let burnedHours = 0;
     appData.tasks.forEach(t => {
